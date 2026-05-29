@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Clases Sinergéticos</title>
+<meta name="description" content="Biblioteca de clases de Sinergéticos." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#0e1311;
+    --bg-2:#141b18;
+    --panel:#18211d;
+    --ink:#f3f6f4;
+    --ink-2:#9fb0a8;
+    --ink-3:#6b7d75;
+    --green:#25D366;
+    --teal:#1ea766;
+    --line:rgba(255,255,255,.09);
+    --line-soft:rgba(255,255,255,.05);
+    --ease:cubic-bezier(.2,.7,.2,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+    line-height:1.55;-webkit-font-smoothing:antialiased;min-height:100dvh;
+    overflow-x:hidden;
+  }
+  .glow{position:fixed;inset:0;z-index:0;pointer-events:none}
+  .glow::before{content:"";position:absolute;width:55vw;height:55vw;left:-12vw;top:-15vw;
+    background:radial-gradient(circle at center,rgba(37,211,102,.14),transparent 60%);filter:blur(30px)}
+  .glow::after{content:"";position:absolute;width:50vw;height:50vw;right:-15vw;bottom:-18vw;
+    background:radial-gradient(circle at center,rgba(30,167,102,.10),transparent 62%);filter:blur(30px)}
+
+  .wrap{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:clamp(64px,10vw,140px) 7vw 100px}
+
+  .brand{display:inline-flex;align-items:center;gap:11px;
+    border:1px solid var(--line);background:rgba(255,255,255,.03);
+    border-radius:999px;padding:8px 16px 8px 9px;font-size:12.5px;font-weight:700;
+    letter-spacing:.06em;color:var(--ink-2)}
+  .brand .dot{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--green));
+    display:flex;align-items:center;justify-content:center;font-size:14px}
+
+  h1{font-weight:800;letter-spacing:-.03em;line-height:1.02;
+    font-size:clamp(2.8rem,7vw,5.2rem);margin:30px 0 18px}
+  h1 em{font-style:normal;background:linear-gradient(120deg,var(--green),var(--teal));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .sub{font-size:clamp(1.1rem,1.8vw,1.4rem);color:var(--ink-2);max-width:54ch;font-weight:500}
+
+  .label{display:flex;align-items:center;gap:14px;margin:56px 0 22px;
+    font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-3);font-weight:700}
+  .label::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+  @media(max-width:760px){.grid{grid-template-columns:1fr}}
+
+  .card{position:relative;display:flex;flex-direction:column;text-decoration:none;color:inherit;
+    background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:30px;
+    overflow:hidden;transition:transform .5s var(--ease),border-color .5s var(--ease),box-shadow .5s var(--ease)}
+  .card::before{content:"";position:absolute;inset:0;border-radius:22px;opacity:0;
+    background:radial-gradient(120% 120% at 0% 0%,rgba(37,211,102,.12),transparent 55%);
+    transition:opacity .5s var(--ease)}
+  .card:hover{transform:translateY(-6px);border-color:rgba(37,211,102,.4);
+    box-shadow:0 30px 60px -34px rgba(0,0,0,.7)}
+  .card:hover::before{opacity:1}
+  .card .ey{position:relative;display:inline-flex;align-items:center;gap:8px;align-self:flex-start;
+    font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--green);
+    background:rgba(37,211,102,.1);border-radius:999px;padding:5px 12px;margin-bottom:18px}
+  .card h2{position:relative;font-size:1.7rem;font-weight:800;letter-spacing:-.02em;line-height:1.12;margin-bottom:10px}
+  .card p{position:relative;color:var(--ink-2);font-size:1.02rem;flex:1}
+  .card .go{position:relative;display:inline-flex;align-items:center;gap:9px;margin-top:24px;
+    font-weight:700;color:var(--ink)}
+  .card .go .arr{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.07);
+    border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:16px;
+    transition:transform .5s var(--ease),background .5s var(--ease)}
+  .card:hover .go .arr{transform:translateX(4px) translateY(-2px);background:var(--green);color:#07120c;border-color:transparent}
+
+  .card.soon{pointer-events:none;border-style:dashed;background:transparent}
+  .card.soon h2,.card.soon p{color:var(--ink-3)}
+  .card.soon .ey{color:var(--ink-3);background:rgba(255,255,255,.04)}
+
+  footer{margin-top:60px;color:var(--ink-3);font-size:.9rem}
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<div class="wrap">
+  <span class="brand"><span class="dot">◆</span> SINERGÉTICOS</span>
+  <h1>Clases <em>Sinergéticos</em></h1>
+  <p class="sub">Biblioteca de clases. Cada una, una habilidad concreta para tu negocio.</p>
+
+  <div class="label">Disponibles</div>
+  <div class="grid">
+    <a class="card" href="./como-vender-por-whatsapp/">
+      <span class="ey">Ventas · 35 min</span>
+      <h2>Cómo vender por WhatsApp</h2>
+      <p>De “lead registrado” a cliente, sin una sola llamada. El método de 5 fases para convertir a quien se inscribe en tu web.</p>
+      <span class="go">Abrir clase <span class="arr">↗</span></span>
+    </a>
+
+    <div class="card soon">
+      <span class="ey">Próximamente</span>
+      <h2>Más clases en camino</h2>
+      <p>Aquí se irán sumando el resto de las clases, cada una con su tema.</p>
+    </div>
+  </div>
+
+  <footer>© Sinergéticos · Clases</footer>
+</div>
+</body>
+</html>

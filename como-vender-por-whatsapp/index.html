@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vender por WhatsApp · Clase</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#ECE5DD;            /* WhatsApp chat wallpaper */
+    --panel:#FFFFFF;
+    --teal:#008069;          /* WhatsApp brand teal */
+    --teal-d:#075E54;        /* classic header */
+    --green:#25D366;         /* brand bright green */
+    --green-2:#1da851;
+    --bubble-out:#D9FDD3;    /* outgoing bubble */
+    --bubble-in:#FFFFFF;
+    --ink:#111B21;           /* WhatsApp text */
+    --ink-2:#54656F;         /* secondary / timestamps */
+    --ink-3:#8696A0;
+    --tick:#53BDEB;          /* blue read tick */
+    --bad:#c0392b;
+    --bad-soft:#fbeae7;
+    --line:rgba(17,27,33,.10);
+    --line-soft:rgba(17,27,33,.055);
+    --green-soft:#E7F8EC;
+    --shadow:0 30px 60px -30px rgba(7,94,84,.30), 0 10px 24px -16px rgba(17,27,33,.18);
+    --shadow-soft:0 20px 44px -26px rgba(7,94,84,.22);
+    --ease:cubic-bezier(.2,.7,.2,1);
+    --maxw:1100px;
+    --hbar:62px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;scroll-padding-top:var(--hbar)}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+    font-weight:400;
+    font-size:18px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+
+  /* WhatsApp doodle wallpaper */
+  .wallpaper{position:fixed;inset:0;z-index:0;background-color:var(--bg);}
+  .grain{position:fixed;inset:0;z-index:55;pointer-events:none;opacity:.02;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+  /* WhatsApp header bar */
+  .wa-bar{position:fixed;top:0;left:0;right:0;height:var(--hbar);z-index:70;
+    background:var(--teal);color:#fff;display:flex;align-items:center;gap:12px;
+    padding:0 18px;box-shadow:0 2px 10px -4px rgba(0,0,0,.3)}
+  .wa-bar .back{font-size:26px;line-height:1;opacity:.95;margin-right:-4px}
+  .wa-bar .ava{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.18);
+    display:flex;align-items:center;justify-content:center;font-size:19px;flex:0 0 auto}
+  .wa-bar .id{display:flex;flex-direction:column;line-height:1.15;min-width:0}
+  .wa-bar .id b{font-weight:600;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .wa-bar .id span{font-size:12.5px;color:rgba(255,255,255,.8)}
+  .wa-bar .right{margin-left:auto;display:flex;align-items:center;gap:18px;color:rgba(255,255,255,.92)}
+  .wa-bar .right .ico{font-size:18px;opacity:.9}
+  .wa-bar .count{font-variant-numeric:tabular-nums;font-weight:600;font-size:14px;
+    background:rgba(0,0,0,.14);padding:5px 11px;border-radius:999px}
+  @media(max-width:560px){.wa-bar .right .ico{display:none}}
+
+  .progress{position:fixed;top:var(--hbar);left:0;height:3px;width:0%;z-index:71;
+    background:linear-gradient(90deg,var(--green),var(--green-2));transition:width .12s linear}
+
+  /* dot nav */
+  .dots{position:fixed;right:24px;top:calc(50% + var(--hbar)/2);transform:translateY(-50%);z-index:65;
+    display:flex;flex-direction:column;gap:11px}
+  .dots button{width:9px;height:9px;border-radius:50%;border:0;cursor:pointer;padding:0;
+    background:rgba(7,94,84,.22);transition:all .5s var(--ease)}
+  .dots button:hover{background:var(--teal)}
+  .dots button.active{background:var(--green);height:24px;border-radius:5px}
+  @media(max-width:880px){.dots{display:none}}
+
+  /* slide */
+  .slide{position:relative;z-index:1;min-height:100dvh;display:flex;align-items:center;
+    padding:calc(var(--hbar) + 70px) 7vw 90px}
+  .inner{width:100%;max-width:var(--maxw);margin:0 auto}
+
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;
+    background:var(--green-soft);border:1px solid rgba(7,94,84,.14);
+    border-radius:999px;padding:8px 16px;
+    font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--teal)}
+  .eyebrow .n{display:inline-flex;align-items:center;justify-content:center;
+    width:22px;height:22px;border-radius:50%;background:var(--teal);color:#fff;
+    font-size:11px;letter-spacing:0}
+
+  /* framework stepper ("you are here") */
+  .stepper{display:flex;align-items:center;gap:7px;margin-top:20px}
+  .stepper .st{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:13.5px;font-weight:800;color:var(--ink-3);background:var(--panel);
+    border:2px solid rgba(7,94,84,.22);transition:all .3s var(--ease)}
+  .stepper .sep{width:13px;height:2px;border-radius:2px;background:rgba(7,94,84,.2)}
+  .stepper .st.plus{border-style:dashed}
+  .stepper .st.on{background:var(--teal);border-color:var(--teal);color:#fff;
+    transform:scale(1.12);box-shadow:0 6px 14px -6px rgba(7,94,84,.55)}
+  @media(max-width:560px){.stepper .st{width:26px;height:26px;font-size:12px}.stepper .sep{width:8px}}
+
+  /* editable fill-in fields */
+  .fill{display:inline-block;background:rgba(255,255,255,.72);border:1px solid rgba(7,94,84,.25);
+    border-bottom:2px dashed var(--teal);border-radius:6px;padding:0 7px;margin:0 1px;
+    color:var(--teal-d);font-weight:700;cursor:text;outline:none;min-width:18px;
+    transition:background .2s var(--ease),box-shadow .2s var(--ease)}
+  .fill:hover{background:#fff}
+  .fill:focus{background:#fff;border-color:var(--teal);box-shadow:0 0 0 3px rgba(7,94,84,.22)}
+
+  h1.title{font-weight:800;line-height:1.04;letter-spacing:-.025em;
+    font-size:clamp(3rem,7.4vw,5.6rem);margin:28px 0}
+  h2.title{font-weight:800;line-height:1.06;letter-spacing:-.022em;
+    font-size:clamp(2.3rem,5.4vw,4rem);margin:24px 0 30px}
+  .title em{font-style:normal;color:var(--teal)}
+  .lead{font-size:clamp(1.25rem,2vw,1.65rem);color:var(--ink-2);max-width:58ch;line-height:1.5;font-weight:500}
+
+  /* points */
+  .points{list-style:none;display:flex;flex-direction:column;gap:20px;margin-top:36px;max-width:64ch}
+  .points li{display:flex;gap:17px;align-items:flex-start;font-size:clamp(1.2rem,1.7vw,1.42rem);color:var(--ink);line-height:1.4}
+  .points li .mk{flex:0 0 auto;width:32px;height:32px;margin-top:1px;border-radius:50%;
+    background:var(--green-soft);color:var(--teal);display:flex;align-items:center;justify-content:center;
+    font-size:15px;font-weight:800}
+  .points li b{font-weight:800;color:var(--teal-d)}
+  .points.cross li .mk{background:var(--bad-soft);color:var(--bad)}
+
+  /* double-bezel card */
+  .shell{background:rgba(255,255,255,.5);border:1px solid var(--line-soft);
+    border-radius:30px;padding:8px;box-shadow:var(--shadow-soft)}
+  .core{background:var(--panel);border-radius:23px;padding:32px;
+    box-shadow:inset 0 1px 1px rgba(255,255,255,.8), var(--shadow-soft)}
+
+  .grid2{display:grid;grid-template-columns:1.02fr .98fr;gap:48px;align-items:center}
+  @media(max-width:900px){.grid2{grid-template-columns:1fr;gap:36px}}
+
+  /* chat */
+  .chat{display:flex;flex-direction:column;gap:11px}
+  .chat .meta{display:flex;align-items:center;gap:11px;padding-bottom:16px;margin-bottom:4px;border-bottom:1px solid var(--line-soft)}
+  .chat .ava{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--green));
+    display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px}
+  .chat .who{font-weight:700;font-size:1rem;line-height:1.1}
+  .chat .who span{display:block;font-weight:500;font-size:.8rem;color:var(--teal);letter-spacing:.01em}
+  .bubble{max-width:90%;padding:9px 13px 8px;font-size:1.06rem;line-height:1.4;position:relative;white-space:pre-line;
+    box-shadow:0 1px 1px rgba(11,20,26,.13)}
+  .bubble.out{align-self:flex-end;background:var(--bubble-out);color:var(--ink);border-radius:9px 0 9px 9px}
+  .bubble.out::after{content:"";position:absolute;top:0;right:-8px;width:0;height:0;
+    border:8px solid transparent;border-top-color:var(--bubble-out);border-right:0}
+  .bubble.in{align-self:flex-start;background:var(--bubble-in);color:var(--ink);border-radius:0 9px 9px 9px}
+  .bubble.in::after{content:"";position:absolute;top:0;left:-8px;width:0;height:0;
+    border:8px solid transparent;border-top-color:var(--bubble-in);border-left:0}
+  .bubble.note{align-self:flex-start;background:rgba(7,94,84,.06);color:var(--ink-2);
+    box-shadow:none;border-radius:9px;font-size:.92rem}
+  .bubble.bad{align-self:flex-end;background:var(--bad-soft);color:var(--bad);
+    border:1px dashed rgba(192,57,43,.45);border-radius:9px;box-shadow:none}
+  .bubble.bad::after{display:none}
+  .bubble .t{display:block;text-align:right;font-size:.7rem;color:var(--ink-3);margin-top:3px}
+  .bubble .t i{font-style:normal;color:var(--tick);margin-left:3px;font-size:.78rem}
+  .seen{align-self:flex-start;font-size:.78rem;color:var(--ink-3);font-style:italic;padding-left:4px}
+
+  .qlabel{font-size:.82rem;color:var(--ink-3);font-weight:700;margin-bottom:7px}
+  .tag{display:inline-block;font-size:.74rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+    padding:5px 12px;border-radius:999px;margin-bottom:14px}
+  .tag.good{background:var(--green-soft);color:var(--teal)}
+  .tag.bad{background:var(--bad-soft);color:var(--bad)}
+
+  /* framework steps */
+  .steps{display:flex;flex-direction:column;gap:14px;margin-top:32px}
+  .step{display:flex;align-items:center;gap:22px;background:var(--panel);
+    border:1px solid var(--line-soft);border-radius:18px;padding:20px 26px;box-shadow:var(--shadow-soft);
+    transition:transform .6s var(--ease)}
+  .step:hover{transform:translateX(8px)}
+  .step .num{font-size:1.7rem;font-weight:800;color:var(--teal);flex:0 0 auto;width:40px}
+  .step .label{font-weight:800;font-size:1.25rem}
+  .step .desc{color:var(--ink-2);font-size:1.02rem;margin-top:1px}
+  .step.bonus{background:var(--teal);border-color:var(--teal)}
+  .step.bonus .num,.step.bonus .label{color:#fff}
+  .step.bonus .desc{color:rgba(255,255,255,.85)}
+
+  /* timeline */
+  .tl{position:relative;margin-top:36px;padding-left:36px}
+  .tl::before{content:"";position:absolute;left:10px;top:8px;bottom:8px;width:2px;background:rgba(7,94,84,.2)}
+  .tl .row{position:relative;padding:0 0 30px 0}
+  .tl .row:last-child{padding-bottom:0}
+  .tl .dot{position:absolute;left:-36px;top:2px;width:22px;height:22px;border-radius:50%;
+    background:var(--panel);border:2px solid var(--teal);display:flex;align-items:center;justify-content:center}
+  .tl .dot::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--green)}
+  .tl .day{font-weight:800;font-size:1.2rem}
+  .tl .what{color:var(--ink-2);font-size:1.06rem;margin-top:2px}
+
+  /* summary grid */
+  .sgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:36px}
+  @media(max-width:760px){.sgrid{grid-template-columns:1fr}}
+  .scard{background:var(--panel);border:1px solid var(--line-soft);border-radius:18px;
+    padding:22px 26px;display:flex;gap:18px;align-items:center;box-shadow:var(--shadow-soft)}
+  .scard .sn{font-size:1.7rem;font-weight:800;color:var(--green-2);line-height:1;flex:0 0 auto;
+    width:38px;height:38px;border-radius:50%;background:var(--green-soft);display:flex;align-items:center;justify-content:center;font-size:1.15rem}
+  .scard p{font-size:1.1rem;font-weight:600;line-height:1.35}
+
+  /* cover */
+  .cover .meta-row{display:flex;flex-wrap:wrap;gap:30px;margin-top:44px;color:var(--ink-2);font-size:1rem}
+  .cover .meta-row .mi b{display:block;font-weight:800;font-size:1.45rem;color:var(--ink);margin-top:3px}
+  .scroll-hint{position:absolute;bottom:34px;left:50%;transform:translateX(-50%);
+    display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--ink-3);
+    font-size:.74rem;letter-spacing:.22em;text-transform:uppercase;font-weight:700;animation:bob 2.4s var(--ease) infinite}
+  @keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,8px)}}
+
+  .closing{font-weight:700;font-size:clamp(1.4rem,2.6vw,2rem);
+    color:var(--teal);max-width:54ch;line-height:1.32;margin-top:32px}
+
+  /* reveal */
+  [data-rv]{opacity:0;transform:translateY(24px);filter:blur(5px);
+    transition:opacity .32s var(--ease), transform .32s var(--ease), filter .32s var(--ease);
+    transition-delay:calc(var(--d,0) * 35ms)}
+  [data-rv].in{opacity:1;transform:none;filter:none}
+  @media(prefers-reduced-motion:reduce){[data-rv]{opacity:1;transform:none;filter:none;transition:none}}
+</style>
+</head>
+<body>
+<div class="wallpaper"></div>
+<div class="grain"></div>
+
+<header class="wa-bar">
+  <span class="back">‹</span>
+  <div class="ava">📚</div>
+  <div class="id"><b>Clase: Vender por WhatsApp</b><span>en línea</span></div>
+  <div class="right">
+    <span class="ico">📹</span>
+    <span class="ico">📞</span>
+    <span class="count" id="counter">01 / 19</span>
+  </div>
+</header>
+<div class="progress" id="progress"></div>
+<nav class="dots" id="dots"></nav>
+
+<!-- 1 · PORTADA -->
+<section class="slide cover" data-title="Portada">
+  <div class="inner">
+    <span class="eyebrow" data-rv><span class="n">1</span> Clase · 35 min</span>
+    <h1 class="title" data-rv style="--d:1">Cómo vender por <em>WhatsApp</em> a quien se inscribe en tu web</h1>
+    <p class="lead" data-rv style="--d:2">De “lead registrado” a cliente, sin una sola llamada.</p>
+    <div class="meta-row" data-rv style="--d:3">
+      <div class="mi">Para<b>Emprendedores</b></div>
+      <div class="mi">Vendiendo<b>Tu propio producto</b></div>
+      <div class="mi">Canal<b>Solo WhatsApp</b></div>
+    </div>
+  </div>
+  <div class="scroll-hint">Scroll ↓</div>
+</section>
+
+<!-- 2 · PUNTO DE PARTIDA -->
+<section class="slide" data-title="El punto de partida">
+  <div class="inner">
+    <span class="eyebrow" data-rv><span class="n">2</span> El punto de partida</span>
+    <h2 class="title" data-rv style="--d:1">El lead <em>ya levantó la mano</em></h2>
+    <ul class="points">
+      <li data-rv style="--d:1"><span class="mk">✓</span><span>Ya se inscribió en tu web → mostró interés real</span></li>
+      <li data-rv style="--d:2"><span class="mk">✓</span><span>No es venta en frío: es venta <b>tibia/caliente</b></span></li>
+      <li data-rv style="--d:3"><span class="mk">✓</span><span>Tu trabajo no es convencer desde cero: es <b>no enfriar</b> lo que ya está caliente</span></li>
+      <li data-rv style="--d:4"><span class="mk">✓</span><span>Sabes exactamente en qué se registró → úsalo</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- 3 · VELOCIDAD -->
+<section class="slide" data-title="Regla #1: velocidad">
+  <div class="inner">
+    <span class="eyebrow" data-rv><span class="n">3</span> Regla #1</span>
+    <h2 class="title" data-rv style="--d:1">La <em>velocidad</em> lo es todo</h2>
+    <ul class="points">
+      <li data-rv style="--d:1"><span class="mk">→</span><span>El lead está más caliente en los <b>primeros minutos</b> tras inscribirse</span></li>
+      <li data-rv style="--d:2"><span class="mk">→</span><span>Responde en <b>minutos, no en horas</b> (idealmente menos de 5 min)</span></li>
+      <li data-rv style="--d:3"><span class="mk">→</span><span>A las 24 h ya se enfrió o se olvidó de que se registró</span></li>
+      <li data-rv style="--d:4"><span class="mk">→</span><span>Velocidad de respuesta <b>&gt;</b> mensaje perfecto</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- 4 · EL VISTO NO ES UN NO -->
+<section class="slide" data-title="El visto no es un no">
+  <div class="inner grid2">
+    <div>
+      <span class="eyebrow" data-rv><span class="n">4</span> Mentalidad</span>
+      <h2 class="title" data-rv style="--d:1">El <em>“visto”</em> no es un “no”</h2>
+      <ul class="points">
+        <li data-rv style="--d:2"><span class="mk">✓</span><span>Casi nunca significa “no quiero”</span></li>
+        <li data-rv style="--d:3"><span class="mk">✓</span><span>Significa: “ocupado”, “se me pasó”, “lo estoy pensando”</span></li>
+        <li data-rv style="--d:4"><span class="mk">✓</span><span>Tratarlo como rechazo = la mayoría de tus ventas perdidas</span></li>
+      </ul>
+    </div>
+    <div class="shell" data-rv style="--d:3">
+      <div class="core">
+        <div class="chat">
+          <div class="meta"><div class="ava">D</div><div class="who">Tú<span>en línea</span></div></div>
+          <div class="bubble out">Hola María 👋 ¿te quedó alguna duda?<span class="t">10:02 <i>✓✓</i></span></div>
+          <div class="seen">Visto 10:04</div>
+          <div class="bubble out" style="margin-top:6px">El que da seguimiento, gana.<span class="t">10:40 <i>✓✓</i></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 · ESPACIO PERSONAL -->
+<section class="slide" data-title="Su espacio personal">
+  <div class="inner">
+    <span class="eyebrow" data-rv><span class="n">5</span> Mentalidad</span>
+    <h2 class="title" data-rv style="--d:1">WhatsApp es <em>su espacio personal</em></h2>
+    <ul class="points">
+      <li data-rv style="--d:1"><span class="mk">✓</span><span>Es donde está su familia, sus amigos, sus fotos</span></li>
+      <li data-rv style="--d:2"><span class="mk">✓</span><span>Si suenas a empresa o a robot → te ignoran</span></li>
+      <li data-rv style="--d:3"><span class="mk">✓</span><span>Regla: suena a <b>persona escribiéndole a otra persona</b></span></li>
+      <li data-rv style="--d:4"><span class="mk">✓</span><span>Usa su nombre, tono cercano, cero lenguaje corporativo</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- 6 · REGLAS DEL MEDIO -->
+<section class="slide" data-title="Las 5 reglas del medio">
+  <div class="inner">
+    <span class="eyebrow" data-rv><span class="n">6</span> Fundamentos</span>
+    <h2 class="title" data-rv style="--d:1">Las 5 reglas del medio</h2>
+    <div class="sgrid">
+      <div class="scard" data-rv style="--d:1"><span class="sn">1</span><p>Una idea por mensaje — nada de muros de texto</p></div>
+      <div class="scard" data-rv style="--d:2"><span class="sn">2</span><p>Si tu mensaje necesita scroll, perdiste</p></div>
+      <div class="scard" data-rv style="--d:3"><span class="sn">3</span><p>Audios: sí, pero NO en el primer mensaje</p></div>
+      <div class="scard" data-rv style="--d:4"><span class="sn">4</span><p>Ortografía cuidada — escribes serio, no “hola q tal”</p></div>
+      <div class="scard" data-rv style="--d:5"><span class="sn">5</span><p>Una pregunta a la vez, espera la respuesta</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 · FRAMEWORK -->
+<section class="slide" data-title="El framework">
+  <div class="inner">
+    <span class="eyebrow" data-rv><span class="n">7</span> El método</span>
+    <h2 class="title" data-rv style="--d:1">El framework de <em>5 fases</em></h2>
+    <div class="steps">
+      <div class="step" data-rv style="--d:1"><span class="num">1</span><div><div class="label">Primer mensaje</div><div class="desc">Confirmar + bienvenida + 1 pregunta</div></div></div>
+      <div class="step" data-rv style="--d:2"><span class="num">2</span><div><div class="label">Diagnóstico</div><div class="desc">Preguntas fáciles de contestar</div></div></div>
+      <div class="step" data-rv style="--d:3"><span class="num">3</span><div><div class="label">Puente (audio)</div><div class="desc">Su problema → tu solución</div></div></div>
+      <div class="step" data-rv style="--d:4"><span class="num">4</span><div><div class="label">Objeciones</div><div class="desc">Validar y redirigir, sin discutir</div></div></div>
+      <div class="step" data-rv style="--d:5"><span class="num">5</span><div><div class="label">Cerrar</div><div class="desc">Link de pago o agendar</div></div></div>
+      <div class="step bonus" data-rv style="--d:6"><span class="num">+</span><div><div class="label">Seguimiento</div><div class="desc">Donde está el dinero</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 · PRIMER MENSAJE -->
+<section class="slide" data-title="Fase 1 · Primer mensaje">
+  <div class="inner grid2">
+    <div>
+      <span class="eyebrow" data-rv><span class="n">8</span> Fase 1</span>
+      <div class="stepper" data-rv style="--d:1"><span class="st on">1</span><span class="sep"></span><span class="st">2</span><span class="sep"></span><span class="st">3</span><span class="sep"></span><span class="st">4</span><span class="sep"></span><span class="st">5</span><span class="sep"></span><span class="st plus">+</span></div>
+      <h2 class="title" data-rv style="--d:1">El primer mensaje</h2>
+      <ul class="points">
+        <li data-rv style="--d:2"><span class="mk">✓</span><span>Objetivo: que <b>respondan</b>, no que compren</span></li>
+        <li data-rv style="--d:3"><span class="mk">✓</span><span>Confirma en qué se inscribió + bienvenida + pregunta fácil</span></li>
+        <li data-rv style="--d:4"><span class="mk">✓</span><span>Mándalo rápido, con tu nombre, tono humano</span></li>
+      </ul>
+    </div>
+    <div class="shell" data-rv style="--d:3">
+      <div class="core">
+        <span class="tag good">Así sí</span>
+        <div class="chat">
+          <div class="meta"><div class="ava">D</div><div class="who">Tú<span>en línea</span></div></div>
+          <div class="bubble out">Hola María, soy David de <span class="fill" contenteditable="true" spellcheck="false">marca</span> 👋<span class="t">11:01 <i>✓✓</i></span></div>
+          <div class="bubble out">Vi que acabas de registrarte en <span class="fill" contenteditable="true" spellcheck="false">nombre de tu evento</span>. ¡Qué gusto tenerte por acá!<span class="t">11:01 <i>✓✓</i></span></div>
+          <div class="bubble out">Rápido para ayudarte mejor: ¿<span class="fill" contenteditable="true" spellcheck="false">pregunta fácil</span>?<span class="t">11:01 <i>✓✓</i></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 9 · LO QUE NO -->
+<section class="slide" data-title="Fase 1 · Lo que NO">
+  <div class="inner grid2">
+    <div>
+      <span class="eyebrow" data-rv><span class="n">9</span> Fase 1</span>
+      <div class="stepper" data-rv style="--d:1"><span class="st on">1</span><span class="sep"></span><span class="st">2</span><span class="sep"></span><span class="st">3</span><span class="sep"></span><span class="st">4</span><span class="sep"></span><span class="st">5</span><span class="sep"></span><span class="st plus">+</span></div>
+      <h2 class="title" data-rv style="--d:1">Lo que <em>NO</em> debes mandar</h2>
+      <ul class="points cross">
+        <li data-rv style="--d:2"><span class="mk">✕</span><span>Tres párrafos explicando todo tu producto</span></li>
+        <li data-rv style="--d:3"><span class="mk">✕</span><span>“¿Te interesa una asesoría GRATIS?” de entrada</span></li>
+        <li data-rv style="--d:4"><span class="mk">✕</span><span>Esperar horas para responder</span></li>
+      </ul>
+    </div>
+    <div class="shell" data-rv style="--d:3">
+      <div class="core">
+        <span class="tag bad">Así no</span>
+        <div class="chat">
+          <div class="bubble bad">Hola!! 😀 Te escribo de Soluciones Integrales SA, somos líderes en soluciones 360°... [tres párrafos] ...¿te interesa una asesoría GRATIS?</div>
+        </div>
+        <p style="margin-top:16px;color:var(--bad);font-weight:700;font-size:.96rem">→ Suena a reenviado. Te ignoran o te bloquean.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 · DIAGNÓSTICO -->
+<section class="slide" data-title="Fase 2 · Diagnóstico">
+  <div class="inner grid2">
+    <div>
+      <span class="eyebrow" data-rv><span class="n">10</span> Fase 2</span>
+      <div class="stepper" data-rv style="--d:1"><span class="st">1</span><span class="sep"></span><span class="st on">2</span><span class="sep"></span><span class="st">3</span><span class="sep"></span><span class="st">4</span><span class="sep"></span><span class="st">5</span><span class="sep"></span><span class="st plus">+</span></div>
+      <h2 class="title" data-rv style="--d:1">Diagnóstico por chat</h2>
+      <ul class="points">
+        <li data-rv style="--d:2"><span class="mk">✓</span><span>Preguntas, no pitch</span></li>
+        <li data-rv style="--d:3"><span class="mk">✓</span><span>Que se contesten con una palabra o frase corta</span></li>
+        <li data-rv style="--d:4"><span class="mk">✓</span><span>Una pregunta por mensaje, espera respuesta</span></li>
+      </ul>
+    </div>
+    <div class="shell" data-rv style="--d:3">
+      <div class="core">
+        <div class="chat">
+          <span class="tag good">Fácil de contestar</span>
+          <div class="bubble out">¿Hoy lo manejas tú solo o tienes a alguien?<span class="t">14:20 <i>✓✓</i></span></div>
+          <span class="tag bad" style="margin-top:18px">Demasiado esfuerzo</span>
+          <div class="bubble bad">Cuéntame todo sobre tu situación, tus retos y tus metas a 5 años 🙂</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 · PUENTE AUDIO -->
+<section class="slide" data-title="Fase 3 · El puente">
+  <div class="inner">
+    <span class="eyebrow" data-rv><span class="n">11</span> Fase 3</span>
+    <div class="stepper" data-rv style="--d:1"><span class="st">1</span><span class="sep"></span><span class="st">2</span><span class="sep"></span><span class="st on">3</span><span class="sep"></span><span class="st">4</span><span class="sep"></span><span class="st">5</span><span class="sep"></span><span class="st plus">+</span></div>
+    <h2 class="title" data-rv style="--d:1">El puente, idealmente en <em>audio</em></h2>
+    <ul class="points">
+      <li data-rv style="--d:1"><span class="mk">🎙</span><span>Suelta el audio <b>después</b> de que ya respondió (hay confianza)</span></li>
+      <li data-rv style="--d:2"><span class="mk">🎙</span><span>Corto: 30–45 seg, nunca 4 minutos</span></li>
+      <li data-rv style="--d:3"><span class="mk">🎙</span><span>La voz transmite calidez y es difícil de ignorar</span></li>
+      <li data-rv style="--d:4"><span class="mk">🎙</span><span>Estructura: su problema → tu solución en 1 frase → resultado → pregunta</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- 12 · REGLA DEL ESPEJO -->
+<section class="slide" data-title="Fase 3 · Regla del espejo">
+  <div class="inner grid2">
+    <div>
+      <span class="eyebrow" data-rv><span class="n">12</span> Fase 3</span>
+      <div class="stepper" data-rv style="--d:1"><span class="st">1</span><span class="sep"></span><span class="st">2</span><span class="sep"></span><span class="st on">3</span><span class="sep"></span><span class="st">4</span><span class="sep"></span><span class="st">5</span><span class="sep"></span><span class="st plus">+</span></div>
+      <h2 class="title" data-rv style="--d:1">La regla del <em>espejo</em></h2>
+      <ul class="points">
+        <li data-rv style="--d:2"><span class="mk">✓</span><span>Primero repites lo que te dijo, <b>después</b> hablas de ti</span></li>
+        <li data-rv style="--d:3"><span class="mk">✓</span><span>Siente que entendiste, no que recitas un comercial</span></li>
+      </ul>
+    </div>
+    <div class="shell" data-rv style="--d:3">
+      <div class="core">
+        <div class="chat">
+          <div class="bubble out">Mira, justo por eso te ayudo 👇</div>
+          <div class="bubble out">Me dijiste que <span class="fill" contenteditable="true" spellcheck="false">su problema</span>. Eso es exactamente lo que resuelvo: <span class="fill" contenteditable="true" spellcheck="false">solución en una frase</span>.</div>
+          <div class="bubble out">A <span class="fill" contenteditable="true" spellcheck="false">cliente parecido</span> le sirvió para <span class="fill" contenteditable="true" spellcheck="false">resultado</span>.<span class="t">16:08 <i>✓✓</i></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 13 · OBJECIONES -->
+<section class="slide" data-title="Fase 4 · Objeciones">
+  <div class="inner grid2">
+    <div>
+      <span class="eyebrow" data-rv><span class="n">13</span> Fase 4</span>
+      <div class="stepper" data-rv style="--d:1"><span class="st">1</span><span class="sep"></span><span class="st">2</span><span class="sep"></span><span class="st">3</span><span class="sep"></span><span class="st on">4</span><span class="sep"></span><span class="st">5</span><span class="sep"></span><span class="st plus">+</span></div>
+      <h2 class="title" data-rv style="--d:1">Manejar objeciones</h2>
+      <ul class="points">
+        <li data-rv style="--d:2"><span class="mk">✓</span><span><b>Valida y redirige</b>, nunca discutas</span></li>
+        <li data-rv style="--d:3"><span class="mk">✓</span><span>En WhatsApp <b>no esquives el precio</b>: da rango y rebota a valor</span></li>
+      </ul>
+    </div>
+    <div class="shell" data-rv style="--d:3">
+      <div class="core">
+        <div class="chat" style="gap:18px">
+          <div>
+            <div class="qlabel">“No me interesa”</div>
+            <div class="bubble out" style="max-width:100%">Te entiendo 🙏 Solo una pregunta y te dejo en paz: ¿<span class="fill" contenteditable="true" spellcheck="false">diagnóstico</span>?</div>
+          </div>
+          <div>
+            <div class="qlabel">“¿Cuánto cuesta?”</div>
+            <div class="bubble out" style="max-width:100%">Va de <span class="fill" contenteditable="true" spellcheck="false">rango</span>, depende de <span class="fill" contenteditable="true" spellcheck="false">factor</span>. ¿<span class="fill" contenteditable="true" spellcheck="false">pregunta</span>?</div>
+          </div>
+          <div>
+            <div class="qlabel">“Déjame pensarlo”</div>
+            <div class="bubble out" style="max-width:100%">Claro 🙌 ¿Qué te haría más ruido para decidir, <span class="fill" contenteditable="true" spellcheck="false">X</span> o <span class="fill" contenteditable="true" spellcheck="false">Y</span>?</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 14 · CERRAR (Fase 5) -->
+<section class="slide" data-title="Fase 5 · Cerrar">
+  <div class="inner grid2">
+    <div>
+      <span class="eyebrow" data-rv><span class="n">14</span> Fase 5</span>
+      <div class="stepper" data-rv style="--d:1"><span class="st">1</span><span class="sep"></span><span class="st">2</span><span class="sep"></span><span class="st">3</span><span class="sep"></span><span class="st">4</span><span class="sep"></span><span class="st on">5</span><span class="sep"></span><span class="st plus">+</span></div>
+      <h2 class="title" data-rv style="--d:1">Cerrar</h2>
+      <ul class="points">
+        <li data-rv style="--d:2"><span class="mk">✓</span><span><b>Ticket bajo:</b> link de pago en el chat</span></li>
+        <li data-rv style="--d:3"><span class="mk">✓</span><span><b>Ticket alto:</b> doble opción, nunca sí/no</span></li>
+      </ul>
+    </div>
+    <div class="shell" data-rv style="--d:3">
+      <div class="core">
+        <div class="chat" style="gap:18px">
+          <div>
+            <div class="qlabel">Ticket bajo</div>
+            <div class="bubble out" style="max-width:100%">Perfecto, te paso el link y quedas dentro 👇 <span class="fill" contenteditable="true" spellcheck="false">link de pago</span></div>
+          </div>
+          <div>
+            <div class="qlabel">Ticket alto</div>
+            <div class="bubble out" style="max-width:100%">Esto lo vemos en 15 min. ¿Hoy a las 5 o mañana a las 11?</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 15 · SEGUIMIENTO -->
+<section class="slide" data-title="El seguimiento">
+  <div class="inner">
+    <span class="eyebrow" data-rv><span class="n">15</span> El multiplicador</span>
+    <div class="stepper" data-rv style="--d:1"><span class="st">1</span><span class="sep"></span><span class="st">2</span><span class="sep"></span><span class="st">3</span><span class="sep"></span><span class="st">4</span><span class="sep"></span><span class="st">5</span><span class="sep"></span><span class="st plus on">+</span></div>
+    <h2 class="title" data-rv style="--d:1">El seguimiento: aquí está el <em>80% del dinero</em></h2>
+    <ul class="points">
+      <li data-rv style="--d:1"><span class="mk">✓</span><span>La mayoría manda UN mensaje y se rinde</span></li>
+      <li data-rv style="--d:2"><span class="mk">✕</span><span>Seguimiento ≠ “hola? 👀”, “sigues ahí?”, “holaaa” (suena a necesitado)</span></li>
+      <li data-rv style="--d:3"><span class="mk">✓</span><span>Cada mensaje aporta algo nuevo: <b>valor o una pregunta distinta</b></span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- 15 · CADENCIA -->
+<section class="slide" data-title="La cadencia">
+  <div class="inner">
+    <span class="eyebrow" data-rv><span class="n">16</span> Seguimiento</span>
+    <div class="stepper" data-rv style="--d:1"><span class="st">1</span><span class="sep"></span><span class="st">2</span><span class="sep"></span><span class="st">3</span><span class="sep"></span><span class="st">4</span><span class="sep"></span><span class="st">5</span><span class="sep"></span><span class="st plus on">+</span></div>
+    <h2 class="title" data-rv style="--d:1">La cadencia de seguimiento</h2>
+    <div class="tl">
+      <div class="tl row" data-rv style="--d:1"><span class="dot"></span><div class="day">Día 1</div><div class="what">Primer mensaje</div></div>
+      <div class="tl row" data-rv style="--d:2"><span class="dot"></span><div class="day">Día 2–3</div><div class="what">Bump con valor (un tip, un caso parecido)</div></div>
+      <div class="tl row" data-rv style="--d:3"><span class="dot"></span><div class="day">Día 5–7</div><div class="what">Pregunta directa distinta — “¿Sigue siendo prioridad o ya lo resolviste?”</div></div>
+      <div class="tl row" data-rv style="--d:4"><span class="dot"></span><div class="day">Cierre</div><div class="what">Mensaje de cierre de loop</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 16 · CIERRE DE LOOP -->
+<section class="slide" data-title="Resucitar conversaciones">
+  <div class="inner grid2">
+    <div>
+      <span class="eyebrow" data-rv><span class="n">17</span> Seguimiento</span>
+      <div class="stepper" data-rv style="--d:1"><span class="st">1</span><span class="sep"></span><span class="st">2</span><span class="sep"></span><span class="st">3</span><span class="sep"></span><span class="st">4</span><span class="sep"></span><span class="st">5</span><span class="sep"></span><span class="st plus on">+</span></div>
+      <h2 class="title" data-rv style="--d:1">El mensaje que <em>resucita</em> conversaciones muertas</h2>
+      <ul class="points">
+        <li data-rv style="--d:2"><span class="mk">✓</span><span>La gente odia cerrar puertas → dale salida elegante</span></li>
+        <li data-rv style="--d:3"><span class="mk">✓</span><span>Muchos responden “¡no, no, espérame!”</span></li>
+      </ul>
+    </div>
+    <div class="shell" data-rv style="--d:3">
+      <div class="core">
+        <div class="chat">
+          <div class="bubble out">Veo que no es buen momento, María, sin problema 🙏</div>
+          <div class="bubble out">Te dejo por acá. Si más adelante <span class="fill" contenteditable="true" spellcheck="false">problema</span> vuelve a estar en tu radar, me escribes. Éxito 🙌<span class="t">09:15 <i>✓✓</i></span></div>
+          <div class="bubble in" style="margin-top:6px">¡No, no, espérame! 😅</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 18 · RESUMEN -->
+<section class="slide" data-title="Resumen">
+  <div class="inner">
+    <span class="eyebrow" data-rv><span class="n">18</span> Para recordar</span>
+    <h2 class="title" data-rv style="--d:1">Resumen</h2>
+    <div class="sgrid">
+      <div class="scard" data-rv style="--d:1"><span class="sn">1</span><p>El lead ya se inscribió: no lo enfríes</p></div>
+      <div class="scard" data-rv style="--d:1"><span class="sn">2</span><p>Responde en minutos, no en horas</p></div>
+      <div class="scard" data-rv style="--d:2"><span class="sn">3</span><p>El visto no es un no</p></div>
+      <div class="scard" data-rv style="--d:2"><span class="sn">4</span><p>Suena a persona, no a empresa</p></div>
+      <div class="scard" data-rv style="--d:3"><span class="sn">5</span><p>Una idea por mensaje</p></div>
+      <div class="scard" data-rv style="--d:3"><span class="sn">6</span><p>Audio después de que responda, no antes</p></div>
+      <div class="scard" data-rv style="--d:4"><span class="sn">7</span><p>Da el precio, no lo esquives</p></div>
+      <div class="scard" data-rv style="--d:4"><span class="sn">8</span><p>El dinero está en el 3er–5to mensaje</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 19 · EJERCICIO -->
+<section class="slide" data-title="Ejercicio + tarea">
+  <div class="inner">
+    <span class="eyebrow" data-rv><span class="n">19</span> Acción</span>
+    <h2 class="title" data-rv style="--d:1">Ejercicio + tarea</h2>
+    <ul class="points">
+      <li data-rv style="--d:1"><span class="mk">●</span><span><b>En vivo:</b> escribe el primer mensaje a un lead recién inscrito; la pareja responde difícil</span></li>
+      <li data-rv style="--d:2"><span class="mk">●</span><span><b>En vivo:</b> practica un seguimiento después de un “visto”</span></li>
+      <li data-rv style="--d:3"><span class="mk">●</span><span><b>Tarea:</b> responde en &lt;5 min a tus próximos 5 inscritos + rescata 3 conversaciones muertas con el cierre de loop</span></li>
+    </ul>
+    <p class="closing" data-rv style="--d:4">Vender por WhatsApp es un músculo de escritura. El que vende es el que dio el tercer mensaje.</p>
+  </div>
+</section>
+
+<script>
+  const rvObs = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); rvObs.unobserve(e.target);} });
+  },{threshold:.18, rootMargin:'0px 0px -8% 0px'});
+  document.querySelectorAll('[data-rv]').forEach(el=>rvObs.observe(el));
+
+  const progress = document.getElementById('progress');
+  const onScroll = ()=>{
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    progress.style.width = (max>0 ? (h.scrollTop/max*100) : 0) + '%';
+  };
+  document.addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+  const slides = [...document.querySelectorAll('.slide')];
+  const total = slides.length;
+  const dots = document.getElementById('dots');
+  const counter = document.getElementById('counter');
+  const pad = n => String(n).padStart(2,'0');
+  slides.forEach((s,i)=>{
+    const b=document.createElement('button');
+    b.title = s.dataset.title || ('Slide '+(i+1));
+    b.addEventListener('click',()=>s.scrollIntoView({behavior:'smooth'}));
+    dots.appendChild(b);
+  });
+  const dotBtns=[...dots.children];
+  const actObs=new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){
+      const i=slides.indexOf(e.target);
+      dotBtns.forEach((d,j)=>d.classList.toggle('active', j===i));
+      counter.textContent = pad(i+1)+' / '+pad(total);
+    }});
+  },{threshold:.5});
+  slides.forEach(s=>actObs.observe(s));
+
+  let cur=0;
+  const setCur=()=>{ cur = slides.findIndex(s=>{const r=s.getBoundingClientRect(); return r.top>=-window.innerHeight*.4 && r.top<window.innerHeight*.5;}); if(cur<0)cur=0; };
+  document.addEventListener('keydown',(e)=>{
+    if(e.target.isContentEditable) return;   // typing in a fill field: don't navigate
+    if(['ArrowDown','ArrowRight','PageDown',' '].includes(e.key)){ e.preventDefault(); setCur(); slides[Math.min(cur+1,slides.length-1)].scrollIntoView({behavior:'smooth'}); }
+    if(['ArrowUp','ArrowLeft','PageUp'].includes(e.key)){ e.preventDefault(); setCur(); slides[Math.max(cur-1,0)].scrollIntoView({behavior:'smooth'}); }
+  });
+
+  // editable fill-in fields: select all on focus, Enter confirms (no newline)
+  document.querySelectorAll('.fill').forEach(f=>{
+    f.addEventListener('focus',()=>{
+      const r=document.createRange(); r.selectNodeContents(f);
+      const s=getSelection(); s.removeAllRanges(); s.addRange(r);
+    });
+    f.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ e.preventDefault(); f.blur(); } });
+  });
+</script>
+</body>
+</html>
