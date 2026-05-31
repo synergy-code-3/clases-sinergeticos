@@ -1,2 +1,7 @@
 .vercel
 .DS_Store
+
+# Carpetas-fuente de las clases (no se publican; las páginas servidas
+# viven en como-vender-por-whatsapp/, estructura-web-que-vende/, etc.)
+Clase Ventas WhatsApp/
+Clase Estructura Web Que Vende/
