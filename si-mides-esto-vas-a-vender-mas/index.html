@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Si mides esto vas a vender más</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F9F8F5;
+  --fg: #0A0A0A;
+  --mid: #6B6B6B;
+  --light: #E2E0DB;
+  --lighter: #F0EFEB;
+  --accent: #2563EB;
+  --accent-dim: #DBEAFE;
+  --white: #FFFFFF;
+  --danger: #EF4444;
+  --danger-dim: #FEE2E2;
+  --warn: #F59E0B;
+  --warn-dim: #FEF3C7;
+  --ok: #10B981;
+  --ok-dim: #D1FAE5;
+  --font: 'Inter', -apple-system, sans-serif;
+  --ease: cubic-bezier(.4,0,.2,1);
+}
+
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── LAYOUT ── */
+.deck { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+
+.slide {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: flex-start;
+  padding: 4vh 6vw;
+  opacity: 0; transform: translateY(28px);
+  transition: opacity .4s var(--ease), transform .4s var(--ease);
+  pointer-events: none; will-change: opacity, transform;
+}
+.slide.active { opacity: 1; transform: translateY(0); pointer-events: all; }
+.slide.exit   { opacity: 0; transform: translateY(-28px); }
+.centered { align-items: center; text-align: center; }
+
+/* ── CHROME ── */
+.progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px;
+  background: var(--accent); transition: width .4s var(--ease); z-index: 200;
+}
+.slide-counter {
+  position: fixed; top: 22px; right: 32px;
+  font-size: 12px; font-weight: 600; letter-spacing: .08em; color: var(--mid); z-index: 100;
+}
+.dots {
+  position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 7px; z-index: 100;
+}
+.dot {
+  width: 7px; height: 7px; border-radius: 3.5px; background: var(--light);
+  transition: background .25s, width .25s; cursor: pointer;
+}
+.dot.active { background: var(--fg); width: 24px; }
+.dot.ix { background: #BFDBFE; }
+.dot.ix.active { background: var(--accent); }
+
+.nav-group { position: fixed; bottom: 22px; z-index: 100; }
+.nav-group.left { left: 32px; }
+.nav-group.right { right: 32px; }
+.nav-btn {
+  width: 42px; height: 42px; border-radius: 50%;
+  border: 1px solid var(--light); background: var(--white);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--fg); transition: all .18s; user-select: none; font-family: var(--font);
+}
+.nav-btn:hover { background: var(--fg); color: var(--white); border-color: var(--fg); }
+.nav-btn:disabled { opacity: .2; cursor: not-allowed; }
+
+/* ── ATOMS ── */
+.tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--mid); border: 1px solid var(--light);
+  padding: 6px 16px; border-radius: 100px; margin-bottom: 20px;
+}
+.tag.ix { color: var(--accent); border-color: #BFDBFE; background: var(--accent-dim); }
+
+.headline {
+  font-size: clamp(34px, 4.8vw, 68px);
+  font-weight: 800; letter-spacing: -.035em; line-height: 1.06; margin-bottom: 28px;
+}
+
+/* ── S1: COVER ── */
+#s1 { background: var(--fg); color: var(--white); }
+.cover-rule { width: 52px; height: 4px; background: var(--accent); margin-bottom: 40px; }
+.cover-title {
+  font-size: clamp(40px, 7.5vw, 110px);
+  font-weight: 900; letter-spacing: -.05em; line-height: .88;
+  color: var(--white); margin-bottom: 24px;
+}
+.cover-sub {
+  font-size: clamp(18px, 2vw, 26px); font-weight: 400;
+  color: rgba(255,255,255,.5); max-width: 480px; line-height: 1.45; margin-bottom: 36px;
+}
+.cover-tag {
+  font-size: 12px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase;
+  color: rgba(255,255,255,.3); border: 1px solid rgba(255,255,255,.12);
+  padding: 7px 18px; border-radius: 100px; display: inline-block;
+}
+
+/* ── S2 ── */
+.problem-body {
+  font-size: clamp(17px, 1.7vw, 22px); color: var(--mid);
+  max-width: 560px; line-height: 1.7;
+  padding-left: 22px; border-left: 3px solid var(--accent);
+}
+
+/* ── S3 ── */
+.decision-list { display: flex; flex-direction: column; gap: 14px; max-width: 760px; width: 100%; }
+.decision-item {
+  display: flex; align-items: center; gap: 20px;
+  background: var(--white); border: 1px solid var(--light);
+  border-radius: 14px; padding: 20px 26px;
+  font-size: clamp(15px, 1.4vw, 18px);
+}
+.di-q { color: var(--mid); flex: 1; line-height: 1.4; }
+.di-arrow { color: var(--light); font-size: 22px; }
+.di-ans {
+  font-weight: 700; color: var(--accent); background: var(--accent-dim);
+  padding: 5px 14px; border-radius: 8px; font-size: 15px; white-space: nowrap;
+}
+
+/* ── S4: EMBUDO ── */
+.funnel { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%; max-width: 740px; }
+.fn {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 26px; border-radius: 9px; color: white;
+}
+.fn:nth-child(1) { width: 100%;  background: #111; }
+.fn:nth-child(2) { width: 80%;  background: #2A2A2A; }
+.fn:nth-child(3) { width: 60%;  background: var(--accent); }
+.fn:nth-child(4) { width: 42%; background: #1D4ED8; }
+.fn-stage { font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.fn-metrics { font-size: 13px; opacity: .65; text-align: right; }
+
+/* ── S5: 3 MÉTRICAS ── */
+.metrics-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; width: 100%; max-width: 100%; }
+.metric-card {
+  background: var(--white); border: 1px solid var(--light);
+  border-radius: 18px; padding: 32px 28px;
+  display: flex; flex-direction: column; gap: 12px;
+  transition: box-shadow .2s, transform .2s;
+}
+.metric-card:hover { box-shadow: 0 10px 40px rgba(0,0,0,.07); transform: translateY(-3px); }
+.m-acronym { font-size: clamp(44px, 5vw, 62px); font-weight: 900; letter-spacing: -.04em; line-height: 1; }
+.m-acronym span { color: var(--accent); }
+.m-name { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--mid); }
+.m-question { font-size: clamp(14px, 1.3vw, 16px); line-height: 1.55; margin-top: 6px; }
+
+/* ── CALCULADORAS ── */
+.calc-layout {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 36px; width: 100%; max-width: 100%; align-items: start;
+}
+.calc-inputs { display: flex; flex-direction: column; gap: 20px; }
+.calc-field { display: flex; flex-direction: column; gap: 10px; }
+.calc-label { font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--mid); }
+.input-wrap { position: relative; display: flex; align-items: center; }
+.input-prefix {
+  position: absolute; left: 18px; font-size: 26px;
+  font-weight: 700; color: var(--mid); pointer-events: none; user-select: none;
+}
+.calc-input {
+  width: 100%; background: var(--white);
+  border: 2px solid var(--light); border-radius: 14px;
+  padding: 18px 20px; font-size: 26px; font-weight: 600;
+  font-family: var(--font); color: var(--fg);
+  transition: border-color .2s, box-shadow .2s;
+  -moz-appearance: textfield;
+}
+.calc-input::-webkit-inner-spin-button,
+.calc-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+.calc-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-dim); }
+.calc-input.pfx { padding-left: 48px; }
+.calc-formula { font-size: 14px; color: var(--mid); line-height: 1.6; padding: 14px 18px; background: var(--lighter); border-radius: 10px; }
+
+.calc-result {
+  background: var(--white); border: 2px solid var(--light); border-radius: 18px;
+  padding: 36px 28px; display: flex; flex-direction: column;
+  align-items: center; text-align: center; gap: 12px;
+  transition: border-color .3s, background .3s; min-height: 240px; justify-content: center;
+}
+.calc-result.good { border-color: var(--ok);    background: var(--ok-dim); }
+.calc-result.warn { border-color: var(--warn);  background: var(--warn-dim); }
+.calc-result.bad  { border-color: var(--danger); background: var(--danger-dim); }
+
+.result-label { font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--mid); }
+.result-value {
+  font-size: clamp(52px, 7vw, 90px);
+  font-weight: 900; letter-spacing: -.04em; line-height: 1; transition: color .3s;
+}
+.result-value.good { color: var(--ok); }
+.result-value.warn { color: var(--warn); }
+.result-value.bad  { color: var(--danger); }
+.result-sub { font-size: 14px; color: var(--mid); }
+
+.result-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 14px; font-weight: 600; padding: 7px 18px; border-radius: 100px; transition: all .3s;
+}
+.bg-good  { background: var(--ok-dim);    color: #065F46; }
+.bg-warn  { background: var(--warn-dim);  color: #92400E; }
+.bg-bad   { background: var(--danger-dim); color: #991B1B; }
+.bg-empty { background: var(--lighter);   color: var(--mid); }
+
+.result-hint { font-size: 13px; color: var(--mid); line-height: 1.5; max-width: 240px; text-align: center; }
+.roas-visual { width: 100%; height: 10px; border-radius: 5px; background: var(--lighter); overflow: hidden; }
+.roas-bar { height: 100%; border-radius: 5px; transition: width .5s var(--ease), background .3s; }
+
+/* ── S8: ROAS vs ROI ── */
+.compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 100%; margin-bottom: 24px; }
+.compare-card {
+  border-radius: 18px; padding: 28px 26px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.compare-card.roas { background: var(--accent-dim); border: 2px solid #93C5FD; }
+.compare-card.roi  { background: var(--lighter);    border: 2px solid var(--light); }
+
+.cc-title { font-size: clamp(28px, 3.5vw, 48px); font-weight: 900; letter-spacing: -.03em; }
+.cc-full  { font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--mid); }
+.cc-formula {
+  font-size: 15px; font-weight: 600; color: var(--fg);
+  background: rgba(255,255,255,.7); border-radius: 8px; padding: 10px 14px;
+  font-family: var(--font);
+}
+.cc-desc { font-size: 15px; color: var(--mid); line-height: 1.55; }
+.cc-focus { font-size: 14px; font-weight: 700; }
+.cc-focus.blue { color: var(--accent); }
+.cc-focus.dark { color: var(--fg); }
+
+.compare-example {
+  width: 100%; max-width: 100%;
+  background: var(--fg); color: white; border-radius: 14px; padding: 20px 24px;
+  display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+}
+.ex-label { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.4); flex-shrink: 0; }
+.ex-item { display: flex; flex-direction: column; gap: 2px; }
+.ex-val { font-size: 20px; font-weight: 800; letter-spacing: -.02em; }
+.ex-name { font-size: 11px; font-weight: 500; color: rgba(255,255,255,.45); }
+.ex-div { color: rgba(255,255,255,.2); font-size: 22px; }
+.ex-val.blue  { color: var(--accent); }
+.ex-val.green { color: #34D399; }
+.ex-val.warn  { color: var(--warn); }
+
+/* ── S9: LTV > CAC ── */
+.ltv-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; width: 100%; max-width: 100%; align-items: center; }
+.ltv-inputs { display: flex; flex-direction: column; gap: 20px; }
+.ltv-chart-area { display: flex; flex-direction: column; align-items: center; gap: 22px; }
+.ltv-bars { display: flex; align-items: flex-end; gap: 18px; height: 200px; padding-bottom: 2px; }
+.ltv-bar-group { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.ltv-bar {
+  width: 72px; border-radius: 9px 9px 0 0;
+  transition: height .5s var(--ease), background .3s; position: relative; min-height: 4px;
+}
+.ltv-bar .bar-val {
+  position: absolute; bottom: calc(100% + 7px); left: 50%; transform: translateX(-50%);
+  font-size: 13px; font-weight: 700; white-space: nowrap; color: var(--fg);
+}
+.bar-name { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--mid); }
+.b-ltv { background: var(--fg); }
+.b-cac { background: var(--accent); }
+.b-cac.danger { background: var(--danger); }
+.ltv-ratio { text-align: center; display: flex; flex-direction: column; gap: 4px; align-items: center; }
+.ratio-num { font-size: 42px; font-weight: 900; letter-spacing: -.04em; transition: color .3s; }
+.ratio-label { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--mid); }
+.ltv-verdict { font-size: 15px; font-weight: 600; padding: 9px 22px; border-radius: 100px; transition: all .3s; }
+.v-good  { background: var(--ok-dim);    color: #065F46; }
+.v-warn  { background: var(--warn-dim);  color: #92400E; }
+.v-bad   { background: var(--danger-dim); color: #991B1B; }
+.v-empty { background: var(--lighter);   color: var(--mid); }
+.ltv-note { font-size: 14px; color: var(--mid); line-height: 1.65; padding: 14px 18px; background: var(--lighter); border-radius: 10px; }
+.ltv-note strong { color: var(--accent); }
+
+/* ── S10: VANITY METRICS ── */
+.vtable { width: 100%; max-width: 760px; border-radius: 16px; overflow: hidden; border: 1px solid var(--light); }
+.vt-head { display: grid; grid-template-columns: 1fr 1fr; }
+.vt-h { padding: 16px 26px; font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.vt-h.bad  { background: #FEF2F2; color: #991B1B; }
+.vt-h.good { background: #ECFDF5; color: #065F46; }
+.vt-row { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--light); }
+.vt-cell { padding: 16px 26px; font-size: clamp(15px, 1.5vw, 18px); background: var(--white); display: flex; align-items: center; }
+.vt-cell.vanity { color: #9CA3AF; text-decoration: line-through; text-decoration-color: #FCA5A5; }
+.vt-cell.action { font-weight: 600; }
+
+/* ── S11: DASHBOARD ── */
+.dash-list { display: flex; flex-direction: column; gap: 12px; max-width: 720px; width: 100%; }
+.dash-item {
+  display: flex; align-items: center; gap: 20px;
+  padding: 16px 22px; background: var(--white);
+  border: 1px solid var(--light); border-radius: 12px;
+  font-size: clamp(15px, 1.4vw, 18px); line-height: 1.4;
+}
+.d-num {
+  width: 34px; height: 34px; background: var(--fg); color: var(--white);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; flex-shrink: 0;
+}
+.dash-note { margin-top: 22px; font-size: 15px; color: var(--mid); max-width: 580px; line-height: 1.65; padding-left: 18px; border-left: 3px solid var(--accent); }
+
+/* ── S12: ERRORES COMUNES ── */
+.errors-list { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 860px; }
+.error-item {
+  display: flex; align-items: flex-start; gap: 20px;
+  background: var(--white); border: 1px solid var(--light);
+  border-radius: 14px; padding: 18px 24px;
+}
+.err-num {
+  font-size: 13px; font-weight: 800; letter-spacing: .06em;
+  color: var(--danger); min-width: 28px; padding-top: 2px;
+}
+.err-title { font-size: clamp(14px, 1.4vw, 17px); font-weight: 700; margin-bottom: 4px; }
+.err-desc  { font-size: clamp(12px, 1.1vw, 14px); color: var(--mid); line-height: 1.55; }
+
+/* ── S13: DÓNDE VER ── */
+.tools-table { width: 100%; max-width: 860px; border-radius: 16px; overflow: hidden; border: 1px solid var(--light); }
+.tt-head { display: grid; grid-template-columns: 180px 1fr; }
+.tt-h { padding: 13px 22px; font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; background: var(--fg); color: rgba(255,255,255,.6); }
+.tt-row { display: grid; grid-template-columns: 180px 1fr; border-top: 1px solid var(--light); }
+.tt-metric {
+  padding: 15px 22px; background: var(--lighter);
+  font-size: 16px; font-weight: 800; letter-spacing: -.01em;
+  display: flex; align-items: center;
+}
+.tt-metric span { color: var(--accent); }
+.tt-tool {
+  padding: 15px 22px; background: var(--white);
+  font-size: clamp(13px, 1.3vw, 15px); color: var(--mid);
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.tool-chip {
+  display: inline-flex; align-items: center;
+  background: var(--lighter); border: 1px solid var(--light);
+  border-radius: 6px; padding: 3px 10px;
+  font-size: 13px; font-weight: 500; color: var(--fg);
+}
+
+/* ── S14: PREGUNTA DE ORO ── */
+#s14 { background: var(--fg); }
+.gold-q { font-size: clamp(26px, 4.5vw, 62px); font-weight: 800; letter-spacing: -.03em; line-height: 1.15; max-width: 860px; margin-bottom: 32px; color: var(--white); }
+.gold-q em { color: var(--accent); font-style: normal; }
+.gold-sub { font-size: clamp(16px, 1.8vw, 22px); color: rgba(255,255,255,.45); }
+
+/* ── S15: CIERRE ── */
+
+/* ── S13: CIERRE ── */
+.checklist { display: flex; flex-direction: column; gap: 16px; max-width: 600px; margin-bottom: 36px; }
+.check-item { display: flex; align-items: center; gap: 16px; font-size: clamp(18px, 1.8vw, 24px); font-weight: 500; }
+.check-icon { width: 32px; height: 32px; background: var(--fg); color: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.final-quote { font-size: 15px; color: var(--mid); max-width: 560px; line-height: 1.75; font-style: italic; }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress"></div>
+<div class="slide-counter" id="counter">1 / 15</div>
+<div class="deck" id="deck">
+
+  <!-- S1: COVER -->
+  <div class="slide active" id="s1">
+    <div class="cover-rule"></div>
+    <div class="cover-title">Si mides esto<br>vas a vender más</div>
+    <div class="cover-sub">Qué medir y por qué en tu negocio digital</div>
+    <div class="cover-tag">30 min · Para emprendedores</div>
+  </div>
+
+  <!-- S2: EL PROBLEMA -->
+  <div class="slide" id="s2">
+    <div class="tag">El problema</div>
+    <div class="headline">Mides mucho.<br>Decides poco.</div>
+    <div class="problem-body">
+      La mayoría de negocios digitales tienen acceso a cientos de datos pero no saben qué hacer con ellos. El problema no es la falta de datos — es no saber qué pregunta hacerse.
+    </div>
+  </div>
+
+  <!-- S3: PREGUNTA CORRECTA -->
+  <div class="slide" id="s3">
+    <div class="tag">El cambio de mentalidad</div>
+    <div class="headline">Antes de medir:<br>¿qué decisión quieres tomar?</div>
+    <div class="decision-list">
+      <div class="decision-item"><div class="di-q">¿Debo subir el presupuesto de anuncios?</div><div class="di-arrow">→</div><div class="di-ans">ROAS</div></div>
+      <div class="decision-item"><div class="di-q">¿Cuánto puedo gastar para conseguir un cliente?</div><div class="di-arrow">→</div><div class="di-ans">CAC</div></div>
+      <div class="decision-item"><div class="di-q">¿Este canal vale la pena?</div><div class="di-arrow">→</div><div class="di-ans">Costo por lead</div></div>
+    </div>
+  </div>
+
+  <!-- S4: EMBUDO -->
+  <div class="slide centered" id="s4">
+    <div class="tag">El marco</div>
+    <div class="headline">Todo negocio digital tiene un embudo</div>
+    <div class="funnel">
+      <div class="fn"><div class="fn-stage">Atracción</div><div class="fn-metrics">Alcance · Impresiones · CPC</div></div>
+      <div class="fn"><div class="fn-stage">Interés</div><div class="fn-metrics">CTR · Tiempo en página · Rebote</div></div>
+      <div class="fn"><div class="fn-stage">Decisión</div><div class="fn-metrics">Leads · Costo por lead · Conversión</div></div>
+      <div class="fn"><div class="fn-stage">Acción</div><div class="fn-metrics">Ventas · ROAS · Ticket promedio</div></div>
+    </div>
+  </div>
+
+  <!-- S5: 3 MÉTRICAS -->
+  <div class="slide" id="s5">
+    <div class="tag">Las esenciales</div>
+    <div class="headline">Tres números que todo<br>emprendedor debe conocer</div>
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="m-acronym"><span>C</span>AC</div>
+        <div class="m-name">Costo de Adquisición de Cliente</div>
+        <div class="m-question">¿Cuánto te cuesta conseguir un cliente nuevo?</div>
+      </div>
+      <div class="metric-card">
+        <div class="m-acronym"><span>L</span>TV</div>
+        <div class="m-name">Lifetime Value</div>
+        <div class="m-question">¿Cuánto vale un cliente a lo largo del tiempo?</div>
+      </div>
+      <div class="metric-card">
+        <div class="m-acronym"><span>R</span>OAS</div>
+        <div class="m-name">Retorno sobre Inversión en Anuncios</div>
+        <div class="m-question">¿Cuánto recuperas por cada peso invertido en publicidad?</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S6: CALC CAC -->
+  <div class="slide" id="s6">
+    <div class="tag ix">🧮 Calculadora en vivo</div>
+    <div class="headline">¿Cuánto te cuesta<br>un cliente?</div>
+    <div class="calc-layout">
+      <div class="calc-inputs">
+        <div class="calc-field">
+          <div class="calc-label">Gasto total en marketing (mes)</div>
+          <div class="input-wrap">
+            <span class="input-prefix">$</span>
+            <input class="calc-input pfx" type="number" id="cac-spend" placeholder="10,000" min="0" oninput="calcCAC()">
+          </div>
+        </div>
+        <div class="calc-field">
+          <div class="calc-label">Clientes nuevos conseguidos</div>
+          <div class="input-wrap">
+            <input class="calc-input" type="number" id="cac-clients" placeholder="20" min="0" oninput="calcCAC()">
+          </div>
+        </div>
+        <div class="calc-formula"><strong>Fórmula:</strong> CAC = Gasto ÷ Clientes</div>
+      </div>
+      <div class="calc-result" id="cac-result">
+        <div class="result-label">Tu CAC</div>
+        <div class="result-value" id="cac-value">—</div>
+        <div class="result-sub">por cliente adquirido</div>
+        <div class="result-badge bg-empty" id="cac-badge">Ingresa los datos</div>
+        <div class="result-hint" id="cac-hint" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S7: CALC ROAS -->
+  <div class="slide" id="s7">
+    <div class="tag ix">🧮 Calculadora en vivo</div>
+    <div class="headline">¿Tu publicidad<br>es rentable?</div>
+    <div class="calc-layout">
+      <div class="calc-inputs">
+        <div class="calc-field">
+          <div class="calc-label">Inversión en anuncios</div>
+          <div class="input-wrap">
+            <span class="input-prefix">$</span>
+            <input class="calc-input pfx" type="number" id="roas-invest" placeholder="5,000" min="0" oninput="calcROAS()">
+          </div>
+        </div>
+        <div class="calc-field">
+          <div class="calc-label">Ingresos generados por esos anuncios</div>
+          <div class="input-wrap">
+            <span class="input-prefix">$</span>
+            <input class="calc-input pfx" type="number" id="roas-revenue" placeholder="20,000" min="0" oninput="calcROAS()">
+          </div>
+        </div>
+        <div class="calc-formula"><strong>Fórmula:</strong> ROAS = Ingresos ÷ Inversión en anuncios</div>
+      </div>
+      <div class="calc-result" id="roas-result">
+        <div class="result-label">Tu ROAS</div>
+        <div class="result-value" id="roas-value">—</div>
+        <div class="result-sub">por cada peso invertido</div>
+        <div class="roas-visual"><div class="roas-bar" id="roas-bar" style="width:0%;background:var(--light)"></div></div>
+        <div class="result-badge bg-empty" id="roas-badge">Ingresa los datos</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S8: ROAS vs ROI -->
+  <div class="slide" id="s8">
+    <div class="tag">La distinción importante</div>
+    <div class="headline">ROAS ≠ ROI</div>
+    <div class="compare-grid">
+      <div class="compare-card roas">
+        <div class="cc-title" style="color:var(--accent)">ROAS</div>
+        <div class="cc-full">Retorno sobre inversión en anuncios</div>
+        <div class="cc-formula">Ingresos de anuncios ÷ Gasto en anuncios</div>
+        <div class="cc-desc">Mide si tus <strong>campañas de publicidad</strong> están generando ventas. Ignora el costo del producto y los gastos operativos.</div>
+        <div class="cc-focus blue">→ ¿Mis anuncios venden?</div>
+      </div>
+      <div class="compare-card roi">
+        <div class="cc-title">ROI</div>
+        <div class="cc-full">Retorno sobre inversión total</div>
+        <div class="cc-formula">(Ganancia neta ÷ Inversión total) × 100</div>
+        <div class="cc-desc">Mide si <strong>todo el negocio</strong> es rentable. Considera el costo del producto, operaciones, nómina — todo.</div>
+        <div class="cc-focus dark">→ ¿Mi negocio gana dinero?</div>
+      </div>
+    </div>
+    <div class="compare-example">
+      <div class="ex-label">Ejemplo real</div>
+      <div class="ex-item"><div class="ex-val">$1,000</div><div class="ex-name">Inversión en ads</div></div>
+      <div class="ex-div">→</div>
+      <div class="ex-item"><div class="ex-val blue">$4,000</div><div class="ex-name">Ventas generadas</div></div>
+      <div class="ex-div">·</div>
+      <div class="ex-item"><div class="ex-val green">ROAS 4×</div><div class="ex-name">¡Parece excelente!</div></div>
+      <div class="ex-div">pero</div>
+      <div class="ex-item"><div class="ex-val">$2,500</div><div class="ex-name">Costo del producto</div></div>
+      <div class="ex-div">→</div>
+      <div class="ex-item"><div class="ex-val warn">ROI 14%</div><div class="ex-name">Ganancia real $500</div></div>
+    </div>
+  </div>
+
+  <!-- S9: LTV > CAC INTERACTIVO -->
+  <div class="slide" id="s9">
+    <div class="tag ix">🧮 Prueba con tus números</div>
+    <div class="headline">LTV > CAC. Siempre.</div>
+    <div class="ltv-layout">
+      <div class="ltv-inputs">
+        <div class="calc-field">
+          <div class="calc-label">¿Cuánto vale tu cliente? (LTV)</div>
+          <div class="input-wrap">
+            <span class="input-prefix">$</span>
+            <input class="calc-input pfx" type="number" id="ltv-val" placeholder="3,000" min="0" oninput="calcLTV()">
+          </div>
+        </div>
+        <div class="calc-field">
+          <div class="calc-label">¿Cuánto cuesta conseguirlo? (CAC)</div>
+          <div class="input-wrap">
+            <span class="input-prefix">$</span>
+            <input class="calc-input pfx" type="number" id="cac-val" placeholder="500" min="0" oninput="calcLTV()">
+          </div>
+        </div>
+        <div class="ltv-note"><strong>Regla de oro:</strong> LTV debe ser al menos <strong>3× tu CAC</strong>. Si no, estás quemando dinero para crecer.</div>
+      </div>
+      <div class="ltv-chart-area">
+        <div class="ltv-bars">
+          <div class="ltv-bar-group">
+            <div class="ltv-bar b-ltv" id="bar-ltv" style="height:160px"><div class="bar-val" id="bv-ltv">$3,000</div></div>
+            <div class="bar-name">LTV</div>
+          </div>
+          <div class="ltv-bar-group">
+            <div class="ltv-bar b-cac" id="bar-cac" style="height:53px"><div class="bar-val" id="bv-cac">$500</div></div>
+            <div class="bar-name">CAC</div>
+          </div>
+        </div>
+        <div class="ltv-ratio">
+          <div class="ratio-num" id="ratio-num" style="color:var(--ok)">6×</div>
+          <div class="ratio-label">ratio LTV / CAC</div>
+        </div>
+        <div class="ltv-verdict v-good" id="ltv-verdict">Negocio sano ✓</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S10: VANITY METRICS -->
+  <div class="slide" id="s10">
+    <div class="tag">La trampa</div>
+    <div class="headline">Métricas de ego<br>vs. métricas de negocio</div>
+    <div class="vtable">
+      <div class="vt-head"><div class="vt-h bad">❌ Vanity</div><div class="vt-h good">✅ Acción</div></div>
+      <div class="vt-row"><div class="vt-cell vanity">Seguidores</div><div class="vt-cell action">Leads generados</div></div>
+      <div class="vt-row"><div class="vt-cell vanity">Likes</div><div class="vt-cell action">Clics al sitio</div></div>
+      <div class="vt-row"><div class="vt-cell vanity">Impresiones</div><div class="vt-cell action">Costo por conversión</div></div>
+      <div class="vt-row"><div class="vt-cell vanity">Visitas totales</div><div class="vt-cell action">Ventas cerradas</div></div>
+    </div>
+  </div>
+
+  <!-- S11: DASHBOARD -->
+  <div class="slide" id="s11">
+    <div class="tag">Cómo empezar hoy</div>
+    <div class="headline">Tu dashboard en 6 números</div>
+    <div class="dash-list">
+      <div class="dash-item"><div class="d-num">1</div>¿Cuántos leads generé esta semana?</div>
+      <div class="dash-item"><div class="d-num">2</div>¿Cuánto me costó cada lead?</div>
+      <div class="dash-item"><div class="d-num">3</div>¿Cuántos leads se convirtieron en clientes?</div>
+      <div class="dash-item"><div class="d-num">4</div>¿Cuánto facturé?</div>
+      <div class="dash-item"><div class="d-num">5</div>¿Cuánto gasté en conseguirlo?</div>
+      <div class="dash-item"><div class="d-num">6</div>¿Cuánto me quedó de ganancia real? (ROI)</div>
+    </div>
+    <div class="dash-note">Con estos 6 números puedes tomar mejores decisiones que con 50 reportes.</div>
+  </div>
+
+  <!-- S12: ERRORES COMUNES -->
+  <div class="slide" id="s12">
+    <div class="tag">Cuidado con esto</div>
+    <div class="headline">Los errores más comunes</div>
+    <div class="errors-list">
+      <div class="error-item">
+        <div class="err-num">01</div>
+        <div><div class="err-title">Cambiar estrategia después de 3 días</div><div class="err-desc">Las métricas necesitan tiempo para estabilizarse. Un dato sin contexto es ruido, no señal.</div></div>
+      </div>
+      <div class="error-item">
+        <div class="err-num">02</div>
+        <div><div class="err-title">Comparar semanas sin contexto</div><div class="err-desc">Lunes de quincena no es igual a lunes normal. Siempre compara períodos equivalentes.</div></div>
+      </div>
+      <div class="error-item">
+        <div class="err-num">03</div>
+        <div><div class="err-title">Obsesionarse con el ROAS sin saber el margen</div><div class="err-desc">ROAS 4× con margen del 20% puede seguir siendo pérdida. El ROAS no ve el costo del producto.</div></div>
+      </div>
+      <div class="error-item">
+        <div class="err-num">04</div>
+        <div><div class="err-title">Nunca revisar cuánto queda, solo cuánto entra</div><div class="err-desc">Facturar mucho no es lo mismo que ganar. El número que importa es lo que queda después de todos los costos.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S13: DÓNDE VER -->
+  <div class="slide" id="s13">
+    <div class="tag">Herramientas</div>
+    <div class="headline">¿Dónde encuentras<br>cada número?</div>
+    <div class="tools-table">
+      <div class="tt-head">
+        <div class="tt-h">Métrica</div>
+        <div class="tt-h">Dónde verla</div>
+      </div>
+      <div class="tt-row">
+        <div class="tt-metric"><span>R</span>OAS</div>
+        <div class="tt-tool"><span class="tool-chip">Meta Ads Manager</span><span class="tool-chip">Google Ads</span></div>
+      </div>
+      <div class="tt-row">
+        <div class="tt-metric"><span>C</span>AC</div>
+        <div class="tt-tool"><span class="tool-chip">Ads Manager + Excel</span><span class="tool-chip">Tu CRM</span></div>
+      </div>
+      <div class="tt-row">
+        <div class="tt-metric"><span>L</span>TV</div>
+        <div class="tt-tool"><span class="tool-chip">CRM / historial de ventas</span><span class="tool-chip">Excel</span></div>
+      </div>
+      <div class="tt-row">
+        <div class="tt-metric">Leads</div>
+        <div class="tt-tool"><span class="tool-chip">Meta Ads</span><span class="tool-chip">Google Ads</span><span class="tool-chip">CRM</span></div>
+      </div>
+      <div class="tt-row">
+        <div class="tt-metric">Conversiones</div>
+        <div class="tt-tool"><span class="tool-chip">Google Analytics</span><span class="tool-chip">Pixel de Meta</span></div>
+      </div>
+      <div class="tt-row">
+        <div class="tt-metric"><span>R</span>OI</div>
+        <div class="tt-tool"><span class="tool-chip">Excel / Google Sheets</span><span class="tool-chip">Estado de resultados</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S14: PREGUNTA DE ORO -->
+  <div class="slide centered" id="s14">
+    <div class="gold-q">"¿Esta métrica me ayuda a <em>tomar una decisión</em>?"</div>
+    <div class="gold-sub">Si la respuesta es no — deja de medirla.</div>
+  </div>
+
+  <!-- S15: CIERRE -->
+  <div class="slide" id="s15">
+    <div class="tag">Resumen</div>
+    <div class="headline">Tres cosas para llevarte hoy</div>
+    <div class="checklist">
+      <div class="check-item"><div class="check-icon">✓</div>Mide para decidir, no para reportar</div>
+      <div class="check-item"><div class="check-icon">✓</div>Conoce tu CAC, LTV y ROAS</div>
+      <div class="check-item"><div class="check-icon">✓</div>Revisa tus 6 números cada semana</div>
+    </div>
+    <div class="final-quote">
+      "Lo que no se mide, no mejora.<br>
+      Lo que se mide mal, da falsas certezas."
+    </div>
+  </div>
+
+</div>
+
+<div class="dots" id="dotsEl"></div>
+<div class="nav-group left"><button class="nav-btn" id="prevBtn" disabled onclick="navigate(-1)">←</button></div>
+<div class="nav-group right"><button class="nav-btn" id="nextBtn" onclick="navigate(1)">→</button></div>
+
+<script>
+const slides  = Array.from(document.querySelectorAll('.slide'));
+const dotsEl  = document.getElementById('dotsEl');
+const progress= document.getElementById('progress');
+const counter = document.getElementById('counter');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const total   = slides.length;
+const IX      = new Set([5, 6, 8]); // 0-indexed interactive slides
+let current = 0, animating = false;
+
+slides.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '') + (IX.has(i) ? ' ix' : '');
+  d.addEventListener('click', () => goTo(i));
+  dotsEl.appendChild(d);
+});
+
+function goTo(idx) {
+  if (animating || idx === current || idx < 0 || idx >= total) return;
+  animating = true;
+  const prev = slides[current];
+  prev.classList.remove('active'); prev.classList.add('exit');
+  current = idx;
+  slides[current].classList.add('active');
+  setTimeout(() => { prev.classList.remove('exit'); animating = false; }, 420);
+  updateUI();
+}
+
+function navigate(dir) { goTo(current + dir); }
+
+function updateUI() {
+  document.querySelectorAll('.dot').forEach((d, i) => {
+    d.className = 'dot' + (i === current ? ' active' : '') + (IX.has(i) ? ' ix' : '');
+  });
+  progress.style.width = ((current + 1) / total * 100) + '%';
+  counter.textContent  = (current + 1) + ' / ' + total;
+  prevBtn.disabled = current === 0;
+  nextBtn.disabled = current === total - 1;
+}
+
+document.addEventListener('keydown', e => {
+  if (document.activeElement.tagName === 'INPUT') return;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') navigate(1);
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')  navigate(-1);
+});
+
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+document.addEventListener('touchend', e => {
+  if (document.activeElement.tagName === 'INPUT') return;
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 56) navigate(dx < 0 ? 1 : -1);
+});
+
+/* ── CALC CAC ── */
+function fmt(n) {
+  if (!isFinite(n) || n === 0) return '—';
+  return '$' + Math.round(n).toLocaleString('es-MX');
+}
+
+function calcCAC() {
+  const spend   = parseFloat(document.getElementById('cac-spend').value)   || 0;
+  const clients = parseFloat(document.getElementById('cac-clients').value) || 0;
+  const result = document.getElementById('cac-result');
+  const valEl  = document.getElementById('cac-value');
+  const badge  = document.getElementById('cac-badge');
+  const hint   = document.getElementById('cac-hint');
+
+  if (!spend || !clients) {
+    valEl.textContent = '—'; valEl.className = 'result-value';
+    result.className = 'calc-result'; badge.className = 'result-badge bg-empty';
+    badge.textContent = 'Ingresa los datos'; hint.style.display = 'none'; return;
+  }
+  const cac = spend / clients;
+  valEl.textContent = fmt(cac); valEl.className = 'result-value';
+  result.className = 'calc-result'; badge.className = 'result-badge bg-empty';
+  badge.textContent = 'CAC calculado';
+  hint.style.display = 'block';
+  hint.textContent = `Cada cliente nuevo te costó ${fmt(cac)} en marketing.`;
+}
+
+/* ── CALC ROAS ── */
+function calcROAS() {
+  const invest  = parseFloat(document.getElementById('roas-invest').value)  || 0;
+  const revenue = parseFloat(document.getElementById('roas-revenue').value) || 0;
+  const result = document.getElementById('roas-result');
+  const valEl  = document.getElementById('roas-value');
+  const badge  = document.getElementById('roas-badge');
+  const bar    = document.getElementById('roas-bar');
+
+  if (!invest || !revenue) {
+    valEl.textContent = '—'; valEl.className = 'result-value';
+    result.className = 'calc-result'; badge.className = 'result-badge bg-empty';
+    badge.textContent = 'Ingresa los datos';
+    bar.style.width = '0%'; bar.style.background = 'var(--light)'; return;
+  }
+  const roas = revenue / invest;
+  valEl.textContent = roas.toFixed(1) + '×';
+
+  let cls, badgeCls, badgeTxt, barColor;
+  if (roas >= 4)      { cls='good'; badgeCls='bg-good'; badgeTxt='🚀 Excelente';  barColor='var(--ok)'; }
+  else if (roas >= 2) { cls='';    badgeCls='bg-good'; badgeTxt='✓ Bueno';        barColor='var(--accent)'; }
+  else if (roas >= 1) { cls='warn'; badgeCls='bg-warn'; badgeTxt='⚠ Sin margen';  barColor='var(--warn)'; }
+  else                { cls='bad';  badgeCls='bg-bad';  badgeTxt='✗ Pérdida';     barColor='var(--danger)'; }
+
+  result.className = 'calc-result ' + cls;
+  valEl.className  = 'result-value ' + cls;
+  badge.className  = 'result-badge ' + badgeCls;
+  badge.textContent = badgeTxt;
+  bar.style.width  = Math.min(roas / 6 * 100, 100) + '%';
+  bar.style.background = barColor;
+}
+
+/* ── LTV > CAC ── */
+function calcLTV() {
+  const ltv = parseFloat(document.getElementById('ltv-val').value) || 0;
+  const cac = parseFloat(document.getElementById('cac-val').value) || 0;
+  const barLTV = document.getElementById('bar-ltv');
+  const barCAC = document.getElementById('bar-cac');
+  const bvLTV  = document.getElementById('bv-ltv');
+  const bvCAC  = document.getElementById('bv-cac');
+  const ratioEl= document.getElementById('ratio-num');
+  const verdict= document.getElementById('ltv-verdict');
+  const MAX_H  = 180;
+
+  if (!ltv && !cac) {
+    barLTV.style.height = '160px'; barCAC.style.height = '53px';
+    bvLTV.textContent = '$3,000';  bvCAC.textContent = '$500';
+    ratioEl.textContent = '6×';   ratioEl.style.color = 'var(--ok)';
+    verdict.className = 'ltv-verdict v-good'; verdict.textContent = 'Negocio sano ✓';
+    barCAC.className = 'ltv-bar b-cac'; return;
+  }
+
+  if (!ltv || !cac) {
+    barLTV.style.height = ltv ? MAX_H + 'px' : '4px';
+    barCAC.style.height = cac ? MAX_H + 'px' : '4px';
+    bvLTV.textContent = ltv ? fmt(ltv) : ''; bvCAC.textContent = cac ? fmt(cac) : '';
+    ratioEl.textContent = '—'; ratioEl.style.color = 'var(--mid)';
+    verdict.className = 'ltv-verdict v-empty'; verdict.textContent = 'Ingresa ambos valores'; return;
+  }
+
+  const maxVal = Math.max(ltv, cac);
+  barLTV.style.height = Math.max((ltv/maxVal)*MAX_H, 4) + 'px';
+  barCAC.style.height = Math.max((cac/maxVal)*MAX_H, 4) + 'px';
+  bvLTV.textContent = fmt(ltv); bvCAC.textContent = fmt(cac);
+
+  const ratio = ltv / cac;
+  ratioEl.textContent = ratio.toFixed(1) + '×';
+
+  if (ratio >= 3) {
+    ratioEl.style.color = 'var(--ok)';
+    verdict.className = 'ltv-verdict v-good'; verdict.textContent = 'Negocio sano ✓';
+    barCAC.className = 'ltv-bar b-cac';
+  } else if (ratio >= 1.5) {
+    ratioEl.style.color = 'var(--warn)';
+    verdict.className = 'ltv-verdict v-warn'; verdict.textContent = 'Margen ajustado — cuidado';
+    barCAC.className = 'ltv-bar b-cac';
+  } else {
+    ratioEl.style.color = 'var(--danger)';
+    verdict.className = 'ltv-verdict v-bad'; verdict.textContent = 'Problema — CAC demasiado alto';
+    barCAC.className = 'ltv-bar b-cac danger';
+  }
+}
+
+updateUI();
+</script>
+</body>
+</html>
