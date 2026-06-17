@@ -4,6 +4,36 @@
 
 ---
 
+## Última sesión — 2026-06-17 — Clase nueva "Los 5 activos digitales" (deck premium)
+
+**Clase nueva construida y lista en local (`los-5-activos-digitales/`), 25 slides, tema blanco+violeta, mockups visuales; falta el OK de David para commit + push + deploy.**
+
+### Lo hecho hoy
+- Definimos con David el contenido de los 5 activos (iterando): **Marca e identidad · Redes sociales · Página web · WhatsApp · CRM**. Marco narrativo = viaje del cliente con función por activo (te recuerdan → te descubren → toman acción → te hablan → no se caen). Marca es el activo base; se descartaron "pagos" (vive en la web) y "contenido" (vive en redes) por traslape.
+- Construí el deck `los-5-activos-digitales/index.html` (clonando el patrón de `si-mides-esto-vas-a-vender-mas`: slides absolutas con fade, nav teclado/swipe/dots/botones, barra de progreso).
+- Estructura final: **25 slides** = 3 intro (portada · presencia vs activo · mapa) + por cada activo 4 slides (**Divisor → Puntos clave → Mockup visual → Error/Bien**) + 2 cierre (sistema conectado · autodiagnóstico).
+- Mockups en CSS puro: ficha de marca, perfil en teléfono, ventana de navegador con hero+CTA, chat de WhatsApp con burbujas, kanban de CRM.
+- Agregué la **card al hub** (`index.html`): "Los 5 activos digitales que todo negocio debe construir" → `./los-5-activos-digitales/`.
+- Iteraciones de David aplicadas: (1) varias slides por activo, (2) +slide de "Puntos clave a considerar" por activo, (3) **todo más grande** (se verá en video desde teléfono), (4) **nada alineado a la izquierda** → todo centrado, (5) recolor a **blanco + violeta** (`#7C3AED`), (6) fix de slides que se cortaban arriba/abajo (`safe center` + scroll oculto + reducción de peso vertical), (7) quité el "25 min ·" de la portada.
+
+### Decisiones tomadas
+- **Tema visual:** base blanco cálido `#FBFAFF`, acento violeta `#7C3AED`/`#5B21B6`, superficies oscuras en violeta profundo `#1C1140` con glow radial. El chat de WhatsApp **mantiene verde/teal real** a propósito (si no, no se lee como WhatsApp).
+- **Fit en pantalla:** `justify-content/align-items: safe center` + `overflow-y:auto` (scrollbar oculto) como red de seguridad para que nunca se corte contenido; además se bajó el peso vertical (paddings, alto de teléfono/chat, headline) para que entre sin scroll en fullscreen.
+
+### Pendientes — orden de prioridad
+
+#### 🔴 P0 — Bloqueante
+- **Falta el OK explícito de David para commit + push.** Nada subido aún. Al confirmar: `git add -A && git commit && git push` (auto-deploya por la conexión git de Vercel) → `https://clases-sinergeticos.vercel.app/los-5-activos-digitales/`.
+
+#### 🟡 P1 — Esta semana
+- Personalizar los placeholders del deck ([tu cliente], [resultado], "Tu Negocio", @tunegocio) si David lo va a usar con una marca/caso real en vivo.
+- Verificar en fullscreen real (sin barra de marcadores) que ninguna slide se corte; afinar la que quede justa.
+
+### Próximo paso para retomar
+Si David da OK: hacer `git add -A && git commit -m "feat: clase Los 5 activos digitales" && git push` desde `Clases Sinergeticos/` y confirmar el deploy en `clases-sinergeticos.vercel.app/los-5-activos-digitales/`. Si no, seguir afinando copy/diseño del deck.
+
+---
+
 ## Última sesión — 2026-05-30 — Crear hub Clases Sinergéticos + publicar 3 clases
 
 **Hub Clases Sinergéticos en producción (`clases-sinergeticos.vercel.app`) con 3 clases publicadas y carpetas-fuente consolidadas dentro del proyecto.**
