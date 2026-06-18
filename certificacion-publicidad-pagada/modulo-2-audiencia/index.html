@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Audiencia y Segmentación · Módulo 2 · Certificación en Publicidad Pagada</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,500;1,9..144,600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #FBFAF7;
+  --ink: #15110D;
+  --mid: #6E665B;
+  --line: #E8E1D5;
+  --soft: #F2ECE1;
+  --white: #FFFFFF;
+  --accent: #6EA0F6;
+  --accent-deep: #2563EB;
+  --accent-dim: #EAF1FE;
+  --dark: #15110D;
+  --danger: #C6402A;
+  --font: 'Inter', -apple-system, sans-serif;
+  --serif: 'Fraunces', Georgia, serif;
+  --ease: cubic-bezier(.4,0,.2,1);
+}
+
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── LAYOUT ── */
+.deck { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+.slide {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  justify-content: safe center; align-items: safe center; text-align: center;
+  padding: 4vh 5.5vw 7vh; overflow-y: auto; scrollbar-width: none;
+  opacity: 0; transform: translateY(26px);
+  transition: opacity .42s var(--ease), transform .42s var(--ease);
+  pointer-events: none; will-change: opacity, transform;
+}
+.slide.active { opacity: 1; transform: translateY(0); pointer-events: all; }
+.slide.exit   { opacity: 0; transform: translateY(-26px); }
+.slide::-webkit-scrollbar { width: 0; height: 0; }
+
+/* ── CHROME ── */
+.progress-bar { position: fixed; top: 0; left: 0; height: 4px; background: var(--accent); transition: width .42s var(--ease); z-index: 200; }
+.slide-counter { position: fixed; top: 22px; right: 28px; font-size: 13px; font-weight: 800; letter-spacing: .14em; color: var(--mid); z-index: 100; }
+.dots { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; z-index: 90; max-width: 60vw; flex-wrap: wrap; justify-content: center; }
+.dot { width: 7px; height: 7px; border-radius: 4px; background: var(--line); transition: background .25s, width .25s; cursor: pointer; }
+.dot.active { background: var(--ink); width: 24px; }
+.dot.div { background: #B9CCEE; }
+.dot.div.active { background: var(--accent); }
+
+.nav-btn {
+  position: fixed; top: 50%; transform: translateY(-50%); z-index: 100;
+  width: 48px; height: 48px; border-radius: 50%;
+  border: 1px solid var(--line); background: rgba(255,255,255,.86); backdrop-filter: blur(6px);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 20px; color: var(--ink); transition: all .18s; user-select: none; font-family: var(--font);
+}
+.nav-btn.left { left: 22px; } .nav-btn.right { right: 22px; }
+.nav-btn:hover { background: var(--ink); color: var(--white); border-color: var(--ink); }
+.nav-btn:disabled { opacity: .18; cursor: not-allowed; }
+
+/* ── SPEAKER NOTES (nivel 2) ── */
+.notes-btn {
+  position: fixed; bottom: 20px; right: 22px; z-index: 150;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; padding: 0; border-radius: 50%;
+  border: 1px solid var(--line); background: rgba(255,255,255,.7); backdrop-filter: blur(8px);
+  color: var(--mid); font-family: var(--font);
+  cursor: pointer; transition: all .2s; opacity: .5;
+}
+.notes-btn:hover { opacity: 1; color: var(--ink); border-color: var(--ink); }
+.notes-btn .ico { width: 19px; height: 19px; display: block; }
+.notes-btn.on { opacity: 1; background: var(--ink); color: var(--white); border-color: var(--ink); }
+.notes-btn.on .ico { color: var(--accent); }
+
+.notes-drawer {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 140;
+  background: var(--ink); color: #F3EEE6;
+  border-top: 3px solid var(--accent);
+  box-shadow: 0 -24px 60px -20px rgba(0,0,0,.5);
+  max-height: 48vh; transform: translateY(101%); transition: transform .34s var(--ease);
+  display: flex; flex-direction: column;
+}
+.notes-drawer.open { transform: translateY(0); }
+.nd-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 28px 12px; flex-shrink: 0; }
+.nd-title { font-size: 13px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); }
+.nd-title span { color: rgba(243,238,230,.45); margin-left: 10px; letter-spacing: .1em; }
+.nd-close { background: none; border: 1px solid rgba(243,238,230,.2); color: #F3EEE6; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all .18s; }
+.nd-close:hover { background: rgba(243,238,230,.12); }
+.nd-body { padding: 0 28px 26px; overflow-y: auto; scrollbar-width: thin; }
+.nd-body p { font-size: clamp(15px, 1.45vw, 19px); line-height: 1.62; color: #EAE3D8; margin-bottom: 12px; max-width: 1180px; }
+.nd-body b { color: var(--white); font-weight: 700; }
+.nd-body em { color: var(--accent); font-style: normal; font-weight: 600; }
+.nd-body .lead { font-size: clamp(16px, 1.6vw, 22px); font-weight: 600; color: var(--white); margin-bottom: 14px; }
+.nd-body ul { list-style: none; display: flex; flex-direction: column; gap: 8px; margin: 4px 0 12px; }
+.nd-body li { font-size: clamp(14px, 1.35vw, 18px); line-height: 1.5; color: #DAD2C5; padding-left: 22px; position: relative; }
+.nd-body li::before { content: "›"; position: absolute; left: 4px; color: var(--accent); font-weight: 800; }
+.nd-body .say { border-left: 2px solid var(--accent); padding-left: 16px; font-family: var(--serif); font-style: italic; font-size: clamp(16px,1.6vw,21px); color: #F3EEE6; margin: 6px 0 14px; }
+
+/* ── ATOMS ── */
+.kicker { font-size: clamp(13px,1.05vw,16px); font-weight: 800; letter-spacing: .2em; text-transform: uppercase; color: var(--accent-deep); margin-bottom: 22px; }
+.kicker.light { color: var(--accent); }
+.tag { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--mid); border: 1px solid var(--line); padding: 9px 20px; border-radius: 100px; margin-bottom: 26px; }
+.tag.acc { color: var(--accent-deep); border-color: #C2D7FB; background: var(--accent-dim); }
+.headline { font-size: clamp(40px, 6vw, 96px); font-weight: 900; letter-spacing: -.04em; line-height: 1.0; max-width: 17ch; }
+.headline em { font-family: var(--serif); font-style: italic; font-weight: 500; color: var(--accent); letter-spacing: -.01em; }
+.sub { font-size: clamp(19px, 2vw, 30px); color: var(--mid); line-height: 1.45; margin-top: 28px; max-width: 900px; }
+.sub b { color: var(--ink); font-weight: 700; }
+
+/* ── COVER + DARK SLIDES ── */
+.slide.dark { background: radial-gradient(120% 120% at 80% -10%, #2A211A 0%, var(--dark) 55%); color: #F4EFE7; }
+.slide.dark .sub { color: rgba(244,239,231,.6); }
+.slide.dark .sub b { color: #fff; }
+.cover-rule { width: 60px; height: 5px; background: var(--accent); margin-bottom: 36px; }
+.cover-title { font-size: clamp(46px, 7vw, 116px); font-weight: 900; letter-spacing: -.05em; line-height: .94; color: #fff; max-width: 15ch; }
+.cover-title em { font-family: var(--serif); font-style: italic; font-weight: 500; color: var(--accent); }
+.cover-tag { margin-top: 40px; font-size: 14px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: rgba(244,239,231,.5); border: 1px solid rgba(244,239,231,.18); padding: 10px 22px; border-radius: 100px; }
+
+/* ── DIVIDERS ── */
+.slide.divider { background: radial-gradient(120% 110% at 50% -10%, #2A211A 0%, var(--dark) 58%); color: #F4EFE7; justify-content: safe center; }
+.div-ghost { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); font-size: clamp(280px, 50vw, 720px); font-weight: 900; line-height: .8; color: rgba(110,160,246,.22); letter-spacing: -.05em; pointer-events: none; z-index: 0; font-family: var(--serif); font-style: italic; }
+.div-inner { position: relative; z-index: 1; }
+.div-kicker { font-size: 16px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); margin-bottom: 18px; }
+.div-name { font-size: clamp(54px, 8.4vw, 140px); font-weight: 900; letter-spacing: -.045em; line-height: .96; margin-bottom: 26px; color: #fff; }
+.div-name em { font-family: var(--serif); font-style: italic; font-weight: 500; color: var(--accent); }
+.div-fn { display: inline-flex; align-items: center; gap: 12px; font-size: clamp(19px, 2.1vw, 32px); font-weight: 500; color: rgba(244,239,231,.85); border: 1px solid rgba(244,239,231,.18); padding: 13px 28px; border-radius: 100px; }
+.div-fn .d { width: 11px; height: 11px; border-radius: 50%; background: var(--accent); }
+.div-steps { display: flex; gap: 8px; margin-top: 34px; justify-content: center; }
+.div-steps .pip { width: 40px; height: 6px; border-radius: 3px; background: rgba(244,239,231,.18); }
+.div-steps .pip.on { background: var(--accent); }
+
+/* ── BIG STAT ── */
+.stat { font-size: clamp(120px, 22vw, 340px); font-weight: 900; letter-spacing: -.06em; line-height: .82; color: var(--ink); }
+.stat em { font-family: var(--serif); font-style: italic; color: var(--accent); font-weight: 500; }
+
+/* ── IMAGE STAGE ── */
+.figure { width: 100%; max-width: 880px; border-radius: 22px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 34px 80px -42px rgba(0,0,0,.42); background: var(--soft); aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; position: relative; }
+.figure img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.figure.ph { background: repeating-linear-gradient(135deg, #F2ECE1, #F2ECE1 14px, #EFE8DB 14px, #EFE8DB 28px); }
+.figure .ph-lab { position: relative; z-index: 1; font-size: 14px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--mid); background: var(--white); border: 1px solid var(--line); padding: 9px 18px; border-radius: 100px; }
+.cap { font-size: clamp(18px, 1.9vw, 28px); font-weight: 500; color: var(--ink); margin-top: 26px; max-width: 920px; line-height: 1.42; }
+.cap b { color: var(--accent-deep); font-weight: 700; }
+.cap em { font-family: var(--serif); font-style: italic; color: var(--accent); }
+
+/* ── QUOTE (ad hook) ── */
+.adhook { font-family: var(--serif); font-style: italic; font-weight: 500; font-size: clamp(34px, 5vw, 76px); line-height: 1.06; letter-spacing: -.02em; color: var(--accent-deep); max-width: 20ch; }
+
+/* ── MAP / LIST ── */
+.map { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 1040px; }
+.map-row { display: grid; grid-template-columns: 64px 1fr; align-items: center; gap: 22px; background: var(--white); border: 1px solid var(--line); border-radius: 16px; padding: 20px 28px; box-shadow: 0 8px 24px -16px rgba(0,0,0,.18); text-align: left; }
+.map-n { width: 52px; height: 52px; border-radius: 14px; background: var(--soft); color: var(--accent-deep); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 22px; font-family: var(--serif); font-style: italic; }
+.map-row:first-child .map-n { background: var(--accent); color: #fff; }
+.map-name { font-weight: 800; font-size: clamp(21px, 2.3vw, 34px); letter-spacing: -.02em; }
+.map-name span { display: block; font-weight: 500; font-size: clamp(15px,1.5vw,20px); color: var(--mid); letter-spacing: 0; margin-top: 2px; }
+
+/* ── VS CARDS ── */
+.vs { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; width: 100%; max-width: 1120px; }
+.vs-card { background: var(--white); border: 1px solid var(--line); border-radius: 22px; padding: 32px 36px 34px; text-align: left; box-shadow: 0 12px 34px -22px rgba(0,0,0,.2); }
+.vs-card.win { border-color: #C2D7FB; background: linear-gradient(180deg, var(--accent-dim), var(--white)); }
+.vs-k { font-size: 14px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid); margin-bottom: 14px; }
+.vs-card.win .vs-k { color: var(--accent-deep); }
+.vs-h { font-size: clamp(28px, 3vw, 44px); font-weight: 900; letter-spacing: -.025em; margin-bottom: 14px; line-height: 1.02; }
+.vs-h em { font-family: var(--serif); font-style: italic; font-weight: 500; color: var(--accent); }
+.vs-p { font-size: clamp(17px, 1.7vw, 23px); color: var(--mid); line-height: 1.5; }
+.vs-card.win .vs-p { color: #2c3f63; }
+@media(max-width:720px){ .vs { grid-template-columns: 1fr; } }
+
+/* ── POINTS GRID ── */
+.pts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; max-width: 1140px; }
+.point { display: flex; gap: 18px; background: var(--white); border: 1px solid var(--line); border-radius: 16px; padding: 24px 28px; text-align: left; box-shadow: 0 8px 24px -16px rgba(0,0,0,.16); }
+.point .pn { width: 50px; height: 50px; flex-shrink: 0; border-radius: 14px; background: var(--accent-dim); color: var(--accent-deep); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 24px; font-family: var(--serif); font-style: italic; }
+.point h4 { font-size: clamp(21px,2.1vw,30px); font-weight: 800; letter-spacing: -.015em; margin-bottom: 7px; }
+.point p { font-size: clamp(16px,1.55vw,21px); color: var(--mid); line-height: 1.45; }
+@media(max-width:720px){ .pts-grid { grid-template-columns: 1fr; } }
+
+/* ── CLOSE RECAP ── */
+.recap { display: flex; flex-direction: column; gap: 12px; max-width: 820px; margin-bottom: 30px; text-align: left; }
+.recap-item { display: flex; align-items: center; gap: 16px; font-size: clamp(19px, 1.9vw, 28px); font-weight: 600; color: #F4EFE7; }
+.recap-ico { width: 42px; height: 42px; background: var(--accent); color: #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; flex-shrink: 0; font-family: var(--serif); font-style: italic; }
+.bridge { font-size: clamp(18px, 1.9vw, 27px); color: rgba(244,239,231,.7); max-width: 800px; line-height: 1.55; text-align: center; padding-top: 24px; border-top: 3px solid var(--accent); }
+.bridge b { color: #fff; font-weight: 700; }
+.bridge em { font-family: var(--serif); font-style: italic; color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress"></div>
+<div class="slide-counter" id="counter"></div>
+<div class="deck" id="deck">
+
+  <!-- S1 · COVER -->
+  <div class="slide dark active" id="s1">
+    <div class="cover-rule"></div>
+    <div class="kicker light">Certificación · Publicidad Pagada — Módulo 2</div>
+    <div class="cover-title">Audiencia y <em>segmentación</em></div>
+    <div class="sub">A quién le hablas —y por qué hoy se hace casi al revés de como crees.</div>
+    <div class="cover-tag">David Iriza · Sinergéticos</div>
+    <div class="sn" hidden>
+      <p class="lead">Apertura. Conecta con el Módulo 1: ya entienden el juego; ahora viene la primera decisión real al anunciarse.</p>
+      <p class="say">"En el módulo pasado vimos cómo funciona la publicidad. Hoy tomamos la primera gran decisión cuando te anuncias: ¿a quién le hablas? Y te adelanto algo: la respuesta de hoy es lo contrario a lo que la mayoría todavía hace."</p>
+    </div>
+  </div>
+
+  <!-- S2 · HOOK -->
+  <div class="slide" id="s2">
+    <div class="tag">La gran confusión</div>
+    <div class="headline">No vas a <em>convencer</em> a nadie.</div>
+    <div class="sub">La publicidad no inventa el deseo. Encuentra a quien <b>ya lo tiene</b> y lo ayuda a dar el paso.</div>
+    <div class="sn" hidden>
+      <p class="lead">El reencuadre que cambia todo el módulo. Quítales la idea de "convencer".</p>
+      <p>La mayoría cree que anunciarse es convencer a alguien de que quiera algo. Eso es carísimo y casi nunca funciona. El trabajo real es otro: hay gente que YA tiene el problema y YA quiere resolverlo; tú solo tienes que aparecer frente a ella.</p>
+      <p class="say">"No estás aquí para convencer al que no quiere. Estás aquí para encontrar al que ya quiere y quitarle las dudas para que actúe. Cambia eso en tu cabeza y cambia todo lo demás."</p>
+      <p>Conecta con la idea clásica de captar demanda que ya existe, en vez de crearla de cero.</p>
+    </div>
+  </div>
+
+  <!-- S3 · PRINCIPIO (vs) -->
+  <div class="slide" id="s3">
+    <div class="vs">
+      <div class="vs-card">
+        <div class="vs-k">El camino difícil</div>
+        <div class="vs-h">Convencer al que no quiere.</div>
+        <div class="vs-p">Gastas una fortuna intentando despertar un deseo que no existe. Cansa, sale caro y casi nunca funciona.</div>
+      </div>
+      <div class="vs-card win">
+        <div class="vs-k">El camino real</div>
+        <div class="vs-h">Encontrar al que <em>ya quiere</em>.</div>
+        <div class="vs-p">Siempre hay gente con el problema, buscando solución. Tu única tarea es aparecer frente a ella en el momento justo.</div>
+      </div>
+    </div>
+    <div class="sn" hidden>
+      <p class="lead">Refuerza el reencuadre con el contraste. Aquí pueden respirar antes de entrar a la mecánica.</p>
+      <p>Ejemplo para aterrizarlo: vender un curso de inglés. No persigues a quien no le interesa el inglés; buscas a quien ya siente que el inglés le está frenando el sueldo. Ese ya quiere; solo necesita confiar en ti.</p>
+      <p class="say">"Vender es mucho más fácil cuando dejas de empujar y empiezas a encontrar. Todo este módulo es aprender a encontrar."</p>
+    </div>
+  </div>
+
+  <!-- S4 · MAPA -->
+  <div class="slide" id="s4">
+    <div class="tag acc">El recorrido de hoy</div>
+    <div class="headline" style="margin-bottom:30px;font-size:clamp(34px,4.4vw,64px)">Cuatro bloques.</div>
+    <div class="map">
+      <div class="map-row"><div class="map-n">01</div><div class="map-name">Segmentar antes<span>Tú adivinabas a quién</span></div></div>
+      <div class="map-row"><div class="map-n">02</div><div class="map-name">Segmentar hoy<span>Tu mensaje elige por ti</span></div></div>
+      <div class="map-row"><div class="map-n">03</div><div class="map-name">Andrómeda<span>El motor que lo cambió todo</span></div></div>
+      <div class="map-row"><div class="map-n">04</div><div class="map-name">Tu estrategia<span>Qué hacer desde mañana</span></div></div>
+    </div>
+    <div class="sn" hidden>
+      <p class="lead">Mapa del módulo. Recórrelo rápido, una línea por bloque.</p>
+      <p class="say">"Vamos a ver cómo se segmentaba antes, cómo se hace hoy, el motor de Meta que provocó el cambio, y al final, qué vas a hacer tú con todo esto."</p>
+    </div>
+  </div>
+
+  <!-- ═══ 01 · ANTES ═══ -->
+  <div class="slide divider" id="s5">
+    <div class="div-ghost">01</div>
+    <div class="div-inner">
+      <div class="div-kicker">Bloque 01</div>
+      <div class="div-name">Segmentar <em>antes</em></div>
+      <div class="div-fn"><span class="d"></span> Tú adivinabas a quién</div>
+      <div class="div-steps"><span class="pip on"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span></div>
+    </div>
+    <div class="sn" hidden><p class="say">"Hace unos años, segmentar era un trabajo manual. Tú le decías a la plataforma, con lujo de detalle, a quién mostrarle tu anuncio."</p></div>
+  </div>
+
+  <!-- S6 · ANTES cómo era -->
+  <div class="slide" id="s6">
+    <div class="kicker">Bloque 01 · Antes</div>
+    <div class="headline" style="font-size:clamp(32px,4.4vw,62px);margin-bottom:30px">Tú elegías a quién mostrar.</div>
+    <div class="pts-grid">
+      <div class="point"><div class="pn">1</div><div><h4>Datos básicos</h4><p>Edad, sexo, ciudad.</p></div></div>
+      <div class="point"><div class="pn">2</div><div><h4>Intereses</h4><p>Gym, viajes, mascotas… lo que suponías que le gustaba.</p></div></div>
+      <div class="point"><div class="pn">3</div><div><h4>Comportamientos</h4><p>Qué compraba, qué teléfono usaba, sus hábitos.</p></div></div>
+      <div class="point"><div class="pn">4</div><div><h4>Y a cruzar los dedos</h4><p>Apilabas filtros y esperabas haber adivinado bien.</p></div></div>
+    </div>
+    <div class="cap">El problema no eran los filtros. Era que <b>estabas adivinando</b> quién es tu cliente.</div>
+    <div class="sn" hidden>
+      <p class="lead">Cómo funcionaba la segmentación detallada. Que sientan lo trabajoso y lo frágil que era.</p>
+      <p>Tú armabas un "perfil" del cliente a mano: mujer, 30-45, interesada en yoga, que compra online… y le decías a Meta "muéstraselo solo a esta gente". Si tu perfil estaba mal, tu dinero se iba mal.</p>
+      <p class="say">"El problema de adivinar es doble: encierras a la gente en una casilla, y dejas fuera a miles que sí te habrían comprado pero que no encajaban en tu perfil. Adivinar es caro."</p>
+    </div>
+  </div>
+
+  <!-- ═══ 02 · HOY ═══ -->
+  <div class="slide divider" id="s7">
+    <div class="div-ghost">02</div>
+    <div class="div-inner">
+      <div class="div-kicker">Bloque 02</div>
+      <div class="div-name">Segmentar <em>hoy</em></div>
+      <div class="div-fn"><span class="d"></span> Tu mensaje elige por ti</div>
+      <div class="div-steps"><span class="pip"></span><span class="pip on"></span><span class="pip"></span><span class="pip"></span></div>
+    </div>
+    <div class="sn" hidden><p class="say">"Hoy el trabajo se invirtió. Ya no le dices a la máquina a quién buscar. Le das libertad —y dejas que tu anuncio haga el filtro."</p></div>
+  </div>
+
+  <!-- S8 · HOY idea clave -->
+  <div class="slide" id="s8">
+    <div class="kicker">Bloque 02 · Hoy</div>
+    <div class="headline">Hoy, tu <em>mensaje</em> segmenta.</div>
+    <div class="sub">Le das al sistema un público amplio y dejas que el anuncio haga el filtro: <b>la persona correcta se detiene; la demás sigue de largo.</b></div>
+    <div class="sn" hidden>
+      <p class="lead">La idea central del módulo. Dilo despacio.</p>
+      <p>Antes el filtro estaba en la configuración (tú elegías). Hoy el filtro está en el anuncio: las primeras palabras, la imagen, el problema que nombras. Eso decide quién se queda viendo.</p>
+      <p class="say">"Tu anuncio es el filtro. Si dice algo que solo le importa a tu cliente, tu cliente se detiene y el resto pasa de largo —sin que tú tuvieras que adivinar nada."</p>
+      <p>Idea de la industria: "la creatividad es la nueva segmentación". Confirmar con la investigación quién lo acuña.</p>
+    </div>
+  </div>
+
+  <!-- S9 · HOY ejemplo -->
+  <div class="slide" id="s9">
+    <div class="kicker">Bloque 02 · Un ejemplo</div>
+    <div class="adhook">«¿Tu restaurante está medio vacío entre semana?»</div>
+    <div class="cap">Nadie tuvo que elegir “dueños de restaurante”. <b>El mensaje los eligió solos:</b> solo se detiene quien tiene uno.</div>
+    <div class="sn" hidden>
+      <p class="lead">Ejemplo concreto para que el concepto deje de ser abstracto.</p>
+      <p>Lee el gancho en voz alta y pregunta al grupo: "¿a quién frena ese anuncio?". Respuesta: solo a dueños de restaurante con ese dolor. A todos los demás les resbala —y está bien.</p>
+      <p class="say">"Una buena primera línea hace el trabajo de mil filtros. Por eso, en publicidad de hoy, escribir bien la entrada vale más que configurar bien el público."</p>
+      <p>Si quieres, pide al grupo que invente el gancho para SU negocio en una frase.</p>
+    </div>
+  </div>
+
+  <!-- ═══ 03 · ANDROMEDA ═══ -->
+  <div class="slide divider" id="s10">
+    <div class="div-ghost">03</div>
+    <div class="div-inner">
+      <div class="div-kicker">Bloque 03</div>
+      <div class="div-name">Andrómeda</div>
+      <div class="div-fn"><span class="d"></span> El motor que lo cambió todo</div>
+      <div class="div-steps"><span class="pip"></span><span class="pip"></span><span class="pip on"></span><span class="pip"></span></div>
+    </div>
+    <div class="sn" hidden><p class="say">"¿Y por qué hoy funciona dejarle el trabajo a la máquina? Por algo que Meta construyó por dentro y que casi nadie conoce por su nombre: Andrómeda."</p></div>
+  </div>
+
+  <!-- S11 · ANDROMEDA qué es (image) -->
+  <div class="slide" id="s11">
+    <div class="kicker">Bloque 03 · Meta</div>
+    <div class="figure ph" data-img="andromeda">
+      <span class="ph-lab">Imagen 3D — Andrómeda, el motor de Meta</span>
+    </div>
+    <div class="cap">Andrómeda es el cerebro de IA de Meta. En un instante elige, entre millones de anuncios, <b>el correcto para cada persona.</b></div>
+    <div class="sn" hidden>
+      <p class="lead">Qué es Andrómeda, en simple. (Afinar cifras con la investigación.)</p>
+      <ul>
+        <li>Es el motor de inteligencia artificial que Meta usa para decidir qué anuncio te toca ver, hecho junto con NVIDIA.</li>
+        <li>De un mar enorme de anuncios posibles, escoge en milisegundos el que más probablemente te interese.</li>
+        <li>Meta reportó saltos grandes en qué tan relevantes son los anuncios gracias a él. (Confirmar % con la investigación.)</li>
+      </ul>
+      <p class="say">"Imagina un cazatalentos que, entre millones de anuncios, te entrega justo el que sí te interesa, en lo que parpadeas. Eso es Andrómeda. Y por eso ya no necesitas adivinar: el motor es mejor que tú encontrando a tu gente."</p>
+    </div>
+  </div>
+
+  <!-- S12 · ANDROMEDA qué cambió -->
+  <div class="slide" id="s12">
+    <div class="kicker">Bloque 03 · Qué cambió</div>
+    <div class="headline" style="font-size:clamp(32px,4.4vw,60px);margin-bottom:30px">Por eso hoy gana lo amplio.</div>
+    <div class="pts-grid">
+      <div class="point"><div class="pn">1</div><div><h4>Encuentra solo</h4><p>Halla a tu comprador sin que tú lo describas.</p></div></div>
+      <div class="point"><div class="pn">2</div><div><h4>Ve nichos que tú no</h4><p>Llega a gente que jamás habrías marcado en un filtro.</p></div></div>
+      <div class="point"><div class="pn">3</div><div><h4>Aprende rápido</h4><p>Con cada resultado, afina a quién mostrarte.</p></div></div>
+      <div class="point"><div class="pn">4</div><div><h4>Premia el buen anuncio</h4><p>Mientras mejor tu mensaje, más barato y más lejos llega.</p></div></div>
+    </div>
+    <div class="sn" hidden>
+      <p class="lead">El "para mí qué" de Andrómeda: por qué hoy conviene soltar el control.</p>
+      <p>Hay otra razón del cambio: cuando Apple bloqueó parte del rastreo (2021), los filtros manuales perdieron información. Meta respondió apostando todo a que su IA encontrara a la gente sola. Y le funcionó.</p>
+      <p class="say">"Cuando tú segmentas a mano, le pones un techo al sistema. Cuando le das público amplio, le quitas el techo y deja que encuentre oro donde tú ni mirarías."</p>
+    </div>
+  </div>
+
+  <!-- ═══ 04 · ESTRATEGIA ═══ -->
+  <div class="slide divider" id="s13">
+    <div class="div-ghost">04</div>
+    <div class="div-inner">
+      <div class="div-kicker">Bloque 04</div>
+      <div class="div-name">Tu <em>estrategia</em></div>
+      <div class="div-fn"><span class="d"></span> Qué hacer desde mañana</div>
+      <div class="div-steps"><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip on"></span></div>
+    </div>
+    <div class="sn" hidden><p class="say">"Bajemos todo a tierra. Si mañana abres una campaña, esto es exactamente lo que haces."</p></div>
+  </div>
+
+  <!-- S14 · ESTRATEGIA pasos -->
+  <div class="slide" id="s14">
+    <div class="tag acc">El plan de hoy</div>
+    <div class="headline" style="font-size:clamp(32px,4.4vw,58px);margin-bottom:30px">Cuatro movimientos.</div>
+    <div class="pts-grid">
+      <div class="point"><div class="pn">1</div><div><h4>Abre el público</h4><p>Amplio. Deja que el sistema busque; no lo encajones.</p></div></div>
+      <div class="point"><div class="pn">2</div><div><h4>Que el mensaje filtre</h4><p>Nombra a tu cliente y su dolor en la primera línea.</p></div></div>
+      <div class="point"><div class="pn">3</div><div><h4>Alimenta el píxel</h4><p>Marca las ventas: son la comida del algoritmo.</p></div></div>
+      <div class="point"><div class="pn">4</div><div><h4>Excluye a quien ya compró</h4><p>No pagues por venderle a quien ya te compró.</p></div></div>
+    </div>
+    <div class="sn" hidden>
+      <p class="lead">El plan accionable. Aquí pueden tomar foto/nota.</p>
+      <p>Un quinto movimiento que va en el siguiente módulo: <b>probar varios anuncios</b>. Cada creativo es una puerta distinta para que el sistema encuentre gente nueva.</p>
+      <p class="say">"Público amplio, un mensaje que hable claro, el píxel bien alimentado y excluir a los que ya te compraron. Con eso le das al sistema todo lo que necesita para trabajar a tu favor."</p>
+    </div>
+  </div>
+
+  <!-- S15 · ESTRATEGIA error vs bien -->
+  <div class="slide" id="s15">
+    <div class="vs">
+      <div class="vs-card">
+        <div class="vs-k">El error de siempre</div>
+        <div class="vs-h">Segmentar de más.</div>
+        <div class="vs-p">Públicos diminutos y mil filtros encimados. Le cierras la puerta al sistema justo cuando es más listo que tú.</div>
+      </div>
+      <div class="vs-card win">
+        <div class="vs-k">Lo que funciona hoy</div>
+        <div class="vs-h">Amplio + <em>buen mensaje</em>.</div>
+        <div class="vs-p">Dale espacio para buscar y un anuncio que hable claro. Ahí es donde hoy está el dinero.</div>
+      </div>
+    </div>
+    <div class="sn" hidden>
+      <p class="lead">El contraste que resume el módulo. Que se les quede grabado.</p>
+      <p>El instinto del principiante es "afinar" hasta un público de 5,000 personas creyendo que es más preciso. Hoy eso ahoga al sistema. Lo sobre-segmentado perdió; lo amplio con buen mensaje ganó.</p>
+      <p class="say">"Tu trabajo ya no es elegir a la persona. Es escribir el anuncio que hace que la persona se elija sola. Suelta el control de la lista; toma el control del mensaje."</p>
+    </div>
+  </div>
+
+  <!-- S16 · CIERRE -->
+  <div class="slide dark" id="s16">
+    <div class="kicker light">Cierre del Módulo 2</div>
+    <div class="headline" style="color:#fff;margin-bottom:34px;font-size:clamp(34px,4.6vw,72px)">Ya sabes a <em>quién</em>.</div>
+    <div class="recap">
+      <div class="recap-item"><div class="recap-ico">1</div>No convences: encuentras a quien ya quiere</div>
+      <div class="recap-item"><div class="recap-ico">2</div>Antes adivinabas; hoy tu mensaje filtra</div>
+      <div class="recap-item"><div class="recap-ico">3</div>Andrómeda hace el trabajo pesado de buscar</div>
+      <div class="recap-item"><div class="recap-ico">4</div>Amplio + buen mensaje + buenas señales</div>
+    </div>
+    <div class="bridge">Ya sabes a quién buscar. En el siguiente módulo creamos <b>el anuncio que los detiene</b>. <em>Porque sin un buen mensaje, ni Andrómeda te salva.</em></div>
+    <div class="sn" hidden>
+      <p class="lead">Cierre + puente al Módulo 3. Deja la sensación de que lo difícil ya pasó.</p>
+      <p class="say">"Hoy dejaste de adivinar a quién venderle. Sales sabiendo que tu trabajo es encontrar al que ya quiere y dejar que tu mensaje haga el filtro. En el siguiente módulo nos metemos justo ahí: a crear el anuncio que detiene a tu gente."</p>
+      <p>(Confirmar con David el título exacto del Módulo 3 para ajustar este puente.)</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="dots" id="dots"></div>
+<button class="nav-btn left" id="prevBtn" aria-label="Anterior">‹</button>
+<button class="nav-btn right" id="nextBtn" aria-label="Siguiente">›</button>
+
+<button class="notes-btn" id="notesBtn" aria-label="Guion del orador" title="Guion del orador (G)">
+  <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 12h10M4 19h7"/></svg>
+</button>
+
+<div class="notes-drawer" id="notesDrawer">
+  <div class="nd-head">
+    <div class="nd-title">Guion del orador <span id="ndSlide"></span></div>
+    <button class="nd-close" id="ndClose" aria-label="Cerrar">✕</button>
+  </div>
+  <div class="nd-body" id="ndBody"></div>
+</div>
+
+<script>
+const slides   = Array.from(document.querySelectorAll('.slide'));
+const dotsEl   = document.getElementById('dots');
+const progress = document.getElementById('progress');
+const counter  = document.getElementById('counter');
+const prevBtn  = document.getElementById('prevBtn');
+const nextBtn  = document.getElementById('nextBtn');
+const notesBtn = document.getElementById('notesBtn');
+const drawer   = document.getElementById('notesDrawer');
+const ndBody   = document.getElementById('ndBody');
+const ndSlide  = document.getElementById('ndSlide');
+const ndClose  = document.getElementById('ndClose');
+const total    = slides.length;
+let current = 0, animating = false, notesOpen = false;
+
+slides.forEach((s, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '') + (s.classList.contains('divider') ? ' div' : '');
+  d.addEventListener('click', () => goTo(i));
+  dotsEl.appendChild(d);
+});
+
+function goTo(idx) {
+  if (animating || idx === current || idx < 0 || idx >= total) return;
+  animating = true;
+  const prev = slides[current];
+  prev.classList.remove('active'); prev.classList.add('exit');
+  current = idx;
+  slides[current].classList.add('active');
+  setTimeout(() => { prev.classList.remove('exit'); animating = false; }, 440);
+  updateUI();
+  if (notesOpen) renderNotes();
+}
+function navigate(dir) { goTo(current + dir); }
+
+function updateUI() {
+  document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === current));
+  progress.style.width = ((current + 1) / total * 100) + '%';
+  counter.textContent  = (current + 1) + ' / ' + total;
+  prevBtn.disabled = current === 0;
+  nextBtn.disabled = current === total - 1;
+}
+
+function renderNotes() {
+  const src = slides[current].querySelector('.sn');
+  ndBody.innerHTML = src ? src.innerHTML : '<p>— Sin notas para esta diapositiva —</p>';
+  ndSlide.textContent = (current + 1) + ' / ' + total;
+  ndBody.scrollTop = 0;
+}
+function toggleNotes(force) {
+  notesOpen = (force === undefined) ? !notesOpen : force;
+  drawer.classList.toggle('open', notesOpen);
+  notesBtn.classList.toggle('on', notesOpen);
+  if (notesOpen) renderNotes();
+}
+
+notesBtn.addEventListener('click', () => toggleNotes());
+ndClose.addEventListener('click', () => toggleNotes(false));
+
+prevBtn.addEventListener('click', () => navigate(-1));
+nextBtn.addEventListener('click', () => navigate(1));
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); navigate(1); }
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   { e.preventDefault(); navigate(-1); }
+  if (e.key === ' ' && !notesOpen) { e.preventDefault(); navigate(1); }
+  if (e.key.toLowerCase() === 'g') { e.preventDefault(); toggleNotes(); }
+  if (e.key === 'Escape' && notesOpen) toggleNotes(false);
+});
+
+let tx = 0, ty = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  const dy = e.changedTouches[0].clientY - ty;
+  if (Math.abs(dx) > 56 && Math.abs(dx) > Math.abs(dy)) navigate(dx < 0 ? 1 : -1);
+});
+
+updateUI();
+</script>
+</body>
+</html>
