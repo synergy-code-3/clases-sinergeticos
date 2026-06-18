@@ -3,13 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fundamentos de la publicidad digital · Certificación en Publicidad Pagada</title>
+<title>Certificación en Publicidad Pagada · Sinergéticos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,500;1,9..144,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,500;1,9..144,400;1,9..144,500;1,9..144,600&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 :root {
   --bg: #FBFAF7;
   --ink: #15110D;
@@ -21,618 +20,112 @@
   --accent-deep: #2563EB;
   --accent-dim: #EAF1FE;
   --dark: #15110D;
-  --danger: #C6402A;
   --font: 'Inter', -apple-system, sans-serif;
   --serif: 'Fraunces', Georgia, serif;
   --ease: cubic-bezier(.4,0,.2,1);
 }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font); background: var(--bg); color: var(--ink);
+  -webkit-font-smoothing: antialiased; min-height: 100vh;
+  padding: clamp(40px, 7vh, 90px) 6vw clamp(60px, 9vh, 110px);
+  display: flex; flex-direction: column; align-items: center;
+}
+.wrap { width: 100%; max-width: 1000px; }
 
-html, body {
-  width: 100%; height: 100%; overflow: hidden;
-  font-family: var(--font);
-  background: var(--bg);
-  color: var(--ink);
-  -webkit-font-smoothing: antialiased;
+/* HERO */
+.hero { text-align: center; margin-bottom: clamp(44px, 7vh, 80px); }
+.hero .rule { width: 60px; height: 5px; background: var(--accent); margin: 0 auto 30px; border-radius: 4px; }
+.hero .kicker { font-size: clamp(13px,1.1vw,16px); font-weight: 800; letter-spacing: .22em; text-transform: uppercase; color: var(--accent-deep); margin-bottom: 20px; }
+.hero h1 { font-size: clamp(44px, 8vw, 104px); font-weight: 900; letter-spacing: -.05em; line-height: .92; }
+.hero h1 em { font-family: var(--serif); font-style: italic; font-weight: 500; color: var(--accent); }
+.hero p { font-size: clamp(18px, 2.1vw, 27px); color: var(--mid); line-height: 1.45; max-width: 640px; margin: 26px auto 0; }
+
+/* PROGRESS */
+.progress { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 30px; font-size: 14px; font-weight: 700; letter-spacing: .04em; color: var(--mid); }
+.progress .bar { width: 180px; height: 7px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.progress .fill { display: block; height: 100%; width: 40%; background: var(--accent); border-radius: 4px; }
+
+/* MODULE LIST */
+.mods { display: flex; flex-direction: column; gap: 16px; }
+.mod {
+  display: grid; grid-template-columns: 96px 1fr auto; align-items: center; gap: clamp(18px,3vw,34px);
+  background: var(--white); border: 1px solid var(--line); border-radius: 20px;
+  padding: clamp(22px,3vw,34px) clamp(24px,3.4vw,40px);
+  text-decoration: none; color: inherit; position: relative;
+  box-shadow: 0 10px 30px -20px rgba(0,0,0,.22);
+  transition: transform .2s var(--ease), box-shadow .2s var(--ease), border-color .2s var(--ease);
+}
+.mod.live:hover { transform: translateY(-3px); border-color: #C2D7FB; box-shadow: 0 22px 50px -26px rgba(37,99,235,.4); }
+.mod-n { font-family: var(--serif); font-style: italic; font-weight: 500; font-size: clamp(46px,6vw,76px); line-height: .9; color: var(--accent); letter-spacing: -.03em; }
+.mod-body h2 { font-size: clamp(22px,3vw,38px); font-weight: 800; letter-spacing: -.025em; line-height: 1.05; }
+.mod-body p { font-size: clamp(15px,1.7vw,20px); color: var(--mid); line-height: 1.4; margin-top: 7px; }
+.mod-cta { display: flex; align-items: center; gap: 12px; }
+.chip { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: 7px 14px; border-radius: 100px; white-space: nowrap; }
+.chip.ok { color: var(--accent-deep); background: var(--accent-dim); border: 1px solid #C2D7FB; }
+.chip.soon { color: var(--mid); background: var(--soft); border: 1px solid var(--line); }
+.arrow { width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--ink); flex-shrink: 0; transition: all .2s; }
+.mod.live:hover .arrow { background: var(--accent-deep); color: #fff; border-color: var(--accent-deep); }
+
+.mod.soon { opacity: .72; cursor: default; }
+.mod.soon .mod-n { color: #CFC7B8; }
+
+@media(max-width:680px){
+  .mod { grid-template-columns: 64px 1fr; }
+  .mod-cta { grid-column: 2; justify-content: flex-start; margin-top: 4px; }
+  .arrow { display: none; }
 }
 
-/* ── LAYOUT ── */
-.deck { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
-.slide {
-  position: absolute; inset: 0;
-  display: flex; flex-direction: column;
-  justify-content: safe center; align-items: safe center; text-align: center;
-  padding: 4vh 5.5vw 7vh; overflow-y: auto; scrollbar-width: none;
-  opacity: 0; transform: translateY(26px);
-  transition: opacity .42s var(--ease), transform .42s var(--ease);
-  pointer-events: none; will-change: opacity, transform;
-}
-.slide.active { opacity: 1; transform: translateY(0); pointer-events: all; }
-.slide.exit   { opacity: 0; transform: translateY(-26px); }
-.slide::-webkit-scrollbar { width: 0; height: 0; }
-
-/* ── CHROME ── */
-.progress-bar { position: fixed; top: 0; left: 0; height: 4px; background: var(--accent); transition: width .42s var(--ease); z-index: 200; }
-.slide-counter { position: fixed; top: 22px; right: 28px; font-size: 13px; font-weight: 800; letter-spacing: .14em; color: var(--mid); z-index: 100; }
-.dots { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; z-index: 90; max-width: 60vw; flex-wrap: wrap; justify-content: center; }
-.dot { width: 7px; height: 7px; border-radius: 4px; background: var(--line); transition: background .25s, width .25s; cursor: pointer; }
-.dot.active { background: var(--ink); width: 24px; }
-.dot.div { background: #B9CCEE; }
-.dot.div.active { background: var(--accent); }
-
-.nav-btn {
-  position: fixed; top: 50%; transform: translateY(-50%); z-index: 100;
-  width: 48px; height: 48px; border-radius: 50%;
-  border: 1px solid var(--line); background: rgba(255,255,255,.86); backdrop-filter: blur(6px);
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  font-size: 20px; color: var(--ink); transition: all .18s; user-select: none; font-family: var(--font);
-}
-.nav-btn.left { left: 22px; } .nav-btn.right { right: 22px; }
-.nav-btn:hover { background: var(--ink); color: var(--white); border-color: var(--ink); }
-.nav-btn:disabled { opacity: .18; cursor: not-allowed; }
-
-/* ── SPEAKER NOTES (nivel 2) ── */
-.notes-btn {
-  position: fixed; bottom: 20px; right: 22px; z-index: 150;
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 44px; height: 44px; padding: 0; border-radius: 50%;
-  border: 1px solid var(--line); background: rgba(255,255,255,.7); backdrop-filter: blur(8px);
-  color: var(--mid); font-family: var(--font);
-  cursor: pointer; transition: all .2s; opacity: .5;
-}
-.notes-btn:hover { opacity: 1; color: var(--ink); border-color: var(--ink); }
-.notes-btn .ico { width: 19px; height: 19px; display: block; }
-.notes-btn.on { opacity: 1; background: var(--ink); color: var(--white); border-color: var(--ink); }
-.notes-btn.on .ico { color: var(--accent); }
-
-.notes-drawer {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 140;
-  background: var(--ink); color: #F3EEE6;
-  border-top: 3px solid var(--accent);
-  box-shadow: 0 -24px 60px -20px rgba(0,0,0,.5);
-  max-height: 48vh; transform: translateY(101%); transition: transform .34s var(--ease);
-  display: flex; flex-direction: column;
-}
-.notes-drawer.open { transform: translateY(0); }
-.nd-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 28px 12px; flex-shrink: 0; }
-.nd-title { font-size: 13px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); }
-.nd-title span { color: rgba(243,238,230,.45); margin-left: 10px; letter-spacing: .1em; }
-.nd-close { background: none; border: 1px solid rgba(243,238,230,.2); color: #F3EEE6; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all .18s; }
-.nd-close:hover { background: rgba(243,238,230,.12); }
-.nd-body { padding: 0 28px 26px; overflow-y: auto; scrollbar-width: thin; }
-.nd-body p { font-size: clamp(15px, 1.45vw, 19px); line-height: 1.62; color: #EAE3D8; margin-bottom: 12px; max-width: 1180px; }
-.nd-body b { color: var(--white); font-weight: 700; }
-.nd-body em { color: var(--accent); font-style: normal; font-weight: 600; }
-.nd-body .lead { font-size: clamp(16px, 1.6vw, 22px); font-weight: 600; color: var(--white); margin-bottom: 14px; }
-.nd-body ul { list-style: none; display: flex; flex-direction: column; gap: 8px; margin: 4px 0 12px; }
-.nd-body li { font-size: clamp(14px, 1.35vw, 18px); line-height: 1.5; color: #DAD2C5; padding-left: 22px; position: relative; }
-.nd-body li::before { content: "›"; position: absolute; left: 4px; color: var(--accent); font-weight: 800; }
-.nd-body .say { border-left: 2px solid var(--accent); padding-left: 16px; font-family: var(--serif); font-style: italic; font-size: clamp(16px,1.6vw,21px); color: #F3EEE6; margin: 6px 0 14px; }
-
-/* ── ATOMS ── */
-.kicker { font-size: clamp(13px,1.05vw,16px); font-weight: 800; letter-spacing: .2em; text-transform: uppercase; color: var(--accent-deep); margin-bottom: 22px; }
-.kicker.light { color: var(--accent); }
-.tag { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--mid); border: 1px solid var(--line); padding: 9px 20px; border-radius: 100px; margin-bottom: 26px; }
-.tag.acc { color: var(--accent-deep); border-color: #C2D7FB; background: var(--accent-dim); }
-.headline { font-size: clamp(40px, 6vw, 96px); font-weight: 900; letter-spacing: -.04em; line-height: 1.0; max-width: 17ch; }
-.headline em { font-family: var(--serif); font-style: italic; font-weight: 500; color: var(--accent); letter-spacing: -.01em; }
-.sub { font-size: clamp(19px, 2vw, 30px); color: var(--mid); line-height: 1.45; margin-top: 28px; max-width: 900px; }
-.sub b { color: var(--ink); font-weight: 700; }
-
-/* ── COVER + DARK SLIDES ── */
-.slide.dark { background: radial-gradient(120% 120% at 80% -10%, #2A211A 0%, var(--dark) 55%); color: #F4EFE7; }
-.slide.dark .sub { color: rgba(244,239,231,.6); }
-.slide.dark .sub b { color: #fff; }
-.cover-rule { width: 60px; height: 5px; background: var(--accent); margin-bottom: 36px; }
-.cover-title { font-size: clamp(46px, 7vw, 116px); font-weight: 900; letter-spacing: -.05em; line-height: .94; color: #fff; max-width: 15ch; }
-.cover-title em { font-family: var(--serif); font-style: italic; font-weight: 500; color: var(--accent); }
-.cover-tag { margin-top: 40px; font-size: 14px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: rgba(244,239,231,.5); border: 1px solid rgba(244,239,231,.18); padding: 10px 22px; border-radius: 100px; }
-
-/* ── DIVIDERS ── */
-.slide.divider { background: radial-gradient(120% 110% at 50% -10%, #2A211A 0%, var(--dark) 58%); color: #F4EFE7; justify-content: safe center; }
-.div-ghost { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); font-size: clamp(280px, 50vw, 720px); font-weight: 900; line-height: .8; color: rgba(110,160,246,.22); letter-spacing: -.05em; pointer-events: none; z-index: 0; font-family: var(--serif); font-style: italic; }
-.div-inner { position: relative; z-index: 1; }
-.div-kicker { font-size: 16px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); margin-bottom: 18px; }
-.div-name { font-size: clamp(54px, 8.4vw, 140px); font-weight: 900; letter-spacing: -.045em; line-height: .96; margin-bottom: 26px; color: #fff; }
-.div-name em { font-family: var(--serif); font-style: italic; font-weight: 500; color: var(--accent); }
-.div-fn { display: inline-flex; align-items: center; gap: 12px; font-size: clamp(19px, 2.1vw, 32px); font-weight: 500; color: rgba(244,239,231,.85); border: 1px solid rgba(244,239,231,.18); padding: 13px 28px; border-radius: 100px; }
-.div-fn .d { width: 11px; height: 11px; border-radius: 50%; background: var(--accent); }
-.div-steps { display: flex; gap: 8px; margin-top: 34px; justify-content: center; }
-.div-steps .pip { width: 40px; height: 6px; border-radius: 3px; background: rgba(244,239,231,.18); }
-.div-steps .pip.on { background: var(--accent); }
-
-/* ── BIG STAT ── */
-.stat { font-size: clamp(120px, 22vw, 340px); font-weight: 900; letter-spacing: -.06em; line-height: .82; color: var(--ink); }
-.stat em { font-family: var(--serif); font-style: italic; color: var(--accent); font-weight: 500; }
-
-/* ── IMAGE STAGE ── */
-.figure { width: 100%; max-width: 880px; border-radius: 22px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 34px 80px -42px rgba(0,0,0,.42); background: var(--soft); aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; position: relative; }
-.figure img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.figure.ph { background: repeating-linear-gradient(135deg, #F2ECE1, #F2ECE1 14px, #EFE8DB 14px, #EFE8DB 28px); }
-.figure .ph-lab { position: relative; z-index: 1; font-size: 14px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--mid); background: var(--white); border: 1px solid var(--line); padding: 9px 18px; border-radius: 100px; }
-.cap { font-size: clamp(18px, 1.9vw, 28px); font-weight: 500; color: var(--ink); margin-top: 26px; max-width: 920px; line-height: 1.42; }
-.cap b { color: var(--accent-deep); font-weight: 700; }
-.cap em { font-family: var(--serif); font-style: italic; color: var(--accent); }
-
-/* ── BANNER 1994 recreation ── */
-.oldbanner { width: 100%; max-width: 620px; background: #468; border: 3px solid #fff; box-shadow: 0 12px 0 #234, 0 30px 60px -30px rgba(0,0,0,.5); border-radius: 4px; overflow: hidden; font-family: 'Inter', sans-serif; }
-.ob-bar { background: linear-gradient(#cfd6e2,#aeb7c6); height: 22px; display: flex; align-items: center; gap: 5px; padding: 0 8px; }
-.ob-bar span { width: 9px; height: 9px; border-radius: 50%; background: #fff; border: 1px solid #889; }
-.ob-art { background: linear-gradient(90deg,#1a3a8f,#3454c4,#7b3fb0); color: #fff; padding: 22px 18px; text-align: center; }
-.ob-art .q { font-size: clamp(15px,1.7vw,21px); font-weight: 700; letter-spacing: .01em; }
-.ob-art .yw { font-size: clamp(22px,2.6vw,34px); font-weight: 900; color: #FFE14D; margin-top: 6px; letter-spacing: .04em; }
-
-/* ── MAP / LIST ── */
-.map { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 1040px; }
-.map-row { display: grid; grid-template-columns: 64px 1fr; align-items: center; gap: 22px; background: var(--white); border: 1px solid var(--line); border-radius: 16px; padding: 20px 28px; box-shadow: 0 8px 24px -16px rgba(0,0,0,.18); text-align: left; }
-.map-n { width: 52px; height: 52px; border-radius: 14px; background: var(--soft); color: var(--accent-deep); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 22px; font-family: var(--serif); font-style: italic; }
-.map-row:first-child .map-n { background: var(--accent); color: #fff; }
-.map-name { font-weight: 800; font-size: clamp(21px, 2.3vw, 34px); letter-spacing: -.02em; }
-.map-name span { display: block; font-weight: 500; font-size: clamp(15px,1.5vw,20px); color: var(--mid); letter-spacing: 0; margin-top: 2px; }
-
-/* ── TIMELINE ── */
-.timeline { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; width: 100%; max-width: 1200px; position: relative; }
-.timeline::before { content: ""; position: absolute; top: 33px; left: 8%; right: 8%; height: 2px; background: linear-gradient(90deg, var(--line), var(--accent), var(--line)); }
-.tl { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 0 8px; position: relative; }
-.tl-dot { width: 18px; height: 18px; border-radius: 50%; background: var(--white); border: 4px solid var(--accent); margin-top: 25px; z-index: 1; }
-.tl-yr { font-size: clamp(22px,2.4vw,38px); font-weight: 900; letter-spacing: -.02em; font-family: var(--serif); font-style: italic; color: var(--accent-deep); }
-.tl-lab { font-size: clamp(13px,1.3vw,18px); font-weight: 700; color: var(--ink); line-height: 1.2; }
-.tl-sub { font-size: clamp(11px,1.05vw,14px); color: var(--mid); line-height: 1.3; }
-@media(max-width:760px){ .timeline { grid-template-columns: 1fr 1fr; gap: 22px; } .timeline::before { display:none; } .tl-dot{ margin-top:0; } }
-
-/* ── VS CARDS ── */
-.vs { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; width: 100%; max-width: 1120px; }
-.vs-card { background: var(--white); border: 1px solid var(--line); border-radius: 22px; padding: 32px 36px 34px; text-align: left; box-shadow: 0 12px 34px -22px rgba(0,0,0,.2); }
-.vs-card.win { border-color: #C2D7FB; background: linear-gradient(180deg, var(--accent-dim), var(--white)); }
-.vs-k { font-size: 14px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid); margin-bottom: 14px; }
-.vs-card.win .vs-k { color: var(--accent-deep); }
-.vs-h { font-size: clamp(28px, 3vw, 44px); font-weight: 900; letter-spacing: -.025em; margin-bottom: 14px; line-height: 1.02; }
-.vs-h em { font-family: var(--serif); font-style: italic; font-weight: 500; color: var(--accent); }
-.vs-p { font-size: clamp(17px, 1.7vw, 23px); color: var(--mid); line-height: 1.5; }
-.vs-card.win .vs-p { color: #5a3320; }
-@media(max-width:720px){ .vs { grid-template-columns: 1fr; } }
-
-/* ── POINTS GRID ── */
-.pts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; max-width: 1140px; }
-.point { display: flex; gap: 18px; background: var(--white); border: 1px solid var(--line); border-radius: 16px; padding: 24px 28px; text-align: left; box-shadow: 0 8px 24px -16px rgba(0,0,0,.16); }
-.point .pn { width: 50px; height: 50px; flex-shrink: 0; border-radius: 14px; background: var(--accent-dim); color: var(--accent-deep); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 24px; font-family: var(--serif); font-style: italic; }
-.point h4 { font-size: clamp(21px,2.1vw,30px); font-weight: 800; letter-spacing: -.015em; margin-bottom: 7px; }
-.point p { font-size: clamp(16px,1.55vw,21px); color: var(--mid); line-height: 1.45; }
-@media(max-width:720px){ .pts-grid { grid-template-columns: 1fr; } }
-
-/* ── FUNNEL ── */
-.funnel { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 760px; }
-.fn-step { width: 100%; border-radius: 14px; padding: 22px 28px; display: flex; align-items: center; justify-content: space-between; color: #fff; box-shadow: 0 12px 30px -18px rgba(0,0,0,.4); }
-.fn-step:nth-child(1) { background: #2A211A; max-width: 100%; }
-.fn-step:nth-child(2) { background: var(--accent-deep); max-width: 74%; }
-.fn-step:nth-child(3) { background: var(--accent); max-width: 48%; }
-.fn-lab { font-size: clamp(18px,1.9vw,28px); font-weight: 800; letter-spacing: -.01em; }
-.fn-fn { font-size: clamp(13px,1.3vw,17px); opacity: .82; font-weight: 500; }
-@media(max-width:720px){ .fn-step{ max-width:100% !important; } }
-
-/* ── BRAND EXAMPLES ── */
-.brands { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; width: 100%; max-width: 1180px; }
-.brand { background: var(--white); border: 1px solid var(--line); border-radius: 18px; padding: 28px 26px; text-align: left; box-shadow: 0 10px 28px -18px rgba(0,0,0,.2); display: flex; flex-direction: column; gap: 12px; }
-.brand .bname { font-size: clamp(22px,2.2vw,30px); font-weight: 900; letter-spacing: -.02em; }
-.brand .bidea { font-size: clamp(14px,1.35vw,18px); font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--accent-deep); }
-.brand .btxt { font-size: clamp(15px,1.5vw,20px); color: var(--mid); line-height: 1.5; }
-@media(max-width:760px){ .brands { grid-template-columns: 1fr; } }
-
-/* ── CLOSE RECAP ── */
-.recap { display: flex; flex-direction: column; gap: 12px; max-width: 760px; margin-bottom: 30px; text-align: left; }
-.recap-item { display: flex; align-items: center; gap: 16px; font-size: clamp(20px, 2vw, 30px); font-weight: 600; color: #F4EFE7; }
-.recap-ico { width: 42px; height: 42px; background: var(--accent); color: #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; flex-shrink: 0; font-family: var(--serif); font-style: italic; }
-.bridge { font-size: clamp(18px, 1.9vw, 27px); color: rgba(244,239,231,.7); max-width: 780px; line-height: 1.55; text-align: center; padding-top: 24px; border-top: 3px solid var(--accent); }
-.bridge b { color: #fff; font-weight: 700; }
-.bridge em { font-family: var(--serif); font-style: italic; color: var(--accent); }
+.foot { text-align: center; margin-top: clamp(44px,7vh,72px); font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--mid); }
+.foot span { color: var(--accent-deep); }
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<div class="progress-bar" id="progress"></div>
-<div class="slide-counter" id="counter"></div>
-<div class="deck" id="deck">
+  <header class="hero">
+    <div class="rule"></div>
+    <div class="kicker">Certificación</div>
+    <h1>Publicidad <em>Pagada</em></h1>
+    <p>Meta, TikTok y Google Ads, de cero a campañas que venden. Elige un módulo para empezar.</p>
+    <div class="progress">
+      <span>2 módulos disponibles · más en camino</span>
+    </div>
+  </header>
 
-  <!-- S1 · COVER -->
-  <div class="slide dark active" id="s1" style="background:linear-gradient(rgba(13,10,7,.80),rgba(13,10,7,.74)), url('./assets/portada.jpg') center/cover no-repeat;">
-    <div class="cover-rule"></div>
-    <div class="kicker light">Certificación · Publicidad Pagada — Módulo 1</div>
-    <div class="cover-title">Fundamentos de la publicidad <em>digital</em></div>
-    <div class="sub">De dónde viene, cómo funciona y por qué le cambió las reglas a tu negocio.</div>
-    <div class="cover-tag">David Iriza · Sinergéticos</div>
-    <div class="sn" hidden>
-      <p class="lead">Apertura. Marca el tono: esto NO es una clase técnica aburrida, es entender el juego.</p>
-      <p class="say">"Todo lo que vas a aprender en esta certificación —Meta, TikTok, Google— se construyó sobre una idea que nació hace 30 años. Hoy entendemos esa idea."</p>
-      <p>Promete el recorrido: <em>historia → cómo funciona → qué gana tu negocio</em>. Diles que al final del módulo van a ver un anuncio y van a entender qué está pasando por detrás. Energía alta, ritmo de charla, no de cátedra.</p>
-    </div>
-  </div>
+  <main class="mods">
 
-  <!-- S2 · HOOK -->
-  <div class="slide" id="s2">
-    <div class="tag">El juego invisible</div>
-    <div class="headline">Ahora mismo, miles de marcas <em>pujan</em> por 3 segundos de tu atención.</div>
-    <div class="sub">Y casi nadie sabe que está ocurriendo.</div>
-    <div class="sn" hidden>
-      <p class="lead">Hook. Crea tensión: el mundo funciona distinto a como creen.</p>
-      <p>Pide que saquen el teléfono mentalmente. Cada vez que abren Instagram, TikTok o ven un video en YouTube, en <b>milisegundos</b> ocurre una subasta entre anunciantes por aparecer frente a ellos.</p>
-      <p class="say">"Cada scroll que das es una subasta que alguien acaba de ganar para llegar a ti. Al final de hoy, tú vas a estar del otro lado: vas a ser quien gana esa subasta."</p>
-      <p>No expliques aún la subasta a fondo —solo siembra la idea. La desarrollamos en el módulo del motor.</p>
-    </div>
-  </div>
-
-  <!-- S3 · MAPA -->
-  <div class="slide" id="s3">
-    <div class="tag acc">El recorrido de hoy</div>
-    <div class="headline" style="margin-bottom:30px;font-size:clamp(34px,4.4vw,64px)">Cuatro bloques.</div>
-    <div class="map">
-      <div class="map-row"><div class="map-n">01</div><div class="map-name">Breve historia<span>De dónde salió todo esto</span></div></div>
-      <div class="map-row"><div class="map-n">02</div><div class="map-name">De los primeros anuncios a hoy<span>Qué cambió y qué sigue igual</span></div></div>
-      <div class="map-row"><div class="map-n">03</div><div class="map-name">El motor<span>Cómo funciona realmente</span></div></div>
-      <div class="map-row"><div class="map-n">04</div><div class="map-name">Tu negocio<span>Qué ganas cuando lo entiendes</span></div></div>
-    </div>
-    <div class="sn" hidden>
-      <p class="lead">Mapa del módulo. Da seguridad: saben a dónde van.</p>
-      <p>Recórrelo rápido, una frase por bloque. No te detengas. El objetivo es que sientan que el camino es corto y claro.</p>
-      <p class="say">"Cuatro bloques. Cuando lleguemos al cuarto, la publicidad digital va a haber dejado de ser un misterio."</p>
-    </div>
-  </div>
-
-  <!-- ═══ 01 · HISTORIA ═══ -->
-  <div class="slide divider" id="s4">
-    <div class="div-ghost">01</div>
-    <div class="div-inner">
-      <div class="div-kicker">Bloque 01</div>
-      <div class="div-name">Breve <em>historia</em></div>
-      <div class="div-fn"><span class="d"></span> De dónde salió todo esto</div>
-      <div class="div-steps"><span class="pip on"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span></div>
-    </div>
-    <div class="sn" hidden>
-      <p class="lead">Transición. Baja la luz mental: "vamos a viajar al inicio".</p>
-      <p class="say">"Para entender hacia dónde va esto, hay que ver dónde empezó. Y empezó con un solo anuncio, un martes de 1994."</p>
-    </div>
-  </div>
-
-  <!-- S5 · EL PRIMER BANNER -->
-  <div class="slide" id="s5">
-    <div class="kicker">1994 · el primer anuncio de internet</div>
-    <div class="oldbanner">
-      <div class="ob-bar"><span></span><span></span><span></span></div>
-      <div class="ob-art">
-        <div class="q">¿Alguna vez has hecho clic con tu mouse justo AQUÍ?</div>
-        <div class="yw">LO HARÁS →</div>
+    <a class="mod live" href="./modulo-1-fundamentos/">
+      <div class="mod-n">01</div>
+      <div class="mod-body">
+        <h2>Fundamentos de la publicidad digital</h2>
+        <p>De dónde viene, cómo funciona y qué gana tu negocio.</p>
       </div>
-    </div>
-    <div class="cap">Lo lanzó AT&T, la compañía de teléfonos, y al hacer clic te llevaba a recorrer museos famosos. <b>Le dieron clic 4 de cada 10 personas.</b> Hoy, uno bueno apenas llega al 1%.</div>
-    <div class="sn" hidden>
-      <p class="lead">El nacimiento. Una sola idea: la atención se gasta.</p>
-      <ul>
-        <li>Fue el primer anuncio que se vio en internet, hace unos 30 años.</li>
-        <li><b>4 de cada 10 personas le hicieron clic.</b> Hoy eso sería imposible.</li>
-        <li>Dato curioso: ese clic ni siquiera llevaba a comprar algo —llevaba a un museo. Aun así, casi la mitad hacía clic.</li>
-      </ul>
-      <p class="say">"Cuatro de cada diez personas hicieron clic. Hoy, si logras que UNA de cada cien lo haga, vas ganando. ¿Qué pasó? La novedad se acabó —y empezó la competencia por tu atención."</p>
-      <p>Idea para dejar grabada: la atención es como el agua —cuando hay poca, hay que pelearla. Por eso hoy existe todo lo que vamos a ver.</p>
-    </div>
-  </div>
+      <div class="mod-cta"><span class="chip ok">Disponible</span><span class="arrow">→</span></div>
+    </a>
 
-  <!-- S6 · TIMELINE -->
-  <div class="slide" id="s6">
-    <div class="tag acc">30 años en 10 segundos</div>
-    <div class="headline" style="margin-bottom:38px;font-size:clamp(32px,4vw,58px)">De <em>aquí</em> venimos.</div>
-    <div class="timeline">
-      <div class="tl"><div class="tl-dot"></div><div class="tl-yr">1994</div><div class="tl-lab">El primer anuncio</div><div class="tl-sub">el mismo para todos</div></div>
-      <div class="tl"><div class="tl-dot"></div><div class="tl-yr">2000</div><div class="tl-lab">Google</div><div class="tl-sub">aparece cuando buscas</div></div>
-      <div class="tl"><div class="tl-dot"></div><div class="tl-yr">2007</div><div class="tl-lab">Redes sociales</div><div class="tl-sub">te habla por tus gustos</div></div>
-      <div class="tl"><div class="tl-dot"></div><div class="tl-yr">2012</div><div class="tl-lab">Tu celular</div><div class="tl-sub">te sigue a todos lados</div></div>
-      <div class="tl"><div class="tl-dot"></div><div class="tl-yr">Hoy</div><div class="tl-lab">El algoritmo</div><div class="tl-sub">elige por ti</div></div>
-    </div>
-    <div class="sn" hidden>
-      <p class="lead">La historia en una frase: pasamos de gritarle a todos, a hablarle a la persona correcta.</p>
-      <ul>
-        <li><b>Al inicio:</b> comprabas un espacio, como un espectacular. A todos, lo mismo.</li>
-        <li><b>Luego Google:</b> el anuncio aparece justo cuando alguien busca lo que vendes.</li>
-        <li><b>Después las redes:</b> ya le hablan a cada persona según sus gustos.</li>
-        <li><b>Con el celular:</b> la publicidad te acompaña a todos lados y se puede medir.</li>
-        <li><b>Hoy:</b> el algoritmo aprende solo a quién mostrarle tu anuncio.</li>
-      </ul>
-      <p class="say">"En tres décadas pasamos de gritarle a todos, a hablarle al oído a la persona correcta. Esa es toda la historia."</p>
-      <p>Cierre con el "wow", simple: <b>hoy la publicidad digital mueve más de un billón de dólares al año.</b> De un anuncio en 1994 a mover casi todo el dinero de la publicidad del mundo.</p>
-    </div>
-  </div>
-
-  <!-- ═══ 02 · ANTES vs HOY ═══ -->
-  <div class="slide divider" id="s7">
-    <div class="div-ghost">02</div>
-    <div class="div-inner">
-      <div class="div-kicker">Bloque 02</div>
-      <div class="div-name">De ayer <em>a hoy</em></div>
-      <div class="div-fn"><span class="d"></span> Qué cambió y qué sigue igual</div>
-      <div class="div-steps"><span class="pip"></span><span class="pip on"></span><span class="pip"></span><span class="pip"></span></div>
-    </div>
-    <div class="sn" hidden><p class="say">"Cambió casi todo en la forma. Pero hay algo que no ha cambiado nada —y es lo más importante que te llevas hoy."</p></div>
-  </div>
-
-  <!-- S8 · ANTES vs HOY cards -->
-  <div class="slide" id="s8">
-    <div class="vs">
-      <div class="vs-card">
-        <div class="vs-k">Antes</div>
-        <div class="vs-h">A todos, <em>lo mismo</em>.</div>
-        <div class="vs-p">Te llegaba el mismo anuncio que a cualquier otra persona, aunque no tuviera nada que ver contigo.</div>
+    <a class="mod live" href="./modulo-2-audiencia/">
+      <div class="mod-n">02</div>
+      <div class="mod-body">
+        <h2>Audiencia y Segmentación</h2>
+        <p>A quién le hablas —y por qué hoy se hace al revés de como crees.</p>
       </div>
-      <div class="vs-card win">
-        <div class="vs-k">Hoy</div>
-        <div class="vs-h">Hecho <em>para ti</em>.</div>
-        <div class="vs-p">Te aparece justo lo que podrías querer, en el momento en que podrías quererlo. Y entre más usas el teléfono, más le atina.</div>
+      <div class="mod-cta"><span class="chip ok">Disponible</span><span class="arrow">→</span></div>
+    </a>
+
+    <div class="mod soon">
+      <div class="mod-n">03</div>
+      <div class="mod-body">
+        <h2>Próximamente</h2>
+        <p>Siguiente módulo en construcción.</p>
       </div>
+      <div class="mod-cta"><span class="chip soon">Pronto</span></div>
     </div>
-    <div class="sn" hidden>
-      <p class="lead">El gran cambio, visto desde tu lado: de anuncios genéricos a anuncios hechos para ti.</p>
-      <p>Ejemplo cercano: antes la tele te ponía el mismo comercial que a todos. Hoy abres Instagram y ves justo lo que andabas pensando comprar.</p>
-      <p class="say">"Seguro te ha pasado: piensas en algo y, como por arte de magia, te aparece el anuncio. No es magia —hoy la publicidad se arma persona por persona. Y cuando te toque anunciarte, eso va a jugar a tu favor."</p>
-    </div>
-  </div>
 
-  <!-- S9 · LO QUE NO CAMBIA -->
-  <div class="slide" id="s9">
-    <div class="tag">Lo que NO ha cambiado en 30 años</div>
-    <div class="headline">Atención. Deseo. <em>Acción.</em></div>
-    <div class="figure" data-img="psico" style="max-width:660px;margin-top:14px;box-shadow:none;border:none;background:transparent"><img src="./assets/psicologia.jpg" alt="Una chispa, un corazón y una mano tocando un botón: atención, deseo y acción"></div>
-    <div class="sub" style="margin-top:18px">La tecnología cambió. <b>La psicología humana, no.</b> Todo anuncio —el de 1994 y el de hoy— hace lo mismo: capta la atención, despierta el deseo y pide una acción.</div>
-    <div class="sn" hidden>
-      <p class="lead">El ancla del módulo. Esto es lo que deben recordar.</p>
-      <p>Conecta con el banner de 1994: ya tenía las tres cosas. "¿Has hecho clic aquí?" (atención) → "lo harás" (curiosidad/deseo) → la flecha (acción). El mismo esqueleto que un anuncio de Nike hoy.</p>
-      <p class="say">"Puedes aprender Meta, TikTok y Google a la perfección. Pero si tu anuncio no capta atención, no genera deseo y no pide una acción clara —ninguna plataforma te va a salvar. La herramienta cambia; el principio es eterno."</p>
-      <p>Tranquiliza: "no tienen que perseguir cada plataforma nueva; tienen que dominar esto".</p>
-      <p>Dato para dar peso (sin tecnicismos): estos tres pasos son tan viejos que ya se usaban <em>antes de la radio</em>. La herramienta cambia cada año; esto no cambia nunca.</p>
-    </div>
-  </div>
+  </main>
 
-  <!-- ═══ 03 · EL MOTOR ═══ -->
-  <div class="slide divider" id="s10">
-    <div class="div-ghost">03</div>
-    <div class="div-inner">
-      <div class="div-kicker">Bloque 03</div>
-      <div class="div-name">El <em>motor</em></div>
-      <div class="div-fn"><span class="d"></span> Cómo funciona realmente</div>
-      <div class="div-steps"><span class="pip"></span><span class="pip"></span><span class="pip on"></span><span class="pip"></span></div>
-    </div>
-    <div class="sn" hidden><p class="say">"Abramos el cofre. ¿Cómo decide una plataforma qué anuncio te muestra a TI y no a otro? Son tres piezas."</p></div>
-  </div>
-
-  <!-- S11 · LA SUBASTA (image) -->
-  <div class="slide" id="s11">
-    <div class="kicker">Pieza 1 · La subasta</div>
-    <div class="figure" data-img="auction">
-      <img src="./assets/auction.jpg" alt="Varias marcas compitiendo en una subasta por aparecer en el teléfono de una persona">
-    </div>
-    <div class="cap">Cada vez que abres una app, <b>en un parpadeo ocurre una subasta</b>: varias marcas compiten por el derecho a mostrarte <em>su anuncio a ti</em>.</div>
-    <div class="sn" hidden>
-      <p class="lead">Pieza 1: la subasta. El concepto que más sorprende.</p>
-      <ul>
-        <li>Ese espacio donde verás un anuncio se subasta en tiempo real, miles de veces por segundo.</li>
-        <li>No gana el que más paga: gana el anuncio más <b>relevante para ti</b>, no el de la marca más rica.</li>
-        <li>Por eso, cuando funciona bien, ves anuncios que de verdad te interesan.</li>
-      </ul>
-      <p class="say">"Imagina una subasta de arte, pero dura un parpadeo y el 'cuadro' eres tú. Varias marcas ofertan por mostrarte su anuncio. Y lo interesante: no siempre gana la más rica —gana la más relevante para ti. Por eso a veces dices 'justo estaba buscando esto'."</p>
-    </div>
-  </div>
-
-  <!-- S12 · SEGMENTACIÓN + PÍXEL -->
-  <div class="slide" id="s12">
-    <div class="kicker">Pieza 2 · Los datos</div>
-    <div class="headline" style="font-size:clamp(34px,4.6vw,68px);margin-bottom:30px">El anuncio te encuentra <em>a ti</em>.</div>
-    <div class="pts-grid" style="max-width:980px">
-      <div class="point"><div class="pn">A</div><div><h4>Te conoce</h4><p>Sabe tu edad, dónde estás y qué cosas te gustan.</p></div></div>
-      <div class="point"><div class="pn">B</div><div><h4>Te recuerda</h4><p>Sabe qué páginas visitaste y qué viste, aunque no compraras nada.</p></div></div>
-      <div class="point"><div class="pn">C</div><div><h4>Aprende de ti</h4><p>Con cada cosa que ves y tocas, te entiende un poco mejor.</p></div></div>
-      <div class="point"><div class="pn">D</div><div><h4>Te vuelve a buscar</h4><p>Eso que viste y no compraste te vuelve a aparecer. Por eso sientes que los anuncios te persiguen.</p></div></div>
-    </div>
-    <div class="sn" hidden>
-      <p class="lead">Pieza 2: los datos. Por qué los anuncios parecen leerte la mente.</p>
-      <p>El bucle, en simple: entras a una página → esa página "avisa" que estuviste ahí → la plataforma te recuerda y te muestra anuncios de eso. No es tu micrófono espiándote: es tu propio recorrido por internet.</p>
-      <p class="say">"¿Alguna vez viste unos tenis y te persiguieron toda la semana? No te espía el micrófono: entraste a la página, y el sistema simplemente no te olvidó. Cuando tú te anuncies, esa misma memoria va a trabajar para ti."</p>
-    </div>
-  </div>
-
-  <!-- S13 · EL EMBUDO -->
-  <div class="slide" id="s13">
-    <div class="kicker">Pieza 3 · El embudo</div>
-    <div class="funnel" style="margin-bottom:8px">
-      <div class="fn-step"><span class="fn-lab">Primero la conoces</span><span class="fn-fn">Conocimiento</span></div>
-      <div class="fn-step"><span class="fn-lab">Luego la consideras</span><span class="fn-fn">Consideración</span></div>
-      <div class="fn-step"><span class="fn-lab">Al final le compras</span><span class="fn-fn">Conversión</span></div>
-    </div>
-    <div class="cap">Nadie le compra a una marca la primera vez que la ve. <b>Primero la conoces, luego confías, y solo después le compras.</b></div>
-    <div class="sn" hidden>
-      <p class="lead">Pieza 3: el embudo. Por qué no le compras a alguien que acabas de conocer.</p>
-      <ul>
-        <li>Arriba: marcas que apenas conoces. Te llaman la atención, todavía no te venden.</li>
-        <li>En medio: ya las ubicas, las comparas, buscas reseñas.</li>
-        <li>Abajo: ya confías y estás listo para comprar.</li>
-      </ul>
-      <p>Piénsalo como cliente: tú tampoco le compras a alguien que acabas de conocer. Primero quieres confiar.</p>
-      <p class="say">"A alguien que acabas de conocer no le pides matrimonio —primero lo invitas un café. Con las marcas es igual: tú avanzas por pasos. Y cuando te anuncies, vas a tener que respetar esos pasos."</p>
-    </div>
-  </div>
-
-  <!-- ═══ 04 · TU NEGOCIO ═══ -->
-  <div class="slide divider" id="s14">
-    <div class="div-ghost">04</div>
-    <div class="div-inner">
-      <div class="div-kicker">Bloque 04</div>
-      <div class="div-name">Tu <em>negocio</em></div>
-      <div class="div-fn"><span class="d"></span> Ahora, del otro lado del anuncio</div>
-      <div class="div-steps"><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip on"></span></div>
-    </div>
-    <div class="sn" hidden><p class="say">"Hasta aquí lo viste como consumidor: cómo la publicidad te encuentra a ti. Ahora dale la vuelta e imagina que el del anuncio eres tú. Todo lo que viviste como cliente se convierte en cuatro ventajas que la publicidad de antes jamás te dio."</p></div>
-  </div>
-
-  <!-- S15 · 4 VENTAJAS -->
-  <div class="slide" id="s15">
-    <div class="tag acc">Vs. el espectacular y el volante</div>
-    <div class="headline" style="font-size:clamp(34px,4.4vw,64px);margin-bottom:30px">Cuatro cosas que el espectacular nunca te dio.</div>
-    <div class="pts-grid">
-      <div class="point"><div class="pn">1</div><div><h4>Medible</h4><p>Sabes con precisión cuánto invertiste y cuánto vendiste. Se acabó el "creo que funcionó".</p></div></div>
-      <div class="point"><div class="pn">2</div><div><h4>Segmentable</h4><p>Le hablas solo a quien te puede comprar y dejas de pagar por llegarle a quien nunca lo haría.</p></div></div>
-      <div class="point"><div class="pn">3</div><div><h4>Escalable</h4><p>Si funciona con poco, inviertes más y crece contigo. Subes o bajas la inversión cuando quieras.</p></div></div>
-      <div class="point"><div class="pn">4</div><div><h4>Accesible</h4><p>No necesitas el presupuesto de una marca grande: puedes empezar con lo que cuesta un café al día.</p></div></div>
-    </div>
-    <div class="sn" hidden>
-      <p class="lead">El "para mí qué". Aterriza en su realidad de dueño de negocio.</p>
-      <p>Abre con una frase vieja del mundo de los negocios: <em>"La mitad de lo que gasto en publicidad se desperdicia… pero no sé cuál mitad."</em> El gancho: <b>la publicidad digital por fin resolvió eso —hoy sabes cuál mitad.</b></p>
-      <p>Contrasta con lo tradicional: el espectacular no te dice cuánta gente compró, le llega a todos por igual y cuesta una fortuna fija. Lo digital es lo contrario en las 4.</p>
-      <p class="say">"Un espectacular te cuesta una fortuna y nunca sabes si alguien compró por verlo. En digital, con lo que cuesta un café ya sabes si funciona. Y si funciona, le subes. Eso es jugar con ventaja."</p>
-    </div>
-  </div>
-
-  <!-- S16 · MARCAS -->
-  <div class="slide" id="s16">
-    <div class="tag">Quien lo entendió, ganó</div>
-    <div class="headline" style="font-size:clamp(32px,4vw,56px);margin-bottom:32px">No hace falta ser gigante. Hace falta entenderlo.</div>
-    <div class="brands">
-      <div class="brand">
-        <div class="bname">Apple</div>
-        <div class="bidea">Tu cliente es tu publicidad</div>
-        <div class="btxt">Llenaron el mundo con fotos tomadas por sus propios clientes. La gente terminó haciendo el anuncio por ellos.</div>
-      </div>
-      <div class="brand">
-        <div class="bname">Nike</div>
-        <div class="bidea">Vende emoción, no producto</div>
-        <div class="btxt">No te venden unos tenis: te venden una actitud, "Just Do It". Primero llega el deseo y después la compra.</div>
-      </div>
-      <div class="brand">
-        <div class="bname">Coca-Cola</div>
-        <div class="bidea">Lo personal conecta</div>
-        <div class="btxt">Cambiaron su logo por nombres de personas y todos buscaron el suyo. Háblale a la persona, no a la multitud.</div>
-      </div>
-    </div>
-    <div class="sn" hidden>
-      <p class="lead">Tres marcas que todos conocen, una lección cada una. Mantenlo simple.</p>
-      <ul>
-        <li><b>Apple:</b> en vez de presumir su cámara, mostraron fotos de sus propios clientes en todo el mundo. Lección: tu mejor publicidad la hace tu cliente.</li>
-        <li><b>Nike:</b> no venden zapatos, venden una actitud. Lección: la gente compra por emoción, no por características.</li>
-        <li><b>Coca-Cola:</b> cambiaron su logo por nombres de personas y todos buscaron el suyo. Lección: lo que se siente personal, conecta.</li>
-      </ul>
-      <p>Si quieres un ejemplo de "sin presupuesto": una marca de rastrillos se hizo gigante con <b>un solo video casero y gracioso</b>. No tenían dinero —tenían una buena idea.</p>
-      <p class="say">"Ninguna de estas marcas ganó por gastar más. Ganaron porque entendieron a su gente. Y eso, al terminar la certificación, lo vas a poder hacer tú —no con más dinero, con más cabeza."</p>
-    </div>
-  </div>
-
-  <!-- S17 · CIERRE -->
-  <div class="slide dark" id="s17">
-    <div class="kicker light">Cierre del Módulo 1</div>
-    <div class="headline" style="color:#fff;margin-bottom:34px;font-size:clamp(34px,4.6vw,72px)">Ya no es un <em>misterio</em>.</div>
-    <div class="recap">
-      <div class="recap-item"><div class="recap-ico">1</div>Nació en 1994 y vive de la atención</div>
-      <div class="recap-item"><div class="recap-ico">2</div>Cambió la forma; la psicología no</div>
-      <div class="recap-item"><div class="recap-ico">3</div>El motor: subasta + datos + embudo</div>
-      <div class="recap-item"><div class="recap-ico">4</div>Medible, segmentable, escalable, accesible</div>
-    </div>
-    <div class="bridge">En el siguiente módulo vamos por la pieza más poderosa de todas: <b>a quién le hablas</b>. Módulo 2 — Audiencia y Segmentación. <em>Ya entiendes el juego; ahora vamos por tu público.</em></div>
-    <div class="sn" hidden>
-      <p class="lead">Cierre + puente al Módulo 2. Deja sensación de logro.</p>
-      <p>Recapitula los 4 puntos en 20 segundos. Reconócele al grupo lo que ya saben que no sabían al entrar.</p>
-      <p class="say">"Entraste pensando que la publicidad digital era apretar un botón de 'promocionar'. Sales sabiendo que es una subasta, unos datos y un embudo. Eso ya te pone por delante del 90% de los negocios. En el Módulo 2 vemos lo más importante de todo: a quién le hablas —tu audiencia."</p>
-    </div>
-  </div>
+  <div class="foot">David Iriza · <span>Sinergéticos</span></div>
 
 </div>
-
-<div class="dots" id="dots"></div>
-<button class="nav-btn left" id="prevBtn" aria-label="Anterior">‹</button>
-<button class="nav-btn right" id="nextBtn" aria-label="Siguiente">›</button>
-
-<button class="notes-btn" id="notesBtn" aria-label="Guion del orador" title="Guion del orador (G)">
-  <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 12h10M4 19h7"/></svg>
-</button>
-
-<div class="notes-drawer" id="notesDrawer">
-  <div class="nd-head">
-    <div class="nd-title">Guion del orador <span id="ndSlide"></span></div>
-    <button class="nd-close" id="ndClose" aria-label="Cerrar">✕</button>
-  </div>
-  <div class="nd-body" id="ndBody"></div>
-</div>
-
-<script>
-const slides   = Array.from(document.querySelectorAll('.slide'));
-const dotsEl   = document.getElementById('dots');
-const progress = document.getElementById('progress');
-const counter  = document.getElementById('counter');
-const prevBtn  = document.getElementById('prevBtn');
-const nextBtn  = document.getElementById('nextBtn');
-const notesBtn = document.getElementById('notesBtn');
-const drawer   = document.getElementById('notesDrawer');
-const ndBody   = document.getElementById('ndBody');
-const ndSlide  = document.getElementById('ndSlide');
-const ndClose  = document.getElementById('ndClose');
-const total    = slides.length;
-let current = 0, animating = false, notesOpen = false;
-
-slides.forEach((s, i) => {
-  const d = document.createElement('div');
-  d.className = 'dot' + (i === 0 ? ' active' : '') + (s.classList.contains('divider') ? ' div' : '');
-  d.addEventListener('click', () => goTo(i));
-  dotsEl.appendChild(d);
-});
-
-function goTo(idx) {
-  if (animating || idx === current || idx < 0 || idx >= total) return;
-  animating = true;
-  const prev = slides[current];
-  prev.classList.remove('active'); prev.classList.add('exit');
-  current = idx;
-  slides[current].classList.add('active');
-  setTimeout(() => { prev.classList.remove('exit'); animating = false; }, 440);
-  updateUI();
-  if (notesOpen) renderNotes();
-}
-function navigate(dir) { goTo(current + dir); }
-
-function updateUI() {
-  document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === current));
-  progress.style.width = ((current + 1) / total * 100) + '%';
-  counter.textContent  = (current + 1) + ' / ' + total;
-  prevBtn.disabled = current === 0;
-  nextBtn.disabled = current === total - 1;
-}
-
-function renderNotes() {
-  const src = slides[current].querySelector('.sn');
-  ndBody.innerHTML = src ? src.innerHTML : '<p>— Sin notas para esta diapositiva —</p>';
-  ndSlide.textContent = (current + 1) + ' / ' + total;
-  ndBody.scrollTop = 0;
-}
-function toggleNotes(force) {
-  notesOpen = (force === undefined) ? !notesOpen : force;
-  drawer.classList.toggle('open', notesOpen);
-  notesBtn.classList.toggle('on', notesOpen);
-  if (notesOpen) renderNotes();
-}
-
-notesBtn.addEventListener('click', () => toggleNotes());
-ndClose.addEventListener('click', () => toggleNotes(false));
-
-prevBtn.addEventListener('click', () => navigate(-1));
-nextBtn.addEventListener('click', () => navigate(1));
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); navigate(1); }
-  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   { e.preventDefault(); navigate(-1); }
-  if (e.key === ' ' && !notesOpen) { e.preventDefault(); navigate(1); }
-  if (e.key.toLowerCase() === 'g') { e.preventDefault(); toggleNotes(); }
-  if (e.key === 'Escape' && notesOpen) toggleNotes(false);
-});
-
-let tx = 0, ty = 0;
-document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
-document.addEventListener('touchend', e => {
-  const dx = e.changedTouches[0].clientX - tx;
-  const dy = e.changedTouches[0].clientY - ty;
-  if (Math.abs(dx) > 56 && Math.abs(dx) > Math.abs(dy)) navigate(dx < 0 ? 1 : -1);
-});
-
-updateUI();
-</script>
 </body>
 </html>
