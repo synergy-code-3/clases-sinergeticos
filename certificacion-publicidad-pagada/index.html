@@ -73,14 +73,14 @@ html, body {
 /* ── SPEAKER NOTES (nivel 2) ── */
 .notes-btn {
   position: fixed; bottom: 20px; right: 22px; z-index: 150;
-  display: inline-flex; align-items: center; gap: 9px;
-  height: 42px; padding: 0 16px 0 14px; border-radius: 100px;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; padding: 0; border-radius: 50%;
   border: 1px solid var(--line); background: rgba(255,255,255,.7); backdrop-filter: blur(8px);
-  color: var(--mid); font-family: var(--font); font-size: 13px; font-weight: 700; letter-spacing: .04em;
-  cursor: pointer; transition: all .2s; opacity: .55;
+  color: var(--mid); font-family: var(--font);
+  cursor: pointer; transition: all .2s; opacity: .5;
 }
 .notes-btn:hover { opacity: 1; color: var(--ink); border-color: var(--ink); }
-.notes-btn .ico { width: 18px; height: 18px; display: block; }
+.notes-btn .ico { width: 19px; height: 19px; display: block; }
 .notes-btn.on { opacity: 1; background: var(--ink); color: var(--white); border-color: var(--ink); }
 .notes-btn.on .ico { color: var(--accent); }
 
@@ -542,9 +542,8 @@ html, body {
 <button class="nav-btn left" id="prevBtn" aria-label="Anterior">‹</button>
 <button class="nav-btn right" id="nextBtn" aria-label="Siguiente">›</button>
 
-<button class="notes-btn" id="notesBtn" aria-label="Guion del orador">
+<button class="notes-btn" id="notesBtn" aria-label="Guion del orador" title="Guion del orador (G)">
   <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 12h10M4 19h7"/></svg>
-  Guion
 </button>
 
 <div class="notes-drawer" id="notesDrawer">
