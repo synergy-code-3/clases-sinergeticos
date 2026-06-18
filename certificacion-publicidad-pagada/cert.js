@@ -1,4 +1,4 @@
-/* Certificación en Publicidad Pagada — navegación + guion del orador (compartido) */
+/* Certificación en Publicidad y Ads — navegación + guion del orador (compartido) */
 const slides   = Array.from(document.querySelectorAll('.slide'));
 const dotsEl   = document.getElementById('dots');
 const progress = document.getElementById('progress');

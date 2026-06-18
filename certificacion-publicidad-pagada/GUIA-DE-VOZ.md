@@ -1,4 +1,4 @@
-# Guía de voz — Certificación Publicidad Pagada
+# Guía de voz — Certificación en Publicidad y Ads
 
 Todo título y copy de las slides pasa por este filtro antes de quedarse.
 Basado en *Made to Stick* (Heath), *The Adweek Copywriting Handbook* (Sugarman) y *Ogilvy on Advertising*.
