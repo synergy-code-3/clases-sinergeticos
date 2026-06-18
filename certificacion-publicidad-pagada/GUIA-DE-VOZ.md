@@ -22,5 +22,5 @@ Basado en *Made to Stick* (Heath), *The Adweek Copywriting Handbook* (Sugarman) 
 - ❌ "De un solo anuncio a mover miles de millones." → molde "De X a Y" + grandioso.
 - ✅ candidatos humanos: *"De aquí venimos."* / *"Cinco saltos hasta hoy."*
 
-## Voz del Club (calibrar con ejemplos de David)
+## Voz de la audiencia (calibrar con ejemplos de David)
 > Pendiente: pegar aquí 1–2 títulos que a David le encanten, para fijar el tono exacto.
