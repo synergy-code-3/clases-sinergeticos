@@ -17,9 +17,9 @@
   --line: #E8E1D5;
   --soft: #F2ECE1;
   --white: #FFFFFF;
-  --accent: #FF4D1C;
-  --accent-deep: #D63A06;
-  --accent-dim: #FFEDE5;
+  --accent: #6EA0F6;
+  --accent-deep: #2563EB;
+  --accent-dim: #EAF1FE;
   --dark: #15110D;
   --danger: #C6402A;
   --font: 'Inter', -apple-system, sans-serif;
@@ -56,7 +56,7 @@ html, body {
 .dots { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; z-index: 90; max-width: 60vw; flex-wrap: wrap; justify-content: center; }
 .dot { width: 7px; height: 7px; border-radius: 4px; background: var(--line); transition: background .25s, width .25s; cursor: pointer; }
 .dot.active { background: var(--ink); width: 24px; }
-.dot.div { background: #E0B9A8; }
+.dot.div { background: #B9CCEE; }
 .dot.div.active { background: var(--accent); }
 
 .nav-btn {
@@ -112,7 +112,7 @@ html, body {
 .kicker { font-size: clamp(13px,1.05vw,16px); font-weight: 800; letter-spacing: .2em; text-transform: uppercase; color: var(--accent-deep); margin-bottom: 22px; }
 .kicker.light { color: var(--accent); }
 .tag { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--mid); border: 1px solid var(--line); padding: 9px 20px; border-radius: 100px; margin-bottom: 26px; }
-.tag.acc { color: var(--accent-deep); border-color: #F6C7B4; background: var(--accent-dim); }
+.tag.acc { color: var(--accent-deep); border-color: #C2D7FB; background: var(--accent-dim); }
 .headline { font-size: clamp(40px, 6vw, 96px); font-weight: 900; letter-spacing: -.04em; line-height: 1.0; max-width: 17ch; }
 .headline em { font-family: var(--serif); font-style: italic; font-weight: 500; color: var(--accent); letter-spacing: -.01em; }
 .sub { font-size: clamp(19px, 2vw, 30px); color: var(--mid); line-height: 1.45; margin-top: 28px; max-width: 900px; }
@@ -129,7 +129,7 @@ html, body {
 
 /* ── DIVIDERS ── */
 .slide.divider { background: radial-gradient(120% 110% at 50% -10%, #2A211A 0%, var(--dark) 58%); color: #F4EFE7; justify-content: safe center; }
-.div-ghost { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); font-size: clamp(280px, 50vw, 720px); font-weight: 900; line-height: .8; color: rgba(255,77,28,.16); letter-spacing: -.05em; pointer-events: none; z-index: 0; font-family: var(--serif); font-style: italic; }
+.div-ghost { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); font-size: clamp(280px, 50vw, 720px); font-weight: 900; line-height: .8; color: rgba(110,160,246,.22); letter-spacing: -.05em; pointer-events: none; z-index: 0; font-family: var(--serif); font-style: italic; }
 .div-inner { position: relative; z-index: 1; }
 .div-kicker { font-size: 16px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); margin-bottom: 18px; }
 .div-name { font-size: clamp(54px, 8.4vw, 140px); font-weight: 900; letter-spacing: -.045em; line-height: .96; margin-bottom: 26px; color: #fff; }
@@ -182,7 +182,7 @@ html, body {
 /* ── VS CARDS ── */
 .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; width: 100%; max-width: 1120px; }
 .vs-card { background: var(--white); border: 1px solid var(--line); border-radius: 22px; padding: 32px 36px 34px; text-align: left; box-shadow: 0 12px 34px -22px rgba(0,0,0,.2); }
-.vs-card.win { border-color: #F6C7B4; background: linear-gradient(180deg, var(--accent-dim), var(--white)); }
+.vs-card.win { border-color: #C2D7FB; background: linear-gradient(180deg, var(--accent-dim), var(--white)); }
 .vs-k { font-size: 14px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--mid); margin-bottom: 14px; }
 .vs-card.win .vs-k { color: var(--accent-deep); }
 .vs-h { font-size: clamp(28px, 3vw, 44px); font-weight: 900; letter-spacing: -.025em; margin-bottom: 14px; line-height: 1.02; }
@@ -301,7 +301,7 @@ html, body {
         <div class="yw">LO HARÁS →</div>
       </div>
     </div>
-    <div class="cap">El primer anuncio de internet. <b>Le hicieron clic 4 de cada 10 personas.</b> Hoy, uno bueno apenas llega al 1%.</div>
+    <div class="cap">Lo lanzó AT&T, la compañía de teléfonos, y al hacer clic te llevaba a recorrer museos famosos. <b>Le dieron clic 4 de cada 10 personas.</b> Hoy, uno bueno apenas llega al 1%.</div>
     <div class="sn" hidden>
       <p class="lead">El nacimiento. Una sola idea: la atención se gasta.</p>
       <ul>
@@ -322,7 +322,7 @@ html, body {
       <div class="tl"><div class="tl-dot"></div><div class="tl-yr">1994</div><div class="tl-lab">El primer anuncio</div><div class="tl-sub">un espacio para todos</div></div>
       <div class="tl"><div class="tl-dot"></div><div class="tl-yr">2000</div><div class="tl-lab">Google</div><div class="tl-sub">te encuentra al buscar</div></div>
       <div class="tl"><div class="tl-dot"></div><div class="tl-yr">2007</div><div class="tl-lab">Redes sociales</div><div class="tl-sub">le hablan a cada quien</div></div>
-      <div class="tl"><div class="tl-dot"></div><div class="tl-yr">2012</div><div class="tl-lab">Tu celular</div><div class="tl-sub">la publi te sigue</div></div>
+      <div class="tl"><div class="tl-dot"></div><div class="tl-yr">2012</div><div class="tl-lab">Tu celular</div><div class="tl-sub">la publicidad te acompaña</div></div>
       <div class="tl"><div class="tl-dot"></div><div class="tl-yr">Hoy</div><div class="tl-lab">El algoritmo</div><div class="tl-sub">decide por ti</div></div>
     </div>
     <div class="sn" hidden>
@@ -357,12 +357,12 @@ html, body {
       <div class="vs-card">
         <div class="vs-k">Los primeros anuncios</div>
         <div class="vs-h">A todos, <em>lo mismo</em>.</div>
-        <div class="vs-p">Un mensaje fijo, para cualquiera que pasara. Sin saber quién era, sin saber si funcionó. Pagabas por aparecer, no por resultados.</div>
+        <div class="vs-p">El mismo mensaje para cualquiera que pasara. No sabías quién lo veía ni si servía de algo: pagabas por aparecer, no por vender.</div>
       </div>
       <div class="vs-card win">
         <div class="vs-k">Los anuncios de hoy</div>
         <div class="vs-h">A <em>la persona</em> correcta.</div>
-        <div class="vs-p">El mensaje correcto, a quien tiene más probabilidad de comprar, en el momento justo —y mides cada peso. El sistema mejora solo con cada clic.</div>
+        <div class="vs-p">Le llega justo a quien puede comprarte, en el momento adecuado, y puedes medir cada peso que inviertes. Además, el sistema mejora solo con cada clic.</div>
       </div>
     </div>
     <div class="sn" hidden>
@@ -421,10 +421,10 @@ html, body {
     <div class="kicker">Pieza 2 · Los datos</div>
     <div class="headline" style="font-size:clamp(34px,4.6vw,68px);margin-bottom:30px">El anuncio te encuentra <em>a ti</em>.</div>
     <div class="pts-grid" style="max-width:980px">
-      <div class="point"><div class="pn">A</div><div><h4>A quién le hablas</h4><p>Por edad, lugar y gustos. O directo a "gente parecida a tus mejores clientes".</p></div></div>
-      <div class="point"><div class="pn">B</div><div><h4>Te recuerda</h4><p>Tu web le avisa a la plataforma quién entró y quién compró.</p></div></div>
-      <div class="point"><div class="pn">C</div><div><h4>Aprende solo</h4><p>Con cada clic y cada venta, el sistema mejora encontrando a tu comprador.</p></div></div>
-      <div class="point"><div class="pn">D</div><div><h4>Te vuelve a buscar</h4><p>A quien te vio pero no compró, le apareces de nuevo. Por eso sientes que "te persiguen".</p></div></div>
+      <div class="point"><div class="pn">A</div><div><h4>A quién le hablas</h4><p>Eliges por edad, lugar y gustos. O apuntas directo a la gente parecida a tus mejores clientes.</p></div></div>
+      <div class="point"><div class="pn">B</div><div><h4>Te recuerda</h4><p>Tu página le avisa a la plataforma quién entró y quién terminó comprando.</p></div></div>
+      <div class="point"><div class="pn">C</div><div><h4>Aprende solo</h4><p>Con cada clic y cada venta, el sistema aprende a encontrar mejor a tu comprador.</p></div></div>
+      <div class="point"><div class="pn">D</div><div><h4>Te vuelve a buscar</h4><p>Si alguien te vio pero no compró, vuelves a aparecerle. Por eso a veces sientes que los anuncios te persiguen.</p></div></div>
     </div>
     <div class="sn" hidden>
       <p class="lead">Pieza 2: los datos. Cómo el sistema sabe a quién mostrarle.</p>
@@ -472,10 +472,10 @@ html, body {
     <div class="tag acc">Vs. el espectacular y el volante</div>
     <div class="headline" style="font-size:clamp(34px,4.4vw,64px);margin-bottom:30px">Cuatro ventajas que cambian el juego.</div>
     <div class="pts-grid">
-      <div class="point"><div class="pn">1</div><div><h4>Medible</h4><p>Sabes exactamente cuánto invertiste y cuánto vendiste. Adiós a "creo que funcionó".</p></div></div>
-      <div class="point"><div class="pn">2</div><div><h4>Segmentable</h4><p>Le hablas solo a quien te puede comprar. No pagas por llegarle a quien nunca lo hará.</p></div></div>
-      <div class="point"><div class="pn">3</div><div><h4>Escalable</h4><p>¿Funciona con $100? Le pones $1,000 y crece. Subes y bajas el volumen a voluntad.</p></div></div>
-      <div class="point"><div class="pn">4</div><div><h4>Accesible</h4><p>No necesitas el presupuesto de una marca grande. Empiezas con lo que un café diario.</p></div></div>
+      <div class="point"><div class="pn">1</div><div><h4>Medible</h4><p>Sabes con precisión cuánto invertiste y cuánto vendiste. Se acabó el "creo que funcionó".</p></div></div>
+      <div class="point"><div class="pn">2</div><div><h4>Segmentable</h4><p>Le hablas solo a quien te puede comprar y dejas de pagar por llegarle a quien nunca lo haría.</p></div></div>
+      <div class="point"><div class="pn">3</div><div><h4>Escalable</h4><p>Si funciona con poco, inviertes más y crece contigo. Subes o bajas la inversión cuando quieras.</p></div></div>
+      <div class="point"><div class="pn">4</div><div><h4>Accesible</h4><p>No necesitas el presupuesto de una marca grande: puedes empezar con lo que cuesta un café al día.</p></div></div>
     </div>
     <div class="sn" hidden>
       <p class="lead">El "para mí qué". Aterriza en su realidad de dueño de negocio.</p>
@@ -493,17 +493,17 @@ html, body {
       <div class="brand">
         <div class="bname">Apple</div>
         <div class="bidea">Tu cliente es tu publicidad</div>
-        <div class="btxt">Llenaron el mundo de fotos tomadas por sus propios usuarios. La gente hizo el anuncio.</div>
+        <div class="btxt">Llenaron el mundo con fotos tomadas por sus propios clientes. La gente terminó haciendo el anuncio por ellos.</div>
       </div>
       <div class="brand">
         <div class="bname">Nike</div>
         <div class="bidea">Vende emoción, no producto</div>
-        <div class="btxt">No te venden un tenis: te venden "Just Do It". Primero el deseo, después la compra.</div>
+        <div class="btxt">No te venden unos tenis: te venden una actitud, "Just Do It". Primero llega el deseo y después la compra.</div>
       </div>
       <div class="brand">
         <div class="bname">Coca-Cola</div>
         <div class="bidea">Lo personal conecta</div>
-        <div class="btxt">Pusieron tu nombre en la lata. Háblale a la persona, no a la multitud.</div>
+        <div class="btxt">Cambiaron su logo por nombres de personas y todos buscaron el suyo. Háblale a la persona, no a la multitud.</div>
       </div>
     </div>
     <div class="sn" hidden>
@@ -528,11 +528,11 @@ html, body {
       <div class="recap-item"><div class="recap-ico">3</div>El motor: subasta + datos + embudo</div>
       <div class="recap-item"><div class="recap-ico">4</div>Medible, segmentable, escalable, accesible</div>
     </div>
-    <div class="bridge">En el siguiente módulo abrimos las tres plataformas donde todo esto sucede: <b>Meta, TikTok y Google Ads</b>. <em>Ya entiendes el juego; ahora vamos por la cancha.</em></div>
+    <div class="bridge">En el siguiente módulo vamos por la pieza más poderosa de todas: <b>a quién le hablas</b>. Módulo 2 — Audiencia y Segmentación. <em>Ya entiendes el juego; ahora vamos por tu público.</em></div>
     <div class="sn" hidden>
       <p class="lead">Cierre + puente al Módulo 2. Deja sensación de logro.</p>
       <p>Recapitula los 4 puntos en 20 segundos. Reconócele al grupo lo que ya saben que no sabían al entrar.</p>
-      <p class="say">"Entraste pensando que la publicidad digital era apretar un botón de 'promocionar'. Sales sabiendo que es una subasta, unos datos y un embudo. Eso ya te pone por delante del 90% de los negocios. Nos vemos en el Módulo 2."</p>
+      <p class="say">"Entraste pensando que la publicidad digital era apretar un botón de 'promocionar'. Sales sabiendo que es una subasta, unos datos y un embudo. Eso ya te pone por delante del 90% de los negocios. En el Módulo 2 vemos lo más importante de todo: a quién le hablas —tu audiencia."</p>
     </div>
   </div>
 
