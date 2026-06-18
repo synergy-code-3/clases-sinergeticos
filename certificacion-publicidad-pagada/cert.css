@@ -178,6 +178,15 @@ html, body {
 @media(max-width:820px){ .pts-grid.three { grid-template-columns: 1fr; } }
 @media(max-width:720px){ .pts-grid { grid-template-columns: 1fr; } }
 
+/* ── FORMATS (galería de formatos) ── */
+.formats { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; width: 100%; max-width: 1120px; }
+.fmt { background: var(--white); border: 1px solid var(--line); border-radius: 16px; padding: 20px 22px; text-align: left; box-shadow: 0 8px 24px -16px rgba(0,0,0,.16); }
+.fmt h4 { font-size: clamp(18px,1.9vw,25px); font-weight: 800; letter-spacing: -.01em; margin-bottom: 6px; }
+.fmt h4 .ico { font-style: normal; margin-right: 8px; }
+.fmt p { font-size: clamp(14px,1.4vw,18px); color: var(--mid); line-height: 1.4; }
+@media(max-width:820px){ .formats { grid-template-columns: 1fr 1fr; } }
+@media(max-width:560px){ .formats { grid-template-columns: 1fr; } }
+
 /* ── PLATFORM (demo en vivo) ── */
 .platform { font-size: clamp(52px, 9vw, 132px); font-weight: 900; letter-spacing: -.04em; line-height: .96; }
 .platform em { font-family: var(--serif); font-style: italic; font-weight: 500; color: var(--accent); }
