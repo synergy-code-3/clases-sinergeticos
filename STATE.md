@@ -4,6 +4,40 @@
 
 ---
 
+## Última sesión — 2026-06-20 — Certificación en Publicidad y Ads (5 módulos, pulido visual y de copy)
+
+**Certificación completa (5 módulos) publicada en `clases-sinergeticos.vercel.app/certificacion-publicidad-pagada/` con menú, imágenes 3D, capa de movimiento, botón de pantalla completa y copy revisado; lista y en uso real.**
+
+### Lo hecho hoy
+- **Renombre global** a "Certificación en Publicidad y Ads" (antes "Publicidad Pagada"): títulos, portadas y menú (commit 9ffc7ce).
+- **M3 — orden de formatos**: la explicación ("Seis formatos que sí venden") ahora va ANTES de la galería de ejemplos reales ("Así se ven, en la vida real") — petición de David, completada (c56b410).
+- **M3 — galería de 6 frames realistas** (UGC, testimonio, antes/después, demo, carrusel, texto+video) generados con GPT Image 2 1K (a2f0727).
+- **Imágenes 3D** en hooks: atención (M1), afinar y ROI (M5) (f0acbda); portadas-hero + hook M3 (cfb9d64). Estándar fijado: GPT Image 2, **1K**, JPG ligero.
+- **Capa de movimiento y efectos**: entrada escalonada (hf-rise), glow ambiental en slides dark/divider, micro-interacciones, transición con escala; M1 y M2 migrados a `cert.css`/`cert.js` compartidos (cea1155).
+- **Botón de pantalla completa** (tecla F) en los 5 decks vía `fullscreen.js` compartido (b2dd9f6).
+- **Fix 404** al entrar a módulos: `trailingSlash:true` en `vercel.json` + enlaces absolutos en el menú (a844f9b).
+- **Copy M2**: subtítulo de portada acortado a "A quién le hablas y por qué." (1711acf).
+- **Guía de voz** (`GUIA-DE-VOZ.md`): 6 reglas basadas en *Made to Stick* / Sugarman / Ogilvy; se quitó toda mención a "Club" (e7b5aae).
+
+### Decisiones tomadas
+- Arquitectura compartida: `cert.css` + `cert.js` + `fullscreen.js` cargados con `../` desde cada subcarpeta de módulo (evita ~470 líneas duplicadas).
+- Todo título/copy pasa por el filtro de `GUIA-DE-VOZ.md` antes de quedarse (David rechazó copy "traducido/mecánico").
+- No mencionar "Club Sinergético" en ningún punto de la certificación.
+
+### Bugs conocidos
+- Ninguno abierto. (El `index.html` raíz del proyecto tiene cambios sin commitear — pertenece a la otra clase, no a la certificación.)
+
+### Pendientes — orden de prioridad
+
+#### 🟢 P2 — Cuando haya tiempo
+- "Voz de la audiencia" en `GUIA-DE-VOZ.md` sigue pendiente: pegar 1–2 títulos que a David le encanten para fijar el tono exacto.
+- Revisar si M4 (light, demo en vivo) necesita más apoyo visual o queda así por diseño.
+
+### Próximo paso para retomar
+La certificación está completa y publicada. Si David quiere seguir: calibrar la "Voz de la audiencia" con ejemplos suyos, o iterar copy/visual módulo por módulo según su feedback.
+
+---
+
 ## Última sesión — 2026-06-17 — Clase nueva "Los 5 activos digitales" (deck premium)
 
 **Clase nueva construida y lista en local (`los-5-activos-digitales/`), 25 slides, tema blanco+violeta, mockups visuales; falta el OK de David para commit + push + deploy.**
