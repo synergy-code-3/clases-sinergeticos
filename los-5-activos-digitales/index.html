@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Los 5 activos digitales que todo negocio debe construir</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #FBFAFF;
+  --fg: #16101F;
+  --dark: #1C1140;
+  --mid: #6E6880;
+  --light: #E8E3F4;
+  --lighter: #F3F0FB;
+  --accent: #7C3AED;
+  --accent-deep: #5B21B6;
+  --accent-dim: #EDE9FE;
+  --white: #FFFFFF;
+  --danger: #E25555;
+  --danger-dim: #FCE7E7;
+  --wa-teal: #075E54;
+  --wa-bubble: #DCF8C6;
+  --wa-bg: #ECE5DD;
+  --font: 'Inter', -apple-system, sans-serif;
+  --ease: cubic-bezier(.4,0,.2,1);
+}
+
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── LAYOUT ── */
+.deck { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+.slide {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  justify-content: safe center; align-items: safe center; text-align: center;
+  padding: 3vh 4.5vw; overflow-y: auto; scrollbar-width: none;
+  opacity: 0; transform: translateY(28px);
+  transition: opacity .4s var(--ease), transform .4s var(--ease);
+  pointer-events: none; will-change: opacity, transform;
+}
+.slide.active { opacity: 1; transform: translateY(0); pointer-events: all; }
+.slide.exit   { opacity: 0; transform: translateY(-28px); }
+.slide::-webkit-scrollbar { width: 0; height: 0; }
+.centered { align-items: safe center; text-align: center; justify-content: safe center; }
+
+/* ── CHROME ── */
+.progress-bar {
+  position: fixed; top: 0; left: 0; height: 4px;
+  background: var(--accent); transition: width .4s var(--ease); z-index: 200;
+}
+.slide-counter {
+  position: fixed; top: 20px; right: 28px;
+  font-size: 14px; font-weight: 700; letter-spacing: .08em; color: var(--mid); z-index: 100;
+}
+.dots {
+  position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 6px; z-index: 100; max-width: 64vw; flex-wrap: wrap; justify-content: center;
+}
+.dot { width: 7px; height: 7px; border-radius: 3.5px; background: var(--light); transition: background .25s, width .25s; cursor: pointer; }
+.dot.active { background: var(--fg); width: 24px; }
+.dot.div { background: #BBE6D5; }
+.dot.div.active { background: var(--accent); }
+.nav-btn {
+  position: fixed; bottom: 18px; z-index: 100;
+  width: 46px; height: 46px; border-radius: 50%;
+  border: 1px solid var(--light); background: var(--white);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: var(--fg); transition: all .18s; user-select: none; font-family: var(--font);
+}
+.nav-btn.left { left: 28px; } .nav-btn.right { right: 28px; }
+.nav-btn:hover { background: var(--fg); color: var(--white); border-color: var(--fg); }
+.nav-btn:disabled { opacity: .2; cursor: not-allowed; }
+
+/* ── ATOMS ── */
+.tag {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 15px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--mid); border: 1px solid var(--light);
+  padding: 9px 20px; border-radius: 100px; margin-bottom: 24px;
+}
+.tag.acc { color: var(--accent-deep); border-color: #C9BCF5; background: var(--accent-dim); }
+.headline { font-size: clamp(38px, 5.4vw, 82px); font-weight: 800; letter-spacing: -.035em; line-height: 1.02; margin-bottom: 24px; }
+.headline em { font-style: normal; color: var(--accent); }
+.caption { font-size: clamp(19px, 2vw, 30px); color: var(--mid); line-height: 1.45; margin-top: 28px; max-width: 1000px; }
+.caption b { color: var(--accent-deep); font-weight: 700; }
+
+/* ── S1: COVER ── */
+#s1 { background: radial-gradient(115% 100% at 82% 0%, #2C1A63 0%, var(--dark) 58%); color: var(--white); }
+.cover-rule { width: 64px; height: 5px; background: var(--accent); margin-bottom: 40px; }
+.cover-kicker { font-size: 16px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); margin-bottom: 22px; }
+.cover-title { font-size: clamp(42px, 6.6vw, 104px); font-weight: 900; letter-spacing: -.05em; line-height: .92; color: var(--white); margin-bottom: 26px; max-width: 16ch; }
+.cover-title em { font-style: normal; color: var(--accent); }
+.cover-sub { font-size: clamp(21px, 2.3vw, 34px); font-weight: 400; color: rgba(255,255,255,.6); max-width: 640px; line-height: 1.45; margin-bottom: 42px; }
+.cover-tag { font-size: 15px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.45); border: 1px solid rgba(255,255,255,.16); padding: 9px 22px; border-radius: 100px; display: inline-block; }
+
+/* ── S2: HOOK ── */
+.vs { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; width: 100%; max-width: 1160px; margin-top: 6px; }
+.vs-card { background: var(--white); border: 1px solid var(--light); border-radius: 22px; padding: 30px 36px 34px; box-shadow: 0 10px 30px -18px rgba(124,58,237,.2); }
+.vs-card.win { border-color: #C9BCF5; background: linear-gradient(180deg, var(--accent-dim), var(--white)); }
+.vs-k { font-size: 15px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--mid); margin-bottom: 16px; }
+.vs-card.win .vs-k { color: var(--accent-deep); }
+.vs-h { font-size: clamp(30px, 3.2vw, 46px); font-weight: 800; letter-spacing: -.02em; margin-bottom: 16px; }
+.vs-p { font-size: clamp(18px, 1.8vw, 25px); color: var(--mid); line-height: 1.55; }
+.vs-card.win .vs-p { color: #3A2A63; }
+@media(max-width:720px){ .vs { grid-template-columns: 1fr; } }
+
+/* ── S3: MAPA ── */
+.map { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 1160px; }
+.map-row { display: grid; grid-template-columns: 60px 1.1fr 1fr; align-items: center; gap: 24px; background: var(--white); border: 1px solid var(--light); border-radius: 16px; padding: 17px 28px; box-shadow: 0 6px 20px -12px rgba(124,58,237,.16); }
+.map-n { width: 48px; height: 48px; border-radius: 50%; background: var(--fg); color: var(--white); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 21px; }
+.map-row:first-child .map-n { background: var(--accent); }
+.map-name { font-weight: 800; font-size: clamp(20px, 2.1vw, 30px); letter-spacing: -.01em; }
+.map-fn { color: var(--mid); font-size: clamp(16px, 1.6vw, 23px); }
+.map-fn b { color: var(--accent-deep); font-weight: 700; }
+@media(max-width:720px){ .map-row { grid-template-columns: 46px 1fr; } .map-fn { grid-column: 2; } }
+
+/* ── DIVIDERS ── */
+.slide.divider { background: radial-gradient(120% 110% at 50% 0%, #271654 0%, var(--dark) 60%); color: var(--white); justify-content: safe center; }
+.div-ghost { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); font-size: clamp(260px, 48vw, 680px); font-weight: 900; line-height: .8; color: rgba(124,58,237,.28); letter-spacing: -.05em; pointer-events: none; z-index: 0; }
+.div-inner { position: relative; z-index: 1; }
+.div-kicker { font-size: 17px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); margin-bottom: 20px; }
+.div-name { font-size: clamp(60px, 9.4vw, 156px); font-weight: 900; letter-spacing: -.045em; line-height: .94; margin-bottom: 28px; }
+.div-fn { display: inline-flex; align-items: center; gap: 12px; font-size: clamp(20px, 2.2vw, 34px); font-weight: 600; color: rgba(255,255,255,.88); border: 1px solid rgba(255,255,255,.18); padding: 13px 28px; border-radius: 100px; }
+.div-fn .d { width: 11px; height: 11px; border-radius: 50%; background: var(--accent); }
+.div-steps { display: flex; gap: 8px; margin-top: 36px; justify-content: center; }
+.div-steps .pip { width: 42px; height: 6px; border-radius: 3px; background: rgba(255,255,255,.18); }
+.div-steps .pip.on { background: var(--accent); }
+
+/* ── POINTS ── */
+.pts-tag { display:inline-flex; align-items:center; gap:8px; font-size:15px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--mid); border:1px solid var(--light); padding:9px 20px; border-radius:100px; margin-bottom:22px; }
+.pts-tag b { color:var(--accent-deep); }
+.pts-title { font-size:clamp(32px,4.2vw,62px); font-weight:800; letter-spacing:-.03em; line-height:1.02; margin-bottom:24px; }
+.pts-grid { display:grid; grid-template-columns:1fr 1fr; gap:15px; width:100%; max-width:1200px; }
+.point { display:flex; gap:18px; background:var(--white); border:1px solid var(--light); border-radius:16px; padding:22px 26px; box-shadow:0 6px 20px -12px rgba(124,58,237,.18); }
+.point .pn { width:48px; height:48px; flex-shrink:0; border-radius:13px; background:var(--accent-dim); color:var(--accent-deep); display:flex; align-items:center; justify-content:center; font-weight:900; font-size:22px; }
+.point h4 { font-size:clamp(21px,2.1vw,30px); font-weight:800; letter-spacing:-.01em; margin-bottom:7px; }
+.point p { font-size:clamp(16px,1.55vw,21px); color:var(--mid); line-height:1.45; }
+@media(max-width:720px){ .pts-grid { grid-template-columns:1fr; } }
+
+/* ── STAGE (visual slides) ── */
+.stage { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.stage-tag { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent-deep); background: var(--accent-dim); border: 1px solid #C9BCF5; padding: 9px 20px; border-radius: 100px; margin-bottom: 26px; }
+.stage-cap { font-size: clamp(18px, 1.9vw, 27px); font-weight: 600; color: var(--fg); text-align: center; margin-top: 22px; max-width: 940px; line-height: 1.4; }
+.stage-cap b { color: var(--accent-deep); }
+
+/* ── MOCKUP: BRAND SHEET ── */
+.brandsheet { display: grid; grid-template-columns: 1fr 1fr; gap: 0; width: 100%; max-width: 920px; background: var(--white); border: 1px solid var(--light); border-radius: 26px; overflow: hidden; box-shadow: 0 28px 70px -38px rgba(0,0,0,.42); }
+.bs-left { padding: 44px 42px; display: flex; flex-direction: column; align-items: flex-start; gap: 20px; border-right: 1px solid var(--light); }
+.bs-mono { width: 112px; height: 112px; border-radius: 28px; background: linear-gradient(135deg, var(--accent), var(--accent-deep)); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 50px; font-weight: 900; letter-spacing: -.04em; }
+.bs-name { font-size: clamp(28px, 2.9vw, 42px); font-weight: 900; letter-spacing: -.02em; }
+.bs-promise { font-size: clamp(16px, 1.6vw, 22px); color: var(--mid); line-height: 1.45; }
+.bs-promise b { color: var(--fg); }
+.bs-right { padding: 40px 42px; display: flex; flex-direction: column; gap: 30px; }
+.bs-block .bs-lab { font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--mid); margin-bottom: 14px; }
+.bs-swatches { display: flex; gap: 12px; }
+.bs-swatches span { width: 54px; height: 54px; border-radius: 13px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.05); }
+.bs-type { font-size: 56px; font-weight: 900; letter-spacing: -.03em; line-height: 1; }
+.bs-type small { font-size: 16px; font-weight: 500; color: var(--mid); letter-spacing: 0; }
+.bs-voice { display: flex; flex-wrap: wrap; gap: 10px; }
+.bs-voice span { font-size: 16px; font-weight: 600; color: var(--accent-deep); background: var(--accent-dim); border-radius: 100px; padding: 7px 16px; }
+@media(max-width:720px){ .brandsheet { grid-template-columns: 1fr; } .bs-left { border-right: none; border-bottom: 1px solid var(--light); } }
+
+/* ── MOCKUP: PHONE ── */
+.phone { width: clamp(264px, 26vw, 332px); background: #111; border-radius: 40px; padding: 11px; box-shadow: 0 34px 80px -36px rgba(0,0,0,.6); }
+.phone-screen { background: var(--white); border-radius: 33px; overflow: hidden; }
+.ph-top { background: var(--fg); height: 30px; display: flex; align-items: center; justify-content: center; }
+.ph-top::before { content: ""; width: 92px; height: 7px; border-radius: 4px; background: rgba(255,255,255,.25); }
+.ph-head { display: flex; align-items: center; gap: 16px; padding: 20px 18px 14px; }
+.ph-av { width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-deep)); flex-shrink: 0; display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:25px; }
+.ph-stats { display: flex; gap: 18px; flex: 1; }
+.ph-stat { text-align: center; } .ph-stat b { display: block; font-size: 19px; font-weight: 800; } .ph-stat span { font-size: 12px; color: var(--mid); }
+.ph-bio { padding: 0 18px 14px; }
+.ph-handle { font-weight: 800; font-size: 18px; margin-bottom: 4px; }
+.ph-desc { font-size: 15px; color: #333; line-height: 1.4; }
+.ph-link { display: inline-block; margin-top: 9px; font-size: 15px; font-weight: 700; color: var(--accent-deep); }
+.ph-cta { margin: 6px 18px 16px; background: var(--accent); color: #fff; text-align: center; font-size: 15px; font-weight: 700; padding: 12px; border-radius: 11px; }
+.ph-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 3px; }
+.ph-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; }
+.ph-cell:nth-child(1){background:#6D28D9} .ph-cell:nth-child(2){background:#8B5CF6} .ph-cell:nth-child(3){background:#4C1D95}
+.ph-cell:nth-child(4){background:#A78BFA} .ph-cell:nth-child(5){background:#6D28D9} .ph-cell:nth-child(6){background:#5B21B6}
+
+/* ── MOCKUP: BROWSER ── */
+.browser { width: 100%; max-width: 960px; background: var(--white); border: 1px solid var(--light); border-radius: 18px; overflow: hidden; box-shadow: 0 30px 74px -38px rgba(0,0,0,.45); }
+.br-bar { display: flex; align-items: center; gap: 12px; padding: 15px 20px; background: var(--lighter); border-bottom: 1px solid var(--light); }
+.br-dots { display: flex; gap: 8px; } .br-dots span { width: 14px; height: 14px; border-radius: 50%; }
+.br-dots span:nth-child(1){background:#FF5F57} .br-dots span:nth-child(2){background:#FEBC2E} .br-dots span:nth-child(3){background:#28C840}
+.br-url { flex: 1; background: var(--white); border: 1px solid var(--light); border-radius: 9px; font-size: 15px; color: var(--mid); padding: 8px 18px; }
+.br-body { padding: 44px 56px 56px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.br-nav { width: 100%; display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: var(--mid); margin-bottom: 36px; }
+.br-nav b { color: var(--fg); font-size: 17px; }
+.br-h { font-size: clamp(30px, 3.8vw, 56px); font-weight: 900; letter-spacing: -.03em; line-height: 1.05; max-width: 16ch; margin-bottom: 18px; }
+.br-h em { color: var(--accent); font-style: normal; }
+.br-sub { font-size: clamp(16px, 1.7vw, 23px); color: var(--mid); max-width: 42ch; margin-bottom: 30px; }
+.br-btn { background: var(--accent); color: #fff; font-weight: 800; font-size: clamp(17px, 1.8vw, 24px); padding: 18px 44px; border-radius: 13px; box-shadow: 0 14px 30px -10px rgba(124,58,237,.6); }
+.br-trust { margin-top: 22px; font-size: 14px; color: var(--mid); letter-spacing: .04em; }
+
+/* ── MOCKUP: CHAT ── */
+.chat { width: clamp(350px, 38vw, 470px); border-radius: 18px; overflow: hidden; box-shadow: 0 30px 74px -36px rgba(0,0,0,.5); border: 1px solid var(--light); }
+.ch-head { background: var(--wa-teal); color: #fff; display: flex; align-items: center; gap: 14px; padding: 15px 18px; }
+.ch-av { width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,.25); display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px; }
+.ch-name { font-weight: 700; font-size: 18px; } .ch-status { font-size: 13px; color: rgba(255,255,255,.7); }
+.ch-body { background: var(--wa-bg); padding: 18px 15px; display: flex; flex-direction: column; gap: 10px; min-height: 270px; }
+.bubble { max-width: 82%; padding: 12px 16px; border-radius: 14px; font-size: 16px; line-height: 1.4; box-shadow: 0 1px 1px rgba(0,0,0,.08); position: relative; }
+.bubble.in { background: #fff; align-self: flex-start; border-top-left-radius: 3px; }
+.bubble.out { background: var(--wa-bubble); align-self: flex-end; border-top-right-radius: 3px; }
+.bubble .t { display: block; font-size: 11px; color: #667; text-align: right; margin-top: 4px; }
+.bubble .t b { color: #53BDEB; font-weight: 700; }
+.ch-quick { align-self: flex-end; background: #fff; color: var(--accent-deep); font-weight: 700; font-size: 15px; padding: 12px 20px; border-radius: 12px; border: 1px solid #DDD6F3; }
+
+/* ── MOCKUP: KANBAN ── */
+.kanban { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; width: 100%; max-width: 1180px; }
+.kb-col { background: var(--lighter); border: 1px solid var(--light); border-radius: 15px; padding: 16px 14px; display: flex; flex-direction: column; gap: 11px; }
+.kb-top { display: flex; align-items: center; justify-content: space-between; font-size: 14px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--mid); margin-bottom: 3px; }
+.kb-top .n { background: var(--white); border: 1px solid var(--light); border-radius: 100px; padding: 2px 10px; font-size: 13px; color: var(--fg); }
+.kb-col:last-child { background: var(--accent-dim); border-color: #C9BCF5; }
+.kb-col:last-child .kb-top { color: var(--accent-deep); }
+.kb-card { background: var(--white); border: 1px solid var(--light); border-radius: 11px; padding: 13px 14px; box-shadow: 0 2px 6px rgba(0,0,0,.03); }
+.kb-card .nm { font-size: 16px; font-weight: 700; margin-bottom: 7px; }
+.kb-src { font-size: 12px; font-weight: 700; letter-spacing: .03em; padding: 3px 9px; border-radius: 100px; display: inline-block; }
+.src-ig { background: #FCE4F1; color: #C13584; } .src-fb { background: #E3ECFB; color: #1877F2; } .src-web { background: var(--accent-dim); color: var(--accent-deep); }
+.kb-col:last-child .kb-card { border-color: #C9BCF5; }
+@media(max-width:720px){ .kanban { grid-template-columns: repeat(2,1fr); } }
+
+/* ── ERROR vs BIEN ── */
+.eb { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; width: 100%; max-width: 1180px; }
+.eb-card { border-radius: 20px; padding: 30px 32px 32px; border: 1px solid var(--light); background: var(--white); }
+.eb-card.bad { background: var(--danger-dim); border-color: #F3C9C9; }
+.eb-card.good { background: var(--accent-dim); border-color: #C9BCF5; }
+.eb-h { display: flex; align-items: center; gap: 12px; font-size: 16px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 18px; }
+.eb-card.bad .eb-h { color: #B23B3B; } .eb-card.good .eb-h { color: var(--accent-deep); }
+.eb-ico { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 17px; }
+.eb-card.bad .eb-ico { background: var(--danger); } .eb-card.good .eb-ico { background: var(--accent); }
+.eb-vis { background: rgba(255,255,255,.6); border-radius: 14px; padding: 18px; margin-bottom: 16px; min-height: 120px; display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+.eb-card.bad .eb-vis { background: rgba(255,255,255,.55); }
+.eb-txt { font-size: clamp(16px, 1.7vw, 22px); line-height: 1.5; }
+.eb-card.bad .eb-txt { color: #7a3030; } .eb-card.good .eb-txt { color: #33235F; }
+.chip-buy { background: var(--danger); color: #fff; font-size: 15px; font-weight: 800; padding: 10px 16px; border-radius: 9px; }
+.chip-mix { font-size: 15px; font-weight: 700; padding: 10px 16px; border-radius: 9px; background: #fff; border: 1px solid var(--light); }
+.blob { width: 56px; height: 56px; border-radius: 14px; }
+.btn-row { display: flex; gap: 9px; flex-wrap: wrap; justify-content: center; }
+.mini-btn { font-size: 14px; font-weight: 700; padding: 10px 14px; border-radius: 9px; }
+.mini-btn.gray { background: #fff; border: 1px solid var(--light); color: var(--mid); }
+.mini-btn.green { background: var(--accent); color: #fff; box-shadow: 0 8px 18px -6px rgba(124,58,237,.7); }
+.note-x { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.sticky { width: 70px; height: 70px; border-radius: 5px; transform: rotate(var(--r,-4deg)); box-shadow: 0 5px 10px rgba(0,0,0,.12); font-size: 13px; font-weight: 700; color: #6a5; display:flex;align-items:center;justify-content:center;text-align:center; }
+.rows-ok { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+.row-ok { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid #DDD6F3; border-radius: 9px; padding: 11px 14px; font-size: 15px; font-weight: 600; }
+.row-ok .dotg { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+.read-tick { font-size: 15px; color: var(--mid); font-weight: 600; }
+@media(max-width:720px){ .eb { grid-template-columns: 1fr; } }
+
+/* ── S: SISTEMA ── */
+.flow { display: flex; flex-wrap: wrap; align-items: center; gap: 11px; width: 100%; max-width: 1180px; margin-bottom: 30px; }
+.flow-node { background: var(--white); border: 1px solid var(--light); border-radius: 14px; padding: 18px 22px; display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 152px; }
+.flow-node:first-child { background: var(--fg); border-color: var(--fg); }
+.flow-node:first-child .fn-name { color: var(--white); } .flow-node:first-child .fn-fn { color: rgba(255,255,255,.55); }
+.fn-name { font-weight: 800; font-size: clamp(17px, 1.7vw, 24px); letter-spacing: -.01em; }
+.fn-fn { font-size: 14px; color: var(--mid); }
+.flow-arrow { color: var(--accent); font-size: 26px; font-weight: 700; }
+.flow-note { font-size: clamp(19px, 1.95vw, 28px); line-height: 1.5; max-width: 920px; color: var(--fg); }
+.flow-note b { color: var(--accent-deep); }
+@media(max-width:720px){ .flow-arrow { display: none; } .flow-node { min-width: 44%; } }
+
+/* ── S: CIERRE ── */
+.check { display: flex; flex-direction: column; gap: 12px; max-width: 760px; margin-bottom: 26px; }
+.check-item { display: flex; align-items: center; gap: 16px; font-size: clamp(21px, 2vw, 30px); font-weight: 600; }
+.check-ico { width: 42px; height: 42px; background: var(--accent); color: var(--white); border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 800; flex-shrink: 0; }
+.check-item span.q { color: var(--mid); font-weight: 500; font-size: clamp(16px, 1.5vw, 22px); }
+.final-quote { font-size: clamp(18px, 1.85vw, 26px); color: var(--mid); max-width: 780px; line-height: 1.65; text-align: center; padding-top: 22px; border-top: 3px solid var(--accent); }
+.final-quote b { color: var(--fg); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress"></div>
+<div class="slide-counter" id="counter"></div>
+<div class="deck" id="deck">
+
+  <!-- S1: COVER -->
+  <div class="slide active" id="s1">
+    <div class="cover-rule"></div>
+    <div class="cover-kicker">Sinergéticos · Clase</div>
+    <div class="cover-title">Los 5 <em>activos digitales</em> que todo negocio debe construir</div>
+    <div class="cover-sub">Deja de acumular presencia. Empieza a construir cosas que trabajen por ti.</div>
+    <div class="cover-tag">David Iriza</div>
+  </div>
+
+  <!-- S2: HOOK -->
+  <div class="slide" id="s2">
+    <div class="tag">El cambio de mentalidad</div>
+    <div class="headline">Tienes presencia digital.<br>No <em>activos</em> digitales.</div>
+    <div class="vs">
+      <div class="vs-card">
+        <div class="vs-k">Presencia</div>
+        <div class="vs-h">Estás ahí.</div>
+        <div class="vs-p">Un post, una historia, un anuncio. Pide tu esfuerzo cada día y se apaga en 24 horas. Si dejas de empujar, desapareces.</div>
+      </div>
+      <div class="vs-card win">
+        <div class="vs-k">Activo</div>
+        <div class="vs-h">Trabaja por ti.</div>
+        <div class="vs-p">Lo construyes una vez y te da retorno una y otra vez —incluso mientras duermes. Se acumula, no se evapora.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S3: MAPA -->
+  <div class="slide" id="s3">
+    <div class="tag acc">El mapa</div>
+    <div class="headline" style="margin-bottom:24px">Cinco activos. Un sistema.</div>
+    <div class="map">
+      <div class="map-row"><div class="map-n">1</div><div class="map-name">Marca e identidad</div><div class="map-fn">Te <b>recuerdan</b> y te eligen</div></div>
+      <div class="map-row"><div class="map-n">2</div><div class="map-name">Redes sociales</div><div class="map-fn">Te <b>descubren</b></div></div>
+      <div class="map-row"><div class="map-n">3</div><div class="map-name">Página web</div><div class="map-fn">Toman <b>acción</b></div></div>
+      <div class="map-row"><div class="map-n">4</div><div class="map-name">WhatsApp</div><div class="map-fn">Te <b>hablan</b></div></div>
+      <div class="map-row"><div class="map-n">5</div><div class="map-name">CRM</div><div class="map-fn">No se te <b>caen</b></div></div>
+    </div>
+  </div>
+
+  <!-- ═══ MARCA ═══ -->
+  <div class="slide divider" id="s4">
+    <div class="div-ghost">01</div>
+    <div class="div-inner">
+      <div class="div-kicker">Activo 01</div>
+      <div class="div-name">Marca<br>e identidad</div>
+      <div class="div-fn"><span class="d"></span> Te recuerdan y te eligen</div>
+      <div class="div-steps"><span class="pip on"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span></div>
+    </div>
+  </div>
+
+  <div class="slide" id="s4b">
+    <div class="pts-tag">Activo 01 · <b>Marca</b></div>
+    <div class="pts-title">Puntos clave a considerar</div>
+    <div class="pts-grid">
+      <div class="point"><div class="pn">1</div><div><h4>Claridad antes que estética</h4><p>Primero define qué prometes y a quién. El logo y los colores vienen después, no al revés.</p></div></div>
+      <div class="point"><div class="pn">2</div><div><h4>Consistencia &gt; perfección</h4><p>Verte igual siempre construye memoria. Cambiar de look cada mes te vuelve invisible.</p></div></div>
+      <div class="point"><div class="pn">3</div><div><h4>Nombre y dominio</h4><p>Fácil de recordar, decir y escribir. Asegura el dominio y el mismo @ en todas las redes.</p></div></div>
+      <div class="point"><div class="pn">4</div><div><h4>Tu “por qué”</h4><p>La historia o razón que te separa del de junto. La gente recuerda propósitos, no productos.</p></div></div>
+    </div>
+  </div>
+
+  <div class="slide centered" id="s5">
+    <div class="stage">
+      <div class="stage-tag">Así se ve bien hecho</div>
+      <div class="brandsheet">
+        <div class="bs-left">
+          <div class="bs-mono">TN</div>
+          <div class="bs-name">Tu Negocio</div>
+          <div class="bs-promise"><b>Promesa:</b> ayudamos a [tu cliente] a [resultado] sin [el dolor].</div>
+        </div>
+        <div class="bs-right">
+          <div class="bs-block"><div class="bs-lab">Colores</div><div class="bs-swatches"><span style="background:#7C3AED"></span><span style="background:#2E1065"></span><span style="background:#EDE9FE"></span></div></div>
+          <div class="bs-block"><div class="bs-lab">Tipografía</div><div class="bs-type">Aa <small>— una sola, siempre</small></div></div>
+          <div class="bs-block"><div class="bs-lab">Voz</div><div class="bs-voice"><span>cercano</span><span>claro</span><span>experto</span></div></div>
+        </div>
+      </div>
+      <div class="stage-cap">No es el logo. Es <b>lo que queda en su cabeza cuando tú no estás.</b></div>
+    </div>
+  </div>
+
+  <div class="slide centered" id="s6">
+    <div class="stage" style="align-items:stretch">
+      <div class="eb">
+        <div class="eb-card bad">
+          <div class="eb-h"><span class="eb-ico">✕</span> El error</div>
+          <div class="eb-vis">
+            <span class="blob" style="background:#7C3AED"></span>
+            <span class="blob" style="background:#EC4899;border-radius:50%"></span>
+            <span class="blob" style="background:#F59E0B;border-radius:6px 22px 6px 22px"></span>
+          </div>
+          <div class="eb-txt">Un color hoy, otro mañana. Logo distinto en cada lado. Nadie te reconoce porque <b>nunca te ves igual.</b></div>
+        </div>
+        <div class="eb-card good">
+          <div class="eb-h"><span class="eb-ico">✓</span> Bien hecho</div>
+          <div class="eb-vis">
+            <span class="blob" style="background:#7C3AED"></span>
+            <span class="blob" style="background:#7C3AED"></span>
+            <span class="blob" style="background:#7C3AED"></span>
+          </div>
+          <div class="eb-txt">Mismos colores, misma voz, mismo estilo en todos lados. <b>Te describen con las palabras que tú usarías.</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ REDES ═══ -->
+  <div class="slide divider" id="s7">
+    <div class="div-ghost">02</div>
+    <div class="div-inner">
+      <div class="div-kicker">Activo 02</div>
+      <div class="div-name">Redes<br>sociales</div>
+      <div class="div-fn"><span class="d"></span> Te descubren</div>
+      <div class="div-steps"><span class="pip"></span><span class="pip on"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span></div>
+    </div>
+  </div>
+
+  <div class="slide" id="s7b">
+    <div class="pts-tag">Activo 02 · <b>Redes sociales</b></div>
+    <div class="pts-title">Puntos clave a considerar</div>
+    <div class="pts-grid">
+      <div class="point"><div class="pn">1</div><div><h4>1 o 2 plataformas, no todas</h4><p>Está donde está tu cliente, no donde estás tú. Mejor dominar una que descuidar cinco.</p></div></div>
+      <div class="point"><div class="pn">2</div><div><h4>Ritmo sostenible</h4><p>3 publicaciones por semana, todas las semanas, le ganan a 10 hoy y cero el próximo mes.</p></div></div>
+      <div class="point"><div class="pn">3</div><div><h4>Perfil optimizado</h4><p>Foto, bio clara, link y destacados. Es la portada de tu negocio: que se entienda en 3 segundos.</p></div></div>
+      <div class="point"><div class="pn">4</div><div><h4>Siempre un siguiente paso</h4><p>Cada pieza invita a algo: comenta, escríbeme, entra al link. Sin CTA, no hay camino.</p></div></div>
+    </div>
+  </div>
+
+  <div class="slide centered" id="s8">
+    <div class="stage">
+      <div class="stage-tag">Así se ve un perfil que trabaja</div>
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="ph-top"></div>
+          <div class="ph-head">
+            <div class="ph-av">TN</div>
+            <div class="ph-stats">
+              <div class="ph-stat"><b>248</b><span>posts</span></div>
+              <div class="ph-stat"><b>12.4k</b><span>seguidores</span></div>
+              <div class="ph-stat"><b>312</b><span>siguiendo</span></div>
+            </div>
+          </div>
+          <div class="ph-bio">
+            <div class="ph-handle">@tunegocio</div>
+            <div class="ph-desc">Ayudo a [tu cliente] a [resultado] 🚀<br>👇 Empieza aquí</div>
+            <div class="ph-link">🔗 tunegocio.com</div>
+          </div>
+          <div class="ph-cta">Agenda tu llamada gratis →</div>
+          <div class="ph-grid">
+            <div class="ph-cell">Tip</div><div class="ph-cell">Caso</div><div class="ph-cell">Detrás</div>
+            <div class="ph-cell">Tip</div><div class="ph-cell">Reseña</div><div class="ph-cell">Oferta</div>
+          </div>
+        </div>
+      </div>
+      <div class="stage-cap">Bio que dice <b>qué haces</b> + un <b>camino claro</b> a tu web. No es para vender: es para que te descubran y confíen.</div>
+    </div>
+  </div>
+
+  <div class="slide centered" id="s9">
+    <div class="stage" style="align-items:stretch">
+      <div class="eb">
+        <div class="eb-card bad">
+          <div class="eb-h"><span class="eb-ico">✕</span> El error</div>
+          <div class="eb-vis"><span class="chip-buy">COMPRA</span><span class="chip-buy">COMPRA</span><span class="chip-buy">COMPRA</span></div>
+          <div class="eb-txt">Vender en cada post. La gente no te sigue para que le vendas — <b>te deja de seguir.</b></div>
+        </div>
+        <div class="eb-card good">
+          <div class="eb-h"><span class="eb-ico">✓</span> Bien hecho</div>
+          <div class="eb-vis"><span class="chip-mix">💡 Enseña</span><span class="chip-mix">📈 Caso</span><span class="chip-mix">🎯 CTA</span></div>
+          <div class="eb-txt">Contenido que educa o entretiene, y de vez en cuando invita. <b>Confianza primero, venta después.</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ WEB ═══ -->
+  <div class="slide divider" id="s10">
+    <div class="div-ghost">03</div>
+    <div class="div-inner">
+      <div class="div-kicker">Activo 03</div>
+      <div class="div-name">Página<br>web</div>
+      <div class="div-fn"><span class="d"></span> Toman acción</div>
+      <div class="div-steps"><span class="pip"></span><span class="pip"></span><span class="pip on"></span><span class="pip"></span><span class="pip"></span></div>
+    </div>
+  </div>
+
+  <div class="slide" id="s10b">
+    <div class="pts-tag">Activo 03 · <b>Página web</b></div>
+    <div class="pts-title">Puntos clave a considerar</div>
+    <div class="pts-grid">
+      <div class="point"><div class="pn">1</div><div><h4>Rápida y pensada en móvil</h4><p>La mayoría entra desde el celular. Si carga lento o se ve mal, se van antes de leerte.</p></div></div>
+      <div class="point"><div class="pn">2</div><div><h4>Un objetivo por página</h4><p>Una sola acción principal. Cada botón extra reparte la atención y baja la conversión.</p></div></div>
+      <div class="point"><div class="pn">3</div><div><h4>Prueba social arriba</h4><p>Testimonios, logos, números. La gente confía en lo que otros ya validaron.</p></div></div>
+      <div class="point"><div class="pn">4</div><div><h4>Dominio propio + medición</h4><p>Tu dominio (no un “.sitio-gratis”) y un pixel/analytics para saber qué funciona.</p></div></div>
+    </div>
+  </div>
+
+  <div class="slide centered" id="s11">
+    <div class="stage">
+      <div class="stage-tag">Tu vendedor que nunca duerme</div>
+      <div class="browser">
+        <div class="br-bar"><div class="br-dots"><span></span><span></span><span></span></div><div class="br-url">🔒 tunegocio.com</div></div>
+        <div class="br-body">
+          <div class="br-nav"><b>Tu Negocio</b><span>Inicio · Servicios · Contacto</span></div>
+          <div class="br-h">Resuelve <em>[el problema]</em> en [tiempo], sin [el dolor].</div>
+          <div class="br-sub">Una frase clara de lo que ofreces y para quién. Sin rodeos.</div>
+          <div class="br-btn">Agenda tu llamada →</div>
+          <div class="br-trust">★★★★★ +500 clientes · Respuesta en 24 h</div>
+        </div>
+      </div>
+      <div class="stage-cap">En 5 segundos se entiende qué ofreces. <b>Un objetivo, un botón.</b></div>
+    </div>
+  </div>
+
+  <div class="slide centered" id="s12">
+    <div class="stage" style="align-items:stretch">
+      <div class="eb">
+        <div class="eb-card bad">
+          <div class="eb-h"><span class="eb-ico">✕</span> El error</div>
+          <div class="eb-vis"><div class="btn-row"><span class="mini-btn gray">Saber más</span><span class="mini-btn gray">Catálogo</span><span class="mini-btn gray">Blog</span><span class="mini-btn gray">Nosotros</span><span class="mini-btn gray">Redes</span><span class="mini-btn gray">Contacto</span></div></div>
+          <div class="eb-txt">Web tipo folleto: bonita, con mil botones y ninguno claro. <b>El visitante no sabe qué hacer — y se va.</b></div>
+        </div>
+        <div class="eb-card good">
+          <div class="eb-h"><span class="eb-ico">✓</span> Bien hecho</div>
+          <div class="eb-vis"><span class="mini-btn green" style="font-size:17px;padding:16px 30px">Agenda tu llamada →</span></div>
+          <div class="eb-txt">Una sola acción evidente. <b>Le dices exactamente qué hacer</b> y lo hace.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ WHATSAPP ═══ -->
+  <div class="slide divider" id="s13">
+    <div class="div-ghost">04</div>
+    <div class="div-inner">
+      <div class="div-kicker">Activo 04</div>
+      <div class="div-name">WhatsApp</div>
+      <div class="div-fn"><span class="d"></span> Te hablan</div>
+      <div class="div-steps"><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip on"></span><span class="pip"></span></div>
+    </div>
+  </div>
+
+  <div class="slide" id="s13b">
+    <div class="pts-tag">Activo 04 · <b>WhatsApp</b></div>
+    <div class="pts-title">Puntos clave a considerar</div>
+    <div class="pts-grid">
+      <div class="point"><div class="pn">1</div><div><h4>WhatsApp Business, no personal</h4><p>Catálogo, respuestas rápidas, etiquetas y horario. Separa tu negocio de tu vida.</p></div></div>
+      <div class="point"><div class="pn">2</div><div><h4>Define tu tiempo de respuesta</h4><p>Una meta clara (ej. menos de 5 min en horario) y un mensaje de ausencia fuera de él.</p></div></div>
+      <div class="point"><div class="pn">3</div><div><h4>Bienvenida + menú</h4><p>Que la primera respuesta oriente sola: qué ofreces y cuál es el siguiente paso.</p></div></div>
+      <div class="point"><div class="pn">4</div><div><h4>Pide permiso, no quemes el canal</h4><p>Consigue el “sí” para volver a escribir. El WhatsApp se cuida: spam = bloqueo.</p></div></div>
+    </div>
+  </div>
+
+  <div class="slide centered" id="s14">
+    <div class="stage">
+      <div class="stage-tag">Donde la conversación se vuelve venta</div>
+      <div class="chat">
+        <div class="ch-head"><div class="ch-av">TN</div><div><div class="ch-name">Tu Negocio</div><div class="ch-status">en línea</div></div></div>
+        <div class="ch-body">
+          <div class="bubble in">Hola, vi su anuncio 👀<span class="t">10:02</span></div>
+          <div class="bubble out">¡Hola Ana! Gracias por escribir 🙌 ¿Te late que agendemos una llamada de 15 min para ver tu caso?<span class="t">10:02 <b>✓✓</b></span></div>
+          <div class="bubble in">Sí, me interesa<span class="t">10:03</span></div>
+          <div class="bubble out">Perfecto 👇 elige el horario que mejor te quede<span class="t">10:03 <b>✓✓</b></span></div>
+          <div class="ch-quick">📅 Agendar llamada</div>
+        </div>
+      </div>
+      <div class="stage-cap"><b>Respuesta rápida</b> + un <b>siguiente paso</b> claro en cada mensaje.</div>
+    </div>
+  </div>
+
+  <div class="slide centered" id="s15">
+    <div class="stage" style="align-items:stretch">
+      <div class="eb">
+        <div class="eb-card bad">
+          <div class="eb-h"><span class="eb-ico">✕</span> El error</div>
+          <div class="eb-vis"><div style="text-align:center"><div style="font-size:42px">💬</div><div class="read-tick">Visto ✓✓ · sin respuesta · 8 h después…</div></div></div>
+          <div class="eb-txt">Número pasivo. Respondes al día siguiente. <b>La cercanía se enfría y el cliente ya compró en otro lado.</b></div>
+        </div>
+        <div class="eb-card good">
+          <div class="eb-h"><span class="eb-ico">✓</span> Bien hecho</div>
+          <div class="eb-vis"><div style="text-align:center"><div style="font-size:42px">⚡</div><div class="read-tick" style="color:var(--accent-deep);font-weight:800">Saludo + respuesta en minutos</div></div></div>
+          <div class="eb-txt">Saludo de bienvenida, respuesta veloz y cada chat cierra con un paso. <b>Los primeros minutos valen oro.</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CRM ═══ -->
+  <div class="slide divider" id="s16">
+    <div class="div-ghost">05</div>
+    <div class="div-inner">
+      <div class="div-kicker">Activo 05</div>
+      <div class="div-name">CRM</div>
+      <div class="div-fn"><span class="d"></span> No se te caen</div>
+      <div class="div-steps"><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip on"></span></div>
+    </div>
+  </div>
+
+  <div class="slide" id="s16b">
+    <div class="pts-tag">Activo 05 · <b>CRM</b></div>
+    <div class="pts-title">Puntos clave a considerar</div>
+    <div class="pts-grid">
+      <div class="point"><div class="pn">1</div><div><h4>Empieza simple</h4><p>Una hoja de cálculo ordenada ya es un CRM. No necesitas el software más caro para arrancar.</p></div></div>
+      <div class="point"><div class="pn">2</div><div><h4>Registra el origen</h4><p>De dónde vino cada lead te dice qué canal vale la pena y dónde estás tirando dinero.</p></div></div>
+      <div class="point"><div class="pn">3</div><div><h4>Etapas claras</h4><p>Define tu pipeline: nuevo → conversación → propuesta → cliente. Sin etapas no hay control.</p></div></div>
+      <div class="point"><div class="pn">4</div><div><h4>Seguimiento con recordatorio</h4><p>La venta está en el seguimiento, no en el primer contacto. Agenda el próximo paso siempre.</p></div></div>
+    </div>
+  </div>
+
+  <div class="slide centered" id="s17">
+    <div class="stage">
+      <div class="stage-tag">Cada lead, en su lugar</div>
+      <div class="kanban">
+        <div class="kb-col">
+          <div class="kb-top">Nuevo <span class="n">3</span></div>
+          <div class="kb-card"><div class="nm">Ana López</div><span class="kb-src src-ig">Instagram</span></div>
+          <div class="kb-card"><div class="nm">Luis M.</div><span class="kb-src src-fb">Facebook</span></div>
+          <div class="kb-card"><div class="nm">Sofía R.</div><span class="kb-src src-web">Web</span></div>
+        </div>
+        <div class="kb-col">
+          <div class="kb-top">Conversación <span class="n">2</span></div>
+          <div class="kb-card"><div class="nm">Carlos D.</div><span class="kb-src src-web">Web</span></div>
+          <div class="kb-card"><div class="nm">Mariana T.</div><span class="kb-src src-ig">Instagram</span></div>
+        </div>
+        <div class="kb-col">
+          <div class="kb-top">Propuesta <span class="n">2</span></div>
+          <div class="kb-card"><div class="nm">Jorge P.</div><span class="kb-src src-fb">Facebook</span></div>
+          <div class="kb-card"><div class="nm">Daniela G.</div><span class="kb-src src-web">Web</span></div>
+        </div>
+        <div class="kb-col">
+          <div class="kb-top">Cliente <span class="n">2</span></div>
+          <div class="kb-card"><div class="nm">Pedro S. ✓</div><span class="kb-src src-ig">Instagram</span></div>
+          <div class="kb-card"><div class="nm">Lucía V. ✓</div><span class="kb-src src-web">Web</span></div>
+        </div>
+      </div>
+      <div class="stage-cap">Sabes <b>en qué etapa está cada quien</b> y de dónde vino. Nadie se queda sin seguimiento.</div>
+    </div>
+  </div>
+
+  <div class="slide centered" id="s18">
+    <div class="stage" style="align-items:stretch">
+      <div class="eb">
+        <div class="eb-card bad">
+          <div class="eb-h"><span class="eb-ico">✕</span> El error</div>
+          <div class="eb-vis note-x">
+            <span class="sticky" style="background:#FEF3C7;--r:-7deg">nota</span>
+            <span class="sticky" style="background:#DBEAFE;--r:5deg">chat</span>
+            <span class="sticky" style="background:#FCE7E7;--r:-3deg">memoria</span>
+          </div>
+          <div class="eb-txt">Contactos en la cabeza, en notas y en el chat. <b>Lo que no está en un sistema, se pierde.</b></div>
+        </div>
+        <div class="eb-card good">
+          <div class="eb-h"><span class="eb-ico">✓</span> Bien hecho</div>
+          <div class="eb-vis"><div class="rows-ok">
+            <div class="row-ok"><span class="dotg"></span> Ana López · Instagram</div>
+            <div class="row-ok"><span class="dotg"></span> Carlos D. · Web</div>
+            <div class="row-ok"><span class="dotg"></span> Jorge P. · Facebook</div>
+          </div></div>
+          <div class="eb-txt">Todo en un sistema, con su origen y su etapa. <b>Aquí está tu dinero futuro.</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S19: SISTEMA -->
+  <div class="slide" id="s19">
+    <div class="tag acc">El sistema completo</div>
+    <div class="headline" style="margin-bottom:26px">Aislados valen poco.<br>Conectados se <em>multiplican</em>.</div>
+    <div class="flow">
+      <div class="flow-node"><div class="fn-name">Marca</div><div class="fn-fn">te recuerdan</div></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node"><div class="fn-name">Redes</div><div class="fn-fn">te descubren</div></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node"><div class="fn-name">Web</div><div class="fn-fn">toman acción</div></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node"><div class="fn-name">WhatsApp</div><div class="fn-fn">te hablan</div></div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-node"><div class="fn-name">CRM</div><div class="fn-fn">no se caen</div></div>
+    </div>
+    <div class="flow-note">El poder no está en tener uno. Está en <b>conectarlos</b>: tu marca le da peso a tus redes, tus redes llevan a tu web, tu web abre el WhatsApp, y el CRM guarda todo para volver a venderle a la misma gente.</div>
+  </div>
+
+  <!-- S20: CIERRE -->
+  <div class="slide" id="s20">
+    <div class="tag">Tu siguiente paso</div>
+    <div class="headline" style="margin-bottom:28px">¿Cuáles tienes <em>de verdad</em>?</div>
+    <div class="check">
+      <div class="check-item"><div class="check-ico">1</div>Marca e identidad <span class="q">— ¿te recuerdan?</span></div>
+      <div class="check-item"><div class="check-ico">2</div>Redes sociales <span class="q">— ¿te descubren?</span></div>
+      <div class="check-item"><div class="check-ico">3</div>Página web <span class="q">— ¿toman acción?</span></div>
+      <div class="check-item"><div class="check-ico">4</div>WhatsApp <span class="q">— ¿te hablan?</span></div>
+      <div class="check-item"><div class="check-ico">5</div>CRM <span class="q">— ¿das seguimiento?</span></div>
+    </div>
+    <div class="final-quote">Elige el más débil y constrúyelo este mes. No necesitas estar en todos lados —necesitas <b>cinco activos que trabajen por ti</b>. La presencia se renta; los activos se construyen.</div>
+  </div>
+
+</div>
+
+<div class="dots" id="dots"></div>
+<button class="nav-btn left" id="prevBtn" aria-label="Anterior">‹</button>
+<button class="nav-btn right" id="nextBtn" aria-label="Siguiente">›</button>
+
+<script>
+const slides  = Array.from(document.querySelectorAll('.slide'));
+const dotsEl  = document.getElementById('dots');
+const progress= document.getElementById('progress');
+const counter = document.getElementById('counter');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const total   = slides.length;
+let current = 0, animating = false;
+
+slides.forEach((s, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '') + (s.classList.contains('divider') ? ' div' : '');
+  d.addEventListener('click', () => goTo(i));
+  dotsEl.appendChild(d);
+});
+
+function goTo(idx) {
+  if (animating || idx === current || idx < 0 || idx >= total) return;
+  animating = true;
+  const prev = slides[current];
+  prev.classList.remove('active'); prev.classList.add('exit');
+  current = idx;
+  slides[current].classList.add('active');
+  setTimeout(() => { prev.classList.remove('exit'); animating = false; }, 420);
+  updateUI();
+}
+function navigate(dir) { goTo(current + dir); }
+
+function updateUI() {
+  document.querySelectorAll('.dot').forEach((d, i) => {
+    d.classList.toggle('active', i === current);
+  });
+  progress.style.width = ((current + 1) / total * 100) + '%';
+  counter.textContent  = (current + 1) + ' / ' + total;
+  prevBtn.disabled = current === 0;
+  nextBtn.disabled = current === total - 1;
+}
+
+prevBtn.addEventListener('click', () => navigate(-1));
+nextBtn.addEventListener('click', () => navigate(1));
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); navigate(1); }
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')  { e.preventDefault(); navigate(-1); }
+});
+
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 56) navigate(dx < 0 ? 1 : -1);
+});
+
+updateUI();
+</script>
+</body>
+</html>
