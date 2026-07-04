@@ -4,6 +4,47 @@
 
 ---
 
+## Última sesión — 2026-07-01 — Clase nueva "Cuándo tercerizar tu marketing" + auditar y completar el hub
+
+**Hub Clases Sinergéticos completo y publicado: 6 clases en producción. Se construyó la clase nueva "Cuándo sí y cuándo no tercerizar tu marketing" y se publicaron las dos que faltaban en el índice ("Los 5 activos" y la Certificación).**
+
+### Lo hecho hoy
+- **Clase nueva "Cuándo sí y cuándo no tercerizar tu marketing"** (`cuando-tercerizar-tu-marketing/index.html`): deck de 14 slides, tema blanco+violeta, clonando la estructura/nav de `los-5-activos-digitales` (fade, teclado/swipe/dots, barra de progreso). Ángulo = marco neutral de decisión para dueño de negocio (elegido con David): las 3 piezas del marketing (estrategia/ejecución/medición), 4 modos de tercerizar, cuándo sí / cuándo no, el error caro, lo que nunca sueltas, cómo tercerizar bien, autodiagnóstico, cierre. Todo el copy pasado por `GUIA-DE-VOZ.md`.
+- **Botón de pantalla completa** inline y autocontenido (tecla F) en la clase nueva — el `fullscreen.js` compartido vive dentro de `certificacion-publicidad-pagada/`, no en la raíz, así que se inlineó. Primer intento fue invisible (blanco translúcido sobre fondo claro); se rehízo sólido violeta con sombra y valores literales.
+- **Fix de copy** en la clase nueva: "Tres cosas no se sueltan." → "3 cosas que no se sueltan." (petición de David).
+- **Auditoría del hub** (`index.html`): faltaban 2 clases terminadas. Se agregaron cards y se publicaron:
+  - **Los 5 activos digitales** — estaba hecha pero SIN commitear (era el P0 pendiente desde 2026-06-17); ahora commiteada y con card.
+  - **Certificación en Publicidad y Ads** — ya estaba en git y desplegada, pero nunca tuvo card en el hub; card agregada (link a `./certificacion-publicidad-pagada/`).
+- **Barrido global "¿falta alguna clase?"**: revisé carpetas, HTML sueltos (por nombre y por markers de deck), títulos "Clase/Módulo/Lección/Certificación", `.key/.pptx`, y repos GitHub (IrizaD, synergy-code-3, Zentraly). Conclusión: **no falta ninguna clase**. Descartados por no ser clases del hub: `propuesta-erik-taller.html` (propuesta app EXSA), `Consultorias/Machinery-Hunter/.../recorrido.html` (taller de consultoría a cliente), repos `webinar_room`/`first-land-usa-landings`/`cuestionario-podcast-mastery`/`mastermind-marketing`.
+- **3 deploys a prod** vía push (auto-deploy por conexión git de Vercel), los 3 verificados HTTP 200. Commits: `a863c05` (clase nueva), `ed39244` (2 cards + carpeta los-5), más este cierre.
+
+### Decisiones tomadas
+- Clase nueva = marco neutral de decisión (no "vende consultoría"), audiencia dueño de negocio, tema blanco+violeta reusado de "Los 5 activos" — consistencia del hub.
+- El botón de pantalla completa se inlinea por clase cuando la clase vive en la raíz del hub (el `fullscreen.js` compartido solo cubre los decks dentro de `certificacion-publicidad-pagada/`).
+
+### Bugs conocidos
+- Ninguno abierto.
+
+### IDs críticos
+```
+GITHUB_REPO     = "synergy-code-3/clases-sinergeticos"
+VERCEL_PROD_URL = "https://clases-sinergeticos.vercel.app"
+NUEVA_CLASE_URL = "https://clases-sinergeticos.vercel.app/cuando-tercerizar-tu-marketing/"
+```
+
+### Pendientes — orden de prioridad
+
+#### 🟢 P2 — Cuando haya tiempo
+- Card de la Certificación dice "Certificación · 5 módulos"; David puede querer un tiempo estimado.
+- Verificar en fullscreen real (sin barra de marcadores) que ninguna slide de la clase nueva se corte; afinar la que quede justa.
+- Si David hizo clases en Google Slides/Canva/Gamma (fuera de archivos locales/repos), no se revisaron esos canales — pedírselo si aplica.
+- "Voz de la audiencia" en `GUIA-DE-VOZ.md` (de la certificación) sigue pendiente de calibrar con ejemplos suyos.
+
+### Próximo paso para retomar
+Hub completo y en prod. Si David quiere seguir: iterar copy/visual de la clase nueva según su feedback, agregar tiempos estimados a las cards, o construir la siguiente clase (mismo patrón: crear carpeta `<slug>/index.html` clonando un deck existente + agregar card al hub + commit/push).
+
+---
+
 ## Última sesión — 2026-06-20 — Certificación en Publicidad y Ads (5 módulos, pulido visual y de copy)
 
 **Certificación completa (5 módulos) publicada en `clases-sinergeticos.vercel.app/certificacion-publicidad-pagada/` con menú, imágenes 3D, capa de movimiento, botón de pantalla completa y copy revisado; lista y en uso real.**
