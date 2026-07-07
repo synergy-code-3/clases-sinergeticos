@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cómo escribirle a Fable 5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #FBFAFF;
+  --fg: #16101F;
+  --dark: #1C1140;
+  --mid: #6E6880;
+  --light: #E8E3F4;
+  --lighter: #F3F0FB;
+  --accent: #7C3AED;
+  --accent-deep: #5B21B6;
+  --accent-dim: #EDE9FE;
+  --white: #FFFFFF;
+  --danger: #E25555;
+  --danger-dim: #FCE7E7;
+  --font: 'Inter', -apple-system, sans-serif;
+  --ease: cubic-bezier(.4,0,.2,1);
+}
+
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── LAYOUT ── */
+.deck { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+.slide {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  justify-content: safe center; align-items: safe center; text-align: center;
+  padding: 3vh 4.5vw; overflow-y: auto; scrollbar-width: none;
+  opacity: 0; transform: translateY(28px);
+  transition: opacity .4s var(--ease), transform .4s var(--ease);
+  pointer-events: none; will-change: opacity, transform;
+}
+.slide.active { opacity: 1; transform: translateY(0); pointer-events: all; }
+.slide.exit   { opacity: 0; transform: translateY(-28px); }
+.slide::-webkit-scrollbar { width: 0; height: 0; }
+.centered { align-items: safe center; text-align: center; justify-content: safe center; }
+
+/* ── CHROME ── */
+.progress-bar {
+  position: fixed; top: 0; left: 0; height: 4px;
+  background: var(--accent); transition: width .4s var(--ease); z-index: 200;
+}
+.slide-counter {
+  position: fixed; top: 20px; right: 28px;
+  font-size: 14px; font-weight: 700; letter-spacing: .08em; color: var(--mid); z-index: 100;
+}
+.dots {
+  position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 6px; z-index: 100; max-width: 64vw; flex-wrap: wrap; justify-content: center;
+}
+.dot { width: 7px; height: 7px; border-radius: 3.5px; background: var(--light); transition: background .25s, width .25s; cursor: pointer; }
+.dot.active { background: var(--fg); width: 24px; }
+.dot.div { background: #BBE6D5; }
+.dot.div.active { background: var(--accent); }
+.nav-btn {
+  position: fixed; bottom: 18px; z-index: 100;
+  width: 46px; height: 46px; border-radius: 50%;
+  border: 1px solid var(--light); background: var(--white);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: var(--fg); transition: all .18s; user-select: none; font-family: var(--font);
+}
+.nav-btn.left { left: 28px; } .nav-btn.right { right: 28px; }
+.nav-btn:hover { background: var(--fg); color: var(--white); border-color: var(--fg); }
+.nav-btn:disabled { opacity: .2; cursor: not-allowed; }
+
+/* ── ATOMS ── */
+.tag {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 15px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--mid); border: 1px solid var(--light);
+  padding: 9px 20px; border-radius: 100px; margin-bottom: 24px;
+}
+.tag.acc { color: var(--accent-deep); border-color: #C9BCF5; background: var(--accent-dim); }
+.headline { font-size: clamp(38px, 5.4vw, 82px); font-weight: 800; letter-spacing: -.035em; line-height: 1.02; margin-bottom: 24px; }
+.headline em { font-style: normal; color: var(--accent); }
+.caption { font-size: clamp(19px, 2vw, 30px); color: var(--mid); line-height: 1.45; margin-top: 28px; max-width: 1000px; }
+.caption b { color: var(--accent-deep); font-weight: 700; }
+
+/* ── S1: COVER ── */
+#s1 { background: radial-gradient(115% 100% at 82% 0%, #2C1A63 0%, var(--dark) 58%); color: var(--white); }
+.cover-rule { width: 64px; height: 5px; background: var(--accent); margin-bottom: 40px; }
+.cover-kicker { font-size: 16px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); margin-bottom: 22px; }
+.cover-title { font-size: clamp(42px, 6.6vw, 104px); font-weight: 900; letter-spacing: -.05em; line-height: .92; color: var(--white); margin-bottom: 26px; max-width: 16ch; }
+.cover-title em { font-style: normal; color: var(--accent); }
+.cover-sub { font-size: clamp(21px, 2.3vw, 34px); font-weight: 400; color: rgba(255,255,255,.6); max-width: 720px; line-height: 1.45; margin-bottom: 42px; }
+.cover-tag { font-size: 15px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.45); border: 1px solid rgba(255,255,255,.16); padding: 9px 22px; border-radius: 100px; display: inline-block; }
+
+/* ── HOOK: TWO CARDS ── */
+.vs { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; width: 100%; max-width: 1160px; margin-top: 6px; }
+.vs-card { background: var(--white); border: 1px solid var(--light); border-radius: 22px; padding: 24px 32px 26px; box-shadow: 0 10px 30px -18px rgba(124,58,237,.2); }
+#s2 .headline { font-size: clamp(34px, 4.6vw, 66px); margin-bottom: 18px; }
+#s2 .caption { margin-top: 20px; }
+.vs-card.bad { border-color: #F3C9C9; background: linear-gradient(180deg, var(--danger-dim), var(--white)); }
+.vs-card.good { border-color: #C9BCF5; background: linear-gradient(180deg, var(--accent-dim), var(--white)); }
+.vs-k { font-size: 15px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--mid); margin-bottom: 16px; }
+.vs-card.bad .vs-k { color: #B23B3B; }
+.vs-card.good .vs-k { color: var(--accent-deep); }
+.vs-h { font-size: clamp(28px, 3vw, 42px); font-weight: 800; letter-spacing: -.02em; margin-bottom: 12px; }
+.vs-p { font-size: clamp(17px, 1.7vw, 23px); color: var(--mid); line-height: 1.5; }
+@media(max-width:720px){ .vs { grid-template-columns: 1fr; } }
+
+/* ── MAPA ── */
+.map { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 1160px; }
+.map-row { display: grid; grid-template-columns: 60px 1.1fr 1.35fr; align-items: center; gap: 24px; background: var(--white); border: 1px solid var(--light); border-radius: 16px; padding: 17px 28px; box-shadow: 0 6px 20px -12px rgba(124,58,237,.16); }
+.map-n { width: 48px; height: 48px; border-radius: 50%; background: var(--fg); color: var(--white); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 21px; }
+.map-row.hi { border-color: #C9BCF5; background: linear-gradient(180deg, var(--accent-dim), var(--white)); }
+.map-row.hi .map-n { background: var(--accent); }
+.map-name { font-weight: 800; font-size: clamp(20px, 2.1vw, 30px); letter-spacing: -.01em; text-align: left; }
+.map-fn { color: var(--mid); font-size: clamp(16px, 1.6vw, 23px); text-align: left; }
+.map-fn b { color: var(--accent-deep); font-weight: 700; }
+@media(max-width:720px){ .map-row { grid-template-columns: 46px 1fr; } .map-fn { grid-column: 2; } }
+
+/* ── DIVIDERS ── */
+.slide.divider { background: radial-gradient(120% 110% at 50% 0%, #271654 0%, var(--dark) 60%); color: var(--white); justify-content: safe center; overflow: hidden; }
+.div-ghost { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); font-size: clamp(240px, 42vw, 620px); font-weight: 900; line-height: .8; color: rgba(124,58,237,.28); letter-spacing: -.05em; pointer-events: none; z-index: 0; }
+.div-inner { position: relative; z-index: 1; }
+.div-kicker { font-size: 17px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+.div-name { font-size: clamp(54px, 8.2vw, 128px); font-weight: 900; letter-spacing: -.045em; line-height: .95; margin-bottom: 22px; }
+.div-fn { display: inline-flex; align-items: center; gap: 12px; font-size: clamp(20px, 2.2vw, 34px); font-weight: 600; color: rgba(255,255,255,.88); border: 1px solid rgba(255,255,255,.18); padding: 13px 28px; border-radius: 100px; }
+.div-fn .d { width: 11px; height: 11px; border-radius: 50%; background: var(--accent); }
+
+/* ── POINTS ── */
+.pts-tag { display:inline-flex; align-items:center; gap:8px; font-size:15px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--mid); border:1px solid var(--light); padding:9px 20px; border-radius:100px; margin-bottom:22px; }
+.pts-tag b { color:var(--accent-deep); }
+.pts-title { font-size:clamp(32px,4.2vw,62px); font-weight:800; letter-spacing:-.03em; line-height:1.02; margin-bottom:24px; }
+.pts-title em { font-style: normal; color: var(--accent); }
+
+/* ── ERROR vs BIEN ── */
+.eb { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; width: 100%; max-width: 1180px; }
+.eb-card { border-radius: 20px; padding: 30px 32px 32px; border: 1px solid var(--light); background: var(--white); text-align: left; }
+.eb-card.bad { background: var(--danger-dim); border-color: #F3C9C9; }
+.eb-card.good { background: var(--accent-dim); border-color: #C9BCF5; }
+.eb-h { display: flex; align-items: center; gap: 12px; font-size: 16px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 18px; }
+.eb-card.bad .eb-h { color: #B23B3B; } .eb-card.good .eb-h { color: var(--accent-deep); }
+.eb-ico { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 17px; }
+.eb-card.bad .eb-ico { background: var(--danger); } .eb-card.good .eb-ico { background: var(--accent); }
+.eb-txt { font-size: clamp(17px, 1.85vw, 24px); line-height: 1.55; }
+.eb-card.bad .eb-txt { color: #7a3030; } .eb-card.good .eb-txt { color: #33235F; }
+.eb-txt .q { font-style: italic; }
+@media(max-width:720px){ .eb { grid-template-columns: 1fr; } }
+
+/* ── PLANTILLA ── */
+.tpl { width: 100%; max-width: 980px; background: var(--dark); border-radius: 22px; padding: 38px 44px; text-align: left; box-shadow: 0 24px 60px -30px rgba(28,17,64,.55); }
+.tpl p { font-size: clamp(17px, 1.8vw, 25px); line-height: 1.7; color: rgba(255,255,255,.88); margin-bottom: 18px; }
+.tpl p:last-child { margin-bottom: 0; }
+.tpl .blank { color: var(--accent); font-weight: 700; background: rgba(124,58,237,.16); border-radius: 6px; padding: 1px 8px; white-space: nowrap; }
+@media(max-width:720px){ .tpl { padding: 26px 24px; } .tpl .blank { white-space: normal; } }
+
+/* ── CIERRE / CHECKLIST ── */
+.check { display: flex; flex-direction: column; gap: 12px; max-width: 900px; margin-bottom: 26px; }
+.check-item { display: flex; align-items: center; gap: 16px; font-size: clamp(20px, 1.95vw, 29px); font-weight: 600; text-align: left; }
+.check-ico { width: 42px; height: 42px; background: var(--accent); color: var(--white); border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 800; flex-shrink: 0; }
+.final-quote { font-size: clamp(18px, 1.85vw, 26px); color: var(--mid); max-width: 860px; line-height: 1.65; text-align: center; padding-top: 22px; border-top: 3px solid var(--accent); }
+.final-quote b { color: var(--fg); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress"></div>
+<div class="slide-counter" id="counter"></div>
+<div class="deck" id="deck">
+
+  <!-- S1: COVER -->
+  <div class="slide active" id="s1">
+    <div class="cover-rule"></div>
+    <div class="cover-kicker">Sinergéticos · Clase</div>
+    <div class="cover-title">Cómo escribirle a <em>Fable&nbsp;5</em></div>
+    <div class="cover-sub">El nuevo modelo de Anthropic obedece cada línea que escribes. Eso cambia cómo le pides las cosas.</div>
+    <div class="cover-tag">David Iriza</div>
+  </div>
+
+  <!-- S2: HOOK — qué cambió -->
+  <div class="slide" id="s2">
+    <div class="tag">Qué cambió</div>
+    <div class="headline">El modelo cambió.<br>Tu prompt <em>no</em>.</div>
+    <div class="vs">
+      <div class="vs-card bad">
+        <div class="vs-k">Antes</div>
+        <div class="vs-h">Tres páginas de reglas.</div>
+        <div class="vs-p">Con los modelos anteriores tocaba repetir todo: tono, formato, pasos, recordatorios. Sin eso, se perdían a la mitad.</div>
+      </div>
+      <div class="vs-card good">
+        <div class="vs-k">Con Fable 5</div>
+        <div class="vs-h">Un párrafo claro.</div>
+        <div class="vs-p">Obedece con fidelidad cada línea. Las instrucciones que antes lo salvaban, ahora lo estorban.</div>
+      </div>
+    </div>
+    <div class="caption">Antes de enviar, pregúntate: <b>¿qué puedo borrar sin cambiar el resultado?</b></div>
+  </div>
+
+  <!-- S3: MAPA — los 4 principios -->
+  <div class="slide" id="s3">
+    <div class="tag acc">El mapa</div>
+    <div class="headline" style="margin-bottom:24px">Todo cabe en <em>cuatro principios</em>.</div>
+    <div class="map">
+      <div class="map-row"><div class="map-n">1</div><div class="map-name">Escríbele corto</div><div class="map-fn">Un párrafo claro le gana a <b>tres páginas</b></div></div>
+      <div class="map-row"><div class="map-n">2</div><div class="map-name">Dale el porqué</div><div class="map-fn">El objetivo, <b>no la receta</b></div></div>
+      <div class="map-row"><div class="map-n">3</div><div class="map-name">Márcale límites</div><div class="map-fn">Qué no toca y <b>cuándo te pregunta</b></div></div>
+      <div class="map-row"><div class="map-n">4</div><div class="map-name">Pídele evidencia</div><div class="map-fn">"Ya quedó" <b>no es un hecho</b></div></div>
+    </div>
+  </div>
+
+  <!-- S4: DIVIDER — P1 -->
+  <div class="slide divider" id="s4">
+    <div class="div-ghost">1</div>
+    <div class="div-inner">
+      <div class="div-kicker">Principio 1</div>
+      <div class="div-name">Escríbele<br>corto</div>
+      <div class="div-fn"><span class="d"></span> Un párrafo le gana a tres páginas</div>
+    </div>
+  </div>
+
+  <!-- S5: P1 -->
+  <div class="slide" id="s5">
+    <div class="pts-title" style="margin-bottom:22px">Cada línea es una orden que <em>va a cumplir</em></div>
+    <div class="eb">
+      <div class="eb-card bad">
+        <div class="eb-h"><span class="eb-ico">✕</span> Sobreinstruido</div>
+        <div class="eb-txt">Tres páginas de reglas sobre tono, estructura, gancho y formato. El modelo intenta cumplirlo todo a la vez y el resultado sale acartonado.</div>
+      </div>
+      <div class="eb-card good">
+        <div class="eb-h"><span class="eb-ico">✓</span> Un párrafo</div>
+        <div class="eb-txt">Quién lo va a leer, qué esperas que pase al leerlo, y un solo límite: máximo 150 palabras. El resto lo resuelve él.</div>
+      </div>
+    </div>
+    <div class="caption">No es flojera, es puntería. <b>Escribe solo las líneas que quieres que obedezca.</b></div>
+  </div>
+
+  <!-- S6: DIVIDER — P2 -->
+  <div class="slide divider" id="s6">
+    <div class="div-ghost">2</div>
+    <div class="div-inner">
+      <div class="div-kicker">Principio 2</div>
+      <div class="div-name">Dale el<br>porqué</div>
+      <div class="div-fn"><span class="d"></span> El objetivo, no la receta</div>
+    </div>
+  </div>
+
+  <!-- S7: P2 -->
+  <div class="slide" id="s7">
+    <div class="pts-title" style="margin-bottom:22px">Si le dictas los pasos, hereda <em>tus puntos ciegos</em></div>
+    <div class="eb">
+      <div class="eb-card bad">
+        <div class="eb-h"><span class="eb-ico">✕</span> La receta</div>
+        <div class="eb-txt"><span class="q">"Hazme una tabla con estas 40 filas. Columna 1: nombre. Columna 2: correo…"</span> Ejecuta tu plan tal cual, incluyendo lo que a tu plan le falta.</div>
+      </div>
+      <div class="eb-card good">
+        <div class="eb-h"><span class="eb-ico">✓</span> El objetivo</div>
+        <div class="eb-txt"><span class="q">"Estoy limpiando la lista de invitados de un evento para mandar las confirmaciones esta semana."</span> Con el contexto, atrapa duplicados y correos rotos que tú no pediste.</div>
+      </div>
+    </div>
+    <div class="caption">Dile qué quieres lograr, para quién es y qué pasa con el resultado. <b>Los pasos, solo cuando de verdad importan.</b></div>
+  </div>
+
+  <!-- S8: DIVIDER — P3 -->
+  <div class="slide divider" id="s8">
+    <div class="div-ghost">3</div>
+    <div class="div-inner">
+      <div class="div-kicker">Principio 3</div>
+      <div class="div-name">Márcale<br>límites</div>
+      <div class="div-fn"><span class="d"></span> Con la línea marcada se queda en su carril</div>
+    </div>
+  </div>
+
+  <!-- S9: P3 -->
+  <div class="slide" id="s9">
+    <div class="pts-title" style="margin-bottom:22px">Tiene iniciativa. <em>Ponle cancha.</em></div>
+    <div class="eb">
+      <div class="eb-card bad">
+        <div class="eb-h"><span class="eb-ico">✕</span> Sin límites</div>
+        <div class="eb-txt"><span class="q">"Revisa mi propuesta y mejórala."</span> Regresa reescrita de arriba a abajo — con los precios y las fechas que nadie le pidió tocar.</div>
+      </div>
+      <div class="eb-card good">
+        <div class="eb-h"><span class="eb-ico">✓</span> Con límites</div>
+        <div class="eb-txt"><span class="q">"Revisa mi propuesta y dime qué mejorarías. No la reescribas. No toques precios ni fechas."</span> Recibes el diagnóstico, y la propuesta sigue siendo tuya.</div>
+      </div>
+    </div>
+    <div class="caption">Tres líneas que lo mantienen en su carril: <b>qué no toca, cuándo se detiene a preguntarte, y hasta dónde llega la tarea.</b></div>
+  </div>
+
+  <!-- S10: DIVIDER — P4 -->
+  <div class="slide divider" id="s10">
+    <div class="div-ghost">4</div>
+    <div class="div-inner">
+      <div class="div-kicker">Principio 4</div>
+      <div class="div-name">Pídele<br>evidencia</div>
+      <div class="div-fn"><span class="d"></span> "Ya quedó" no es un hecho</div>
+    </div>
+  </div>
+
+  <!-- S11: P4 -->
+  <div class="slide" id="s11">
+    <div class="pts-title" style="margin-bottom:22px">"Ya quedó" es una afirmación, <em>no un hecho</em></div>
+    <div class="eb">
+      <div class="eb-card bad">
+        <div class="eb-h"><span class="eb-ico">✕</span> Le crees y ya</div>
+        <div class="eb-txt">— ¿Ya revisaste los 30 enlaces?<br>— <span class="q">"Listo, revisé los 30 y todos funcionan."</span><br>No abrió ninguno.</div>
+      </div>
+      <div class="eb-card good">
+        <div class="eb-h"><span class="eb-ico">✓</span> Le pides cuentas</div>
+        <div class="eb-txt"><span class="q">"Revisé los 30 enlaces abriendo cada uno: 27 cargan bien, 2 redirigen y 1 da error 404."</span><br>Eso ya lo puedes verificar tú.</div>
+      </div>
+    </div>
+    <div class="caption">El prompt: <b>"repórtame solo lo que puedas respaldar con evidencia de esta sesión; lo no verificado, dilo explícito."</b> En pruebas de Anthropic, esto casi eliminó los avances inventados.</div>
+  </div>
+
+  <!-- S12: NIVELES DE ESFUERZO -->
+  <div class="slide" id="s12">
+    <div class="tag acc">El ajuste fino</div>
+    <div class="headline" style="margin-bottom:24px">Elige cuánto <em>piensa</em>.</div>
+    <div class="map">
+      <div class="map-row"><div class="map-n" style="font-size:16px">low</div><div class="map-name">Rutina y volumen</div><div class="map-fn">Tareas mecánicas, en cantidad, <b>al menor costo</b></div></div>
+      <div class="map-row"><div class="map-n" style="font-size:14px">med</div><div class="map-name">El día a día</div><div class="map-fn">Preguntas directas y <b>ediciones simples</b></div></div>
+      <div class="map-row hi"><div class="map-n" style="font-size:15px">high</div><div class="map-name">Tu punto de partida</div><div class="map-fn">Razonamiento sólido <b>sin esperas eternas</b></div></div>
+      <div class="map-row"><div class="map-n" style="font-size:13px">xhigh</div><div class="map-name">Lo que no puede salir mal</div><div class="map-fn">Decisiones caras y auditorías, <b>máxima verificación</b></div></div>
+    </div>
+    <div class="caption">En <b>low</b>, Fable 5 rinde más que el esfuerzo máximo de los modelos anteriores.</div>
+  </div>
+
+  <!-- S13: LOS 5 ERRORES -->
+  <div class="slide" id="s13">
+    <div class="tag">Lo que más se repite</div>
+    <div class="headline" style="margin-bottom:24px">Los cinco errores <em>de siempre</em>.</div>
+    <div class="map">
+      <div class="map-row"><div class="map-n">1</div><div class="map-name">Sobreinstruir</div><div class="map-fn">Tres páginas donde <b>bastaba un párrafo</b></div></div>
+      <div class="map-row"><div class="map-n">2</div><div class="map-name">Dictarle los pasos</div><div class="map-fn">Le heredas <b>tus puntos ciegos</b></div></div>
+      <div class="map-row"><div class="map-n">3</div><div class="map-name">No marcar límites</div><div class="map-fn">"Mejora" cosas que <b>nadie le pidió</b></div></div>
+      <div class="map-row"><div class="map-n">4</div><div class="map-name">Creerle sin evidencia</div><div class="map-fn">"Ya quedó" es una afirmación, <b>no un hecho</b></div></div>
+      <div class="map-row"><div class="map-n">5</div><div class="map-name">Pedirle su razonamiento interno</div><div class="map-fn">Activa un filtro de seguridad y la sesión <b>cae a Opus 4.8</b></div></div>
+    </div>
+  </div>
+
+  <!-- S14: LA PLANTILLA -->
+  <div class="slide" id="s14">
+    <div class="tag acc">Cópiala tal cual</div>
+    <div class="headline" style="margin-bottom:28px">La plantilla que junta <em>todo</em>.</div>
+    <div class="tpl">
+      <p>Estoy trabajando en <span class="blank">[la tarea grande]</span> para <span class="blank">[quién]</span>. Necesitan <span class="blank">[qué habilita el resultado]</span>.</p>
+      <p>Lo que te pido: <span class="blank">[tu petición en 1 a 3 oraciones]</span>.</p>
+      <p>Límites: no toques <span class="blank">[lo intocable]</span>. Si necesitas <span class="blank">[algo que solo tú decides]</span>, pregúntame antes.</p>
+      <p>Al final, repórtame solo lo que puedas respaldar con evidencia de esta sesión; lo no verificado, márcalo como pendiente.</p>
+    </div>
+  </div>
+
+  <!-- S15: AUTODIAGNÓSTICO -->
+  <div class="slide" id="s15">
+    <div class="tag">Antes de darle enviar</div>
+    <div class="headline" style="margin-bottom:28px">Revisa <em>esto</em> primero.</div>
+    <div class="check">
+      <div class="check-item"><div class="check-ico">1</div>¿Puedo borrar algo sin cambiar el resultado?</div>
+      <div class="check-item"><div class="check-ico">2</div>¿Le dije el objetivo y para quién es?</div>
+      <div class="check-item"><div class="check-ico">3</div>¿Marqué qué no debe tocar?</div>
+      <div class="check-item"><div class="check-ico">4</div>¿Le pedí evidencia de lo que reporte?</div>
+      <div class="check-item"><div class="check-ico">5</div>¿El nivel de esfuerzo va con el tamaño del problema?</div>
+    </div>
+  </div>
+
+  <!-- S16: CIERRE -->
+  <div class="slide" id="s16">
+    <div class="tag">En una línea</div>
+    <div class="headline" style="margin-bottom:28px">Dile el qué y el porqué.<br>El <em>cómo</em> ya lo sabe.</div>
+    <div class="final-quote">Fable 5 no necesita que lo lleves de la mano. Necesita saber qué estás construyendo, dónde no debe meterse, y que le pidas cuentas. <b>Escríbele como a alguien capaz — porque lo es.</b></div>
+  </div>
+
+</div>
+
+<div class="dots" id="dots"></div>
+<button class="nav-btn left" id="prevBtn" aria-label="Anterior">‹</button>
+<button class="nav-btn right" id="nextBtn" aria-label="Siguiente">›</button>
+
+<script>
+const slides  = Array.from(document.querySelectorAll('.slide'));
+const dotsEl  = document.getElementById('dots');
+const progress= document.getElementById('progress');
+const counter = document.getElementById('counter');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const total   = slides.length;
+let current = 0, animating = false;
+
+slides.forEach((s, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '') + (s.classList.contains('divider') ? ' div' : '');
+  d.addEventListener('click', () => goTo(i));
+  dotsEl.appendChild(d);
+});
+
+function goTo(idx) {
+  if (animating || idx === current || idx < 0 || idx >= total) return;
+  animating = true;
+  const prev = slides[current];
+  prev.classList.remove('active'); prev.classList.add('exit');
+  current = idx;
+  slides[current].classList.add('active');
+  setTimeout(() => { prev.classList.remove('exit'); animating = false; }, 420);
+  updateUI();
+}
+function navigate(dir) { goTo(current + dir); }
+
+function updateUI() {
+  document.querySelectorAll('.dot').forEach((d, i) => {
+    d.classList.toggle('active', i === current);
+  });
+  progress.style.width = ((current + 1) / total * 100) + '%';
+  counter.textContent  = (current + 1) + ' / ' + total;
+  prevBtn.disabled = current === 0;
+  nextBtn.disabled = current === total - 1;
+}
+
+prevBtn.addEventListener('click', () => navigate(-1));
+nextBtn.addEventListener('click', () => navigate(1));
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); navigate(1); }
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')  { e.preventDefault(); navigate(-1); }
+});
+
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 56) navigate(dx < 0 ? 1 : -1);
+});
+
+updateUI();
+
+/* ── PANTALLA COMPLETA (botón arriba-izquierda + tecla F) ── */
+(function () {
+  const EXPAND   = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m13-5v3a2 2 0 0 1-2 2h-3"/></svg>';
+  const COMPRESS = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3m13-5h-3a2 2 0 0 0-2 2v3"/></svg>';
+  const btn = document.createElement('button');
+  btn.setAttribute('aria-label', 'Pantalla completa');
+  btn.title = 'Pantalla completa (F)';
+  btn.innerHTML = EXPAND;
+  Object.assign(btn.style, {
+    position:'fixed', top:'20px', left:'22px', zIndex:'150',
+    width:'46px', height:'46px', padding:'0', borderRadius:'50%',
+    border:'1px solid #D8CFF0', background:'#FFFFFF',
+    color:'#5B21B6', cursor:'pointer',
+    display:'flex', alignItems:'center', justifyContent:'center',
+    boxShadow:'0 6px 18px -6px rgba(124,58,237,.45)',
+    transition:'transform .18s, box-shadow .18s, background .18s, color .18s'
+  });
+  const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
+  function refresh() {
+    const on = !!fsEl();
+    btn.innerHTML = on ? COMPRESS : EXPAND;
+    btn.style.background = on ? '#5B21B6' : '#FFFFFF';
+    btn.style.color = on ? '#FFFFFF' : '#5B21B6';
+  }
+  function toggle() {
+    try {
+      if (fsEl()) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); }
+      else { const el = document.documentElement; (el.requestFullscreen || el.webkitRequestFullscreen).call(el); }
+    } catch (err) { console.warn('Fullscreen no disponible:', err); }
+  }
+  btn.addEventListener('mouseenter', () => { btn.style.transform = 'scale(1.06)'; btn.style.boxShadow = '0 10px 26px -8px rgba(124,58,237,.6)'; });
+  btn.addEventListener('mouseleave', () => { btn.style.transform = 'scale(1)'; btn.style.boxShadow = '0 6px 18px -6px rgba(124,58,237,.45)'; });
+  btn.addEventListener('click', toggle);
+  document.addEventListener('fullscreenchange', refresh);
+  document.addEventListener('webkitfullscreenchange', refresh);
+  document.addEventListener('keydown', e => {
+    if (e.key && e.key.toLowerCase() === 'f' && !e.metaKey && !e.ctrlKey && !e.altKey) { e.preventDefault(); toggle(); }
+  });
+  document.body.appendChild(btn);
+})();
+</script>
+</body>
+</html>
