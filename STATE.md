@@ -4,6 +4,63 @@
 
 ---
 
+## Última sesión — 2026-07-13 — Módulo AI Service: calendario conectado a bot y voz; workflows a Email diseñados (bloqueado por login GHL)
+
+**El circuito de agendado quedó cerrado y verificado: el bot de chat Y el agente de voz Valentina agendan citas reales en el calendario "Visitas a Propiedades" (crean contacto + cita en el CRM). Falta ejecutar el rediseño SMS→Email de los 2 workflows — quedó bloqueado porque la sesión de GHL expiró.**
+
+### Lo hecho hoy
+- **Verificado en el simulador** que el bot de chat "Coordinadora Visitas Inmobiliarias" ya propone horarios REALES del calendario (respondió "lunes 13 de julio a las 10:00 AM o martes 14 a las 10:00 AM") en vez de inventarlos. La acción Appointment Booking del bot quedó funcional.
+- **Acción Appointment Booking agregada al agente de voz Valentina** (builder → New Action → Appointment Booking → calendario "Visitas a Propiedades"), con cancelar, reagendar y auto-confirmación habilitados. Guardada con Save explícito y **verificada tras recargar la página** (persiste). Costo estimado subió a $0.368–$0.454/min (la acción agrega tokens; sigue en V3).
+- **tutorial-ghl.html actualizado** (sección 11): bullet nuevo del calendario+booking, fila Clase 2 con el calendario marcado ✅, fila Clase 3 reescrita (Valentina lista con número, "llama y graba"), checklist de David actualizado.
+- **NOTAS-GRABACION.md actualizado**: calendario en "lo que ya está listo", tabla de fallas ("bot inventa horarios" ya mitigado), checklist con canal de workflows pendiente de decisión → decidido después: Email.
+- **Explicado a David qué datos manda "Trigger a Workflow"**: solo inscribe al CONTACTO (no hay payload de conversación); el patrón es Contact Info / Update Contact Field para escribir datos de la conversación en campos del contacto antes de disparar, y el workflow los lee como merge fields.
+- **Diseñado el flujo de negocio completo por estatus post-llamada** (David pidió: sin SMS, con Email, y que cada estatus deje la siguiente acción para cerrar la venta) — ver Pendientes P0 con el diseño detallado.
+
+### Decisiones tomadas
+- **Canal de los workflows: Email** (David no usará SMS; WhatsApp queda para cuando esté verificado).
+- Cobertura de estatus: agendó → confirmación + recordatorios 24h/1h; canceló → email de reagenda con link del calendario + tarea al asesor (+1 día); no agendó (tag lead-visita) → 2 emails espaciados con check de cita + escalamiento a tarea del asesor. El link de agenda del calendario en los emails cierra el loop (auto-agendarse re-dispara la confirmación).
+- El MCP propio ghl-zentraly NO sirve para esta subcuenta (solo tiene conectada la location personal COsMAADseB1N2yw5iqCV) — los workflows se editan por navegador.
+
+### Bugs conocidos
+- **Sesión GHL expirada** — el builder de workflows carga en blanco y app.gohighlevel.com muestra login. David debe volver a iniciar sesión para continuar. (El 429 que apareció era solo Sentry/telemetría, inofensivo.)
+- Rename del workflow 2 a "Seguimiento Leads Sin Visita" no persiste desde el navegador (3 intentos en sesión anterior) — hacerlo a mano toma 5 segundos.
+
+### IDs críticos
+```
+SUBCUENTA_PRUEBA   = "2wFlNsFrBbDkYzKSY3Y4"   // Sinergeticos LLC Prueba Llamada
+CHAT_AGENT         = "sloDuBfMQyWdQFYVX2dV"   // Coordinadora Visitas Inmobiliarias (Primary, Off)
+VOICE_AGENT        = "6a548f82578d660b9ec8b634" // Valentina Visitas Inmobiliarias (V3, Veda Sky)
+VOICE_NUMBER       = "+1 (641) 614-5030"       // Answer Calls Directly 24/7
+CALENDARIO         = "bhEPeK3TqreEqD5aASH6"    // Visitas a Propiedades, 30 min, slug visitas-propiedades
+WORKFLOW_1         = "16821c48-0c23-4c22-903b-824d554620c9" // Confirmacion Visita Inmobiliaria (Draft)
+WORKFLOW_2         = "ebe9f258-4ef4-4389-9bf4-e4e2ca2b62ed" // Seguimiento leads (Draft, renombrar)
+```
+
+### Pendientes — orden de prioridad
+
+#### 🔴 P0 — Bloqueante / para que algo funcione en prod
+- **David: volver a iniciar sesión en app.gohighlevel.com** (la pestaña quedó en el login).
+- **Ejecutar el rediseño SMS→Email de los 2 workflows** (diseño ya aprobado por David):
+  - WF1 rama agendada: email confirmación inmediato ({{appointment.start_time}}, llevar ID, llegar 5 min antes, links reagendar/cancelar) → recordatorio 24h antes → recordatorio 1h antes.
+  - WF1 rama cancelada: email "¿reagendamos?" con link del calendario visitas-propiedades + tarea al asesor (due +1 día) "Llamar a {{contact.name}}: canceló su visita, rescatar".
+  - WF2 (tag lead-visita): espera 24h → email 1 con link de agenda → espera 2 días → ¿tiene cita? → email 2 (urgencia suave) → espera 2 días → ¿tiene cita? → tarea al asesor (due +1 día) "Lead frío: llamar manualmente".
+  - Renombrar WF2 a "Seguimiento Leads Sin Visita". Dejar ambos en Draft para revisión de David antes de publicar.
+
+#### 🟡 P1 — Esta semana
+- Conectar IG demo (cuenta profesional + página FB) — bloquea Clase 2.
+- Arrancar verificación Meta Business + número dedicado para WhatsApp ($10/mes) — bloquea Clase 2 y el canal final de los workflows.
+- David: publicar los 2 workflows tras revisar el copy de los emails.
+
+#### 🟢 P2 — Post-launch o cuando haya tiempo
+- Knowledge Base con datos de la inmobiliaria demo (opcional).
+- Snapshot final de la subcuenta (excluir workflows Synthflow) + Permanent Link + probar importándolo en cuenta limpia (verificar si el bot viaja dentro).
+- Considerar acción Contact Info en el bot para capturar propiedad de interés/presupuesto en campos personalizados.
+
+### Próximo paso para retomar
+David inicia sesión en GHL → abrir workflow 16821c48 (Confirmacion Visita Inmobiliaria) y ejecutar el rediseño a Email según el P0 (copy en español, voz Valentina/Inmobiliaria Prueba), luego workflow ebe9f258.
+
+---
+
 ## Última sesión — 2026-07-01 — Clase nueva "Cuándo tercerizar tu marketing" + auditar y completar el hub
 
 **Hub Clases Sinergéticos completo y publicado: 6 clases en producción. Se construyó la clase nueva "Cuándo sí y cuándo no tercerizar tu marketing" y se publicaron las dos que faltaban en el índice ("Los 5 activos" y la Certificación).**
