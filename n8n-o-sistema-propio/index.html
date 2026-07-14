@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>¿n8n o sistema propio?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #FBFAFF;
+  --fg: #16101F;
+  --dark: #1C1140;
+  --mid: #6E6880;
+  --light: #E8E3F4;
+  --lighter: #F3F0FB;
+  --accent: #7C3AED;
+  --accent-deep: #5B21B6;
+  --accent-dim: #EDE9FE;
+  --white: #FFFFFF;
+  --danger: #E25555;
+  --danger-dim: #FCE7E7;
+  --font: 'Inter', -apple-system, sans-serif;
+  --ease: cubic-bezier(.4,0,.2,1);
+}
+
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── LAYOUT ── */
+.deck { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+.slide {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  justify-content: safe center; align-items: safe center; text-align: center;
+  padding: 3vh 4.5vw; overflow-y: auto; scrollbar-width: none;
+  opacity: 0; transform: translateY(28px);
+  transition: opacity .4s var(--ease), transform .4s var(--ease);
+  pointer-events: none; will-change: opacity, transform;
+}
+.slide.active { opacity: 1; transform: translateY(0); pointer-events: all; }
+.slide.exit   { opacity: 0; transform: translateY(-28px); }
+.slide::-webkit-scrollbar { width: 0; height: 0; }
+.centered { align-items: safe center; text-align: center; justify-content: safe center; }
+
+/* ── CHROME ── */
+.progress-bar {
+  position: fixed; top: 0; left: 0; height: 4px;
+  background: var(--accent); transition: width .4s var(--ease); z-index: 200;
+}
+.slide-counter {
+  position: fixed; top: 20px; right: 28px;
+  font-size: 14px; font-weight: 700; letter-spacing: .08em; color: var(--mid); z-index: 100;
+}
+.dots {
+  position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 6px; z-index: 100; max-width: 64vw; flex-wrap: wrap; justify-content: center;
+}
+.dot { width: 7px; height: 7px; border-radius: 3.5px; background: var(--light); transition: background .25s, width .25s; cursor: pointer; }
+.dot.active { background: var(--fg); width: 24px; }
+.dot.div { background: #BBE6D5; }
+.dot.div.active { background: var(--accent); }
+.nav-btn {
+  position: fixed; bottom: 18px; z-index: 100;
+  width: 46px; height: 46px; border-radius: 50%;
+  border: 1px solid var(--light); background: var(--white);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: var(--fg); transition: all .18s; user-select: none; font-family: var(--font);
+}
+.nav-btn.left { left: 28px; } .nav-btn.right { right: 28px; }
+.nav-btn:hover { background: var(--fg); color: var(--white); border-color: var(--fg); }
+.nav-btn:disabled { opacity: .2; cursor: not-allowed; }
+
+/* ── ATOMS ── */
+.tag {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 15px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--mid); border: 1px solid var(--light);
+  padding: 9px 20px; border-radius: 100px; margin-bottom: 24px;
+}
+.tag.acc { color: var(--accent-deep); border-color: #C9BCF5; background: var(--accent-dim); }
+.headline { font-size: clamp(38px, 5.4vw, 82px); font-weight: 800; letter-spacing: -.035em; line-height: 1.02; margin-bottom: 24px; }
+.headline em { font-style: normal; color: var(--accent); }
+.caption { font-size: clamp(19px, 2vw, 30px); color: var(--mid); line-height: 1.45; margin-top: 28px; max-width: 1000px; }
+.caption b { color: var(--accent-deep); font-weight: 700; }
+
+/* ── S1: COVER ── */
+#s1 { background: radial-gradient(115% 100% at 82% 0%, #2C1A63 0%, var(--dark) 58%); color: var(--white); }
+.cover-rule { width: 64px; height: 5px; background: var(--accent); margin-bottom: 40px; }
+.cover-kicker { font-size: 16px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); margin-bottom: 22px; }
+.cover-title { font-size: clamp(42px, 6.6vw, 104px); font-weight: 900; letter-spacing: -.05em; line-height: .92; color: var(--white); margin-bottom: 26px; max-width: 16ch; }
+.cover-title em { font-style: normal; color: var(--accent); }
+.cover-sub { font-size: clamp(21px, 2.3vw, 34px); font-weight: 400; color: rgba(255,255,255,.6); max-width: 720px; line-height: 1.45; margin-bottom: 42px; }
+.cover-tag { font-size: 15px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.45); border: 1px solid rgba(255,255,255,.16); padding: 9px 22px; border-radius: 100px; display: inline-block; }
+
+/* ── S2: MANTRA ── */
+#s2 { background: radial-gradient(120% 110% at 50% 0%, #271654 0%, var(--dark) 60%); color: var(--white); }
+.mantra-kicker { font-size: 17px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); margin-bottom: 28px; }
+.mantra { font-size: clamp(34px, 4.6vw, 72px); font-weight: 800; letter-spacing: -.03em; line-height: 1.12; max-width: 20ch; color: var(--white); }
+.mantra em { font-style: normal; color: var(--accent); }
+.mantra-sub { font-size: clamp(19px, 2vw, 30px); color: rgba(255,255,255,.6); line-height: 1.5; margin-top: 34px; max-width: 760px; }
+.mantra-sub b { color: var(--white); font-weight: 700; }
+
+/* ── MOCKUP: N8N CANVAS ── */
+.n8n-canvas {
+  width: 100%; max-width: 1080px;
+  background: #F4F2FA;
+  background-image: radial-gradient(#D9D2EC 1.3px, transparent 1.3px);
+  background-size: 22px 22px;
+  border: 1px solid var(--light); border-radius: 20px;
+  padding: 42px 30px; margin-top: 8px;
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0;
+  box-shadow: 0 14px 40px -22px rgba(124,58,237,.3);
+}
+.n8n-node {
+  background: var(--white); border: 2px solid var(--light); border-radius: 16px;
+  padding: 16px 20px 14px; min-width: 168px;
+  display: flex; flex-direction: column; align-items: center; gap: 9px;
+  box-shadow: 0 6px 16px -8px rgba(28,17,64,.18);
+}
+.n8n-node.trigger { border-color: var(--accent); }
+.n8n-ico { width: 44px; height: 44px; border-radius: 12px; background: var(--accent-dim); color: var(--accent-deep); display: flex; align-items: center; justify-content: center; font-size: 21px; font-weight: 800; }
+.n8n-node.trigger .n8n-ico { background: var(--accent); color: var(--white); }
+.n8n-lbl { font-size: clamp(14px, 1.4vw, 18px); font-weight: 700; letter-spacing: -.01em; }
+.n8n-sub { font-size: clamp(12px, 1.1vw, 14px); color: var(--mid); font-weight: 600; margin-top: -6px; }
+.n8n-wire { display: flex; align-items: center; }
+.n8n-wire .ln { width: clamp(22px, 3.4vw, 54px); height: 2.5px; background: #B9A8E8; }
+.n8n-wire .ar { width: 0; height: 0; border-top: 6px solid transparent; border-bottom: 6px solid transparent; border-left: 8px solid #B9A8E8; }
+@media(max-width:820px){ .n8n-canvas { flex-direction: column; gap: 4px; } .n8n-wire { transform: rotate(90deg); height: 30px; } }
+
+/* ── MOCKUP: APP PROPIA ── */
+.app-window {
+  width: 100%; max-width: 940px; margin-top: 8px;
+  background: var(--white); border: 1px solid var(--light); border-radius: 18px; overflow: hidden;
+  box-shadow: 0 18px 50px -24px rgba(124,58,237,.35);
+  text-align: left;
+}
+.app-bar { display: flex; align-items: center; gap: 8px; background: var(--lighter); border-bottom: 1px solid var(--light); padding: 12px 16px; }
+.app-dot { width: 11px; height: 11px; border-radius: 50%; background: #D9D2EC; }
+.app-url { flex: 1; margin-left: 10px; background: var(--white); border: 1px solid var(--light); border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--mid); padding: 6px 14px; }
+.app-body { display: grid; grid-template-columns: 168px 1fr; min-height: 250px; }
+.app-side { background: var(--dark); padding: 18px 14px; display: flex; flex-direction: column; gap: 10px; }
+.app-logo { width: 34px; height: 34px; border-radius: 9px; background: var(--accent); margin-bottom: 8px; }
+.app-mi { height: 11px; border-radius: 6px; background: rgba(255,255,255,.16); }
+.app-mi.on { background: var(--accent); }
+.app-main { padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
+.app-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.app-stat { background: var(--lighter); border: 1px solid var(--light); border-radius: 12px; padding: 13px 16px; }
+.app-stat .k { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--mid); margin-bottom: 5px; }
+.app-stat .v { font-size: clamp(19px, 2vw, 26px); font-weight: 800; letter-spacing: -.02em; }
+.app-stat .v em { font-style: normal; color: var(--accent); }
+.app-rows { display: flex; flex-direction: column; gap: 8px; }
+.app-row { display: grid; grid-template-columns: 26px 1fr 84px; align-items: center; gap: 12px; background: var(--white); border: 1px solid var(--light); border-radius: 10px; padding: 9px 14px; }
+.app-av { width: 26px; height: 26px; border-radius: 50%; background: var(--accent-dim); }
+.app-ln { height: 10px; border-radius: 5px; background: var(--lighter); border: 1px solid var(--light); }
+.app-pill { font-size: 11px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--accent-deep); background: var(--accent-dim); border-radius: 100px; padding: 5px 0; text-align: center; }
+@media(max-width:720px){ .app-body { grid-template-columns: 1fr; } .app-side { flex-direction: row; align-items: center; } .app-mi { width: 40px; } }
+
+/* ── VS CARDS ── */
+.vs { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; width: 100%; max-width: 1160px; margin-top: 6px; }
+.vs-card { background: var(--white); border: 1px solid var(--light); border-radius: 22px; padding: 30px 36px 34px; box-shadow: 0 10px 30px -18px rgba(124,58,237,.2); }
+.vs-card.dim { background: var(--lighter); }
+.vs-card.acc { border-color: #C9BCF5; background: linear-gradient(180deg, var(--accent-dim), var(--white)); }
+.vs-card.dark { background: var(--dark); border-color: var(--dark); }
+.vs-card.dark .vs-h { color: var(--white); }
+.vs-card.dark .vs-p { color: rgba(255,255,255,.62); }
+.vs-card.dark .vs-k { color: var(--accent); }
+.vs-k { font-size: 15px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--mid); margin-bottom: 16px; }
+.vs-card.acc .vs-k { color: var(--accent-deep); }
+.vs-h { font-size: clamp(28px, 3vw, 44px); font-weight: 800; letter-spacing: -.02em; margin-bottom: 16px; line-height: 1.05; }
+.vs-p { font-size: clamp(18px, 1.8vw, 25px); color: var(--mid); line-height: 1.55; }
+.vs-p b { color: var(--accent-deep); }
+@media(max-width:720px){ .vs { grid-template-columns: 1fr; } }
+
+/* ── DIVIDERS ── */
+.slide.divider { background: radial-gradient(120% 110% at 50% 0%, #271654 0%, var(--dark) 60%); color: var(--white); justify-content: safe center; }
+.div-ghost { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); font-size: clamp(150px, 26vw, 430px); font-weight: 900; line-height: .8; color: rgba(124,58,237,.28); letter-spacing: -.05em; pointer-events: none; z-index: 0; white-space: nowrap; }
+.div-inner { position: relative; z-index: 1; }
+.div-kicker { font-size: 17px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); margin-bottom: 20px; }
+.div-name { font-size: clamp(52px, 8vw, 132px); font-weight: 900; letter-spacing: -.045em; line-height: .94; margin-bottom: 28px; }
+.div-fn { display: inline-flex; align-items: center; gap: 12px; font-size: clamp(20px, 2.2vw, 34px); font-weight: 600; color: rgba(255,255,255,.88); border: 1px solid rgba(255,255,255,.18); padding: 13px 28px; border-radius: 100px; }
+.div-fn .d { width: 11px; height: 11px; border-radius: 50%; background: var(--accent); }
+
+/* ── POINTS ── */
+.pts-tag { display:inline-flex; align-items:center; gap:8px; font-size:15px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--mid); border:1px solid var(--light); padding:9px 20px; border-radius:100px; margin-bottom:22px; }
+.pts-tag b { color:var(--accent-deep); }
+.pts-title { font-size:clamp(32px,4.2vw,62px); font-weight:800; letter-spacing:-.03em; line-height:1.02; margin-bottom:24px; }
+.pts-title em { font-style: normal; color: var(--accent); }
+.pts-grid { display:grid; grid-template-columns:1fr 1fr; gap:15px; width:100%; max-width:1200px; }
+.point { display:flex; gap:18px; background:var(--white); border:1px solid var(--light); border-radius:16px; padding:22px 26px; box-shadow:0 6px 20px -12px rgba(124,58,237,.18); text-align:left; }
+.point .pn { width:48px; height:48px; flex-shrink:0; border-radius:13px; background:var(--accent-dim); color:var(--accent-deep); display:flex; align-items:center; justify-content:center; font-weight:900; font-size:22px; }
+.point h4 { font-size:clamp(21px,2.1vw,30px); font-weight:800; letter-spacing:-.01em; margin-bottom:7px; }
+.point p { font-size:clamp(16px,1.55vw,21px); color:var(--mid); line-height:1.45; }
+@media(max-width:720px){ .pts-grid { grid-template-columns:1fr; } }
+
+/* ── ERROR vs BIEN ── */
+.eb { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; width: 100%; max-width: 1180px; }
+.eb-card { border-radius: 20px; padding: 30px 32px 32px; border: 1px solid var(--light); background: var(--white); text-align: left; }
+.eb-card.bad { background: var(--danger-dim); border-color: #F3C9C9; }
+.eb-card.good { background: var(--accent-dim); border-color: #C9BCF5; }
+.eb-h { display: flex; align-items: center; gap: 12px; font-size: 16px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 18px; }
+.eb-card.bad .eb-h { color: #B23B3B; } .eb-card.good .eb-h { color: var(--accent-deep); }
+.eb-ico { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 17px; }
+.eb-card.bad .eb-ico { background: var(--danger); } .eb-card.good .eb-ico { background: var(--accent); }
+.eb-txt { font-size: clamp(17px, 1.85vw, 24px); line-height: 1.55; }
+.eb-card.bad .eb-txt { color: #7a3030; } .eb-card.good .eb-txt { color: #33235F; }
+@media(max-width:720px){ .eb { grid-template-columns: 1fr; } }
+
+/* ── CONVIVEN / FLOW ── */
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; justify-content: center; gap: 14px; width: 100%; max-width: 1080px; margin-bottom: 30px; }
+.flow-node { background: var(--white); border: 1px solid var(--light); border-radius: 16px; padding: 22px 30px; display: flex; flex-direction: column; gap: 5px; min-width: 280px; text-align: left; }
+.flow-node.hold { background: var(--fg); border-color: var(--fg); }
+.flow-node.hold .fn-name { color: var(--white); } .flow-node.hold .fn-fn { color: rgba(255,255,255,.6); }
+.flow-node.let { background: var(--accent-dim); border-color: #C9BCF5; }
+.flow-node.let .fn-name { color: var(--accent-deep); }
+.fn-name { font-weight: 800; font-size: clamp(20px, 2.1vw, 30px); letter-spacing: -.01em; }
+.fn-fn { font-size: clamp(15px, 1.5vw, 20px); color: var(--mid); line-height: 1.45; }
+.flow-note { font-size: clamp(19px, 1.95vw, 28px); line-height: 1.55; max-width: 940px; color: var(--fg); }
+.flow-note b { color: var(--accent-deep); }
+
+/* ── CIERRE ── */
+.check { display: flex; flex-direction: column; gap: 12px; max-width: 900px; margin-bottom: 26px; }
+.check-item { display: flex; align-items: center; gap: 16px; font-size: clamp(19px, 1.9vw, 28px); font-weight: 600; text-align: left; }
+.check-ico { width: 42px; height: 42px; background: var(--accent); color: var(--white); border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 800; flex-shrink: 0; }
+.check-ico.alt { background: var(--fg); }
+.final-quote { font-size: clamp(18px, 1.85vw, 26px); color: var(--mid); max-width: 860px; line-height: 1.65; text-align: center; padding-top: 22px; border-top: 3px solid var(--accent); }
+.final-quote b { color: var(--fg); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress"></div>
+<div class="slide-counter" id="counter"></div>
+<div class="deck" id="deck">
+
+  <!-- S1: COVER -->
+  <div class="slide active" id="s1">
+    <div class="cover-rule"></div>
+    <div class="cover-kicker">Sinergéticos · Clase</div>
+    <div class="cover-title">¿n8n o <em>sistema propio</em>?</div>
+    <div class="cover-sub">Dónde montar tu próxima automatización, y por qué la respuesta acaba de cambiar.</div>
+    <div class="cover-tag">David Iriza</div>
+  </div>
+
+  <!-- S2: MANTRA -->
+  <div class="slide" id="s2">
+    <div class="mantra-kicker">El mantra</div>
+    <div class="mantra">Si una tarea se hace igual 2 o 3 veces, <em>puede y debe automatizarse</em>.</div>
+    <div class="mantra-sub">Esa parte ya la tienes. Esta clase responde la pregunta que sigue: <b>¿dónde la montas?</b></div>
+  </div>
+
+  <!-- S3: QUÉ ES N8N -->
+  <div class="slide" id="s3">
+    <div class="tag acc">Opción 1</div>
+    <div class="headline">n8n es esto: <em>cajas conectadas</em>.</div>
+    <div class="n8n-canvas">
+      <div class="n8n-node trigger"><div class="n8n-ico">⚡</div><div class="n8n-lbl">Llega un lead</div><div class="n8n-sub">disparador</div></div>
+      <div class="n8n-wire"><div class="ln"></div><div class="ar"></div></div>
+      <div class="n8n-node"><div class="n8n-ico">▦</div><div class="n8n-lbl">Se guarda en el CRM</div><div class="n8n-sub">paso 1</div></div>
+      <div class="n8n-wire"><div class="ln"></div><div class="ar"></div></div>
+      <div class="n8n-node"><div class="n8n-ico">✉</div><div class="n8n-lbl">Correo de bienvenida</div><div class="n8n-sub">paso 2</div></div>
+      <div class="n8n-wire"><div class="ln"></div><div class="ar"></div></div>
+      <div class="n8n-node"><div class="n8n-ico">!</div><div class="n8n-lbl">Aviso al vendedor</div><div class="n8n-sub">paso 3</div></div>
+    </div>
+    <div class="caption">Algo pasa en tu negocio y las cajas se pasan el trabajo una a la otra. Lo dibujas <b>sin programar</b> y corre solo, a cualquier hora.</div>
+  </div>
+
+  <!-- S4: QUÉ ES UN SISTEMA PROPIO -->
+  <div class="slide" id="s4">
+    <div class="tag acc">Opción 2</div>
+    <div class="headline">Un sistema propio es una pieza que <em>no existía</em>.</div>
+    <div class="app-window">
+      <div class="app-bar"><div class="app-dot"></div><div class="app-dot"></div><div class="app-dot"></div><div class="app-url">tunegocio.com/panel</div></div>
+      <div class="app-body">
+        <div class="app-side">
+          <div class="app-logo"></div>
+          <div class="app-mi on"></div><div class="app-mi"></div><div class="app-mi"></div><div class="app-mi"></div>
+        </div>
+        <div class="app-main">
+          <div class="app-stats">
+            <div class="app-stat"><div class="k">Citas hoy</div><div class="v">14</div></div>
+            <div class="app-stat"><div class="k">Leads del mes</div><div class="v"><em>312</em></div></div>
+            <div class="app-stat"><div class="k">Por confirmar</div><div class="v">6</div></div>
+          </div>
+          <div class="app-rows">
+            <div class="app-row"><div class="app-av"></div><div class="app-ln"></div><div class="app-pill">Confirmada</div></div>
+            <div class="app-row"><div class="app-av"></div><div class="app-ln" style="width:78%"></div><div class="app-pill">Pendiente</div></div>
+            <div class="app-row"><div class="app-av"></div><div class="app-ln" style="width:88%"></div><div class="app-pill">Confirmada</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="caption">Código hecho a tu medida: con su propia pantalla, su propia base de datos y <b>tu lógica exacta</b>. No vive dentro de ninguna herramienta.</div>
+  </div>
+
+  <!-- S5: LO QUE CAMBIÓ -->
+  <div class="slide" id="s5">
+    <div class="tag">Lo que cambió</div>
+    <div class="headline">Programar ya no es <em>la barrera</em>.</div>
+    <div class="vs">
+      <div class="vs-card dim">
+        <div class="vs-k">La respuesta vieja</div>
+        <div class="vs-h">“n8n, casi siempre.”</div>
+        <div class="vs-p">Un sistema a la medida costaba meses y el sueldo de un programador. Conectar cajas costaba una tarde. La decisión se tomaba sola.</div>
+      </div>
+      <div class="vs-card acc">
+        <div class="vs-k">La respuesta hoy</div>
+        <div class="vs-h">La IA escribe el código.</div>
+        <div class="vs-p">Montar un sistema propio pasó de meses a días. <b>Construir dejó de ser el problema</b>, así que la decisión ahora se toma con otra pregunta.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S6: LA PREGUNTA -->
+  <div class="slide" id="s6">
+    <div class="tag acc">La pregunta que decide</div>
+    <div class="headline">¿Estás <em>conectando</em>… o estás <em>creando</em>?</div>
+    <div class="vs">
+      <div class="vs-card">
+        <div class="vs-k">Conectando</div>
+        <div class="vs-h">Las piezas ya existen.</div>
+        <div class="vs-p">Tu CRM, tu correo y tu hoja de cálculo ya hacen el trabajo. Solo falta que se hablen entre ellas. <b>Eso es n8n.</b></div>
+      </div>
+      <div class="vs-card dark">
+        <div class="vs-k">Creando</div>
+        <div class="vs-h">La pieza no existe.</div>
+        <div class="vs-p">Ninguna herramienta hace lo que necesitas, como lo necesitas. Hay que construirla. <b>Eso es un sistema propio.</b></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S7: DIVIDER N8N -->
+  <div class="slide divider" id="s7">
+    <div class="div-ghost">n8n</div>
+    <div class="div-inner">
+      <div class="div-kicker">Cuándo elegir</div>
+      <div class="div-name">n8n</div>
+      <div class="div-fn"><span class="d"></span> El pegamento entre tus herramientas</div>
+    </div>
+  </div>
+
+  <!-- S8: CUÁNDO N8N -->
+  <div class="slide" id="s8">
+    <div class="pts-tag">Elige n8n cuando…</div>
+    <div class="pts-title">El trabajo es <em>mover datos</em></div>
+    <div class="pts-grid">
+      <div class="point"><div class="pn">✓</div><div><h4>Solo lleva cosas de A a B</h4><p>Entra un pago y se apunta en tu hoja. Llega un lead y se guarda en el CRM. Nada que inventar.</p></div></div>
+      <div class="point"><div class="pn">✓</div><div><h4>Son avisos y recordatorios</h4><p>Alertas a tu equipo, seguimientos, reportes que se mandan solos cada lunes.</p></div></div>
+      <div class="point"><div class="pn">✓</div><div><h4>Quieres cambiarlo en 2 minutos</h4><p>Abres el lienzo, mueves una caja, guardas. Lo entiendes con solo verlo dibujado.</p></div></div>
+      <div class="point"><div class="pn">✓</div><div><h4>Tus herramientas hacen lo pesado</h4><p>El CRM, el correo y el calendario ya saben su oficio. n8n nada más los presenta.</p></div></div>
+    </div>
+  </div>
+
+  <!-- S9: DIVIDER SISTEMA PROPIO -->
+  <div class="slide divider" id="s9">
+    <div class="div-ghost">&lt;/&gt;</div>
+    <div class="div-inner">
+      <div class="div-kicker">Cuándo elegir</div>
+      <div class="div-name">Sistema<br>propio</div>
+      <div class="div-fn"><span class="d"></span> La pieza que se construye para ti</div>
+    </div>
+  </div>
+
+  <!-- S10: CUÁNDO SISTEMA PROPIO -->
+  <div class="slide" id="s10">
+    <div class="pts-tag">Construye propio cuando…</div>
+    <div class="pts-title">La pieza tiene que <em>ser tuya</em></div>
+    <div class="pts-grid">
+      <div class="point"><div class="pn">✓</div><div><h4>Alguien lo usa con los ojos</h4><p>Necesita pantalla: un panel para tu equipo, un formulario para tus clientes, una app.</p></div></div>
+      <div class="point"><div class="pn">✓</div><div><h4>Guarda sus propios datos</h4><p>Historial, clientes, citas. Información que vas a consultar mañana y que debe ser tuya.</p></div></div>
+      <div class="point"><div class="pn">✓</div><div><h4>La lógica tiene demasiadas reglas</h4><p>Si el flujo necesita 40 cajas y 12 condiciones, ya no es un flujo: es un sistema pidiendo nacer.</p></div></div>
+      <div class="point"><div class="pn">✓</div><div><h4>Es parte de lo que vendes</h4><p>Si tu cliente lo ve y lo usa, es producto. El producto no se arma con cajas rentadas.</p></div></div>
+    </div>
+  </div>
+
+  <!-- S11: EL ERROR CARO -->
+  <div class="slide centered" id="s11">
+    <div class="pts-title" style="margin-bottom:22px">El error caro: <em>quedarse en n8n de más</em></div>
+    <div class="eb">
+      <div class="eb-card bad">
+        <div class="eb-h"><span class="eb-ico">✕</span> El flujo Frankenstein</div>
+        <div class="eb-txt">Empezó con 5 cajas. Hoy tiene 43, tres parches y nadie recuerda qué hace la caja 27. Cada cambio rompe otra cosa, y arreglarlo toma más que rehacerlo.</div>
+      </div>
+      <div class="eb-card good">
+        <div class="eb-h"><span class="eb-ico">✓</span> El cambio a tiempo</div>
+        <div class="eb-txt">Cuando el flujo deja de conectar y empieza a decidir, se muda a código. El sistema propio carga la lógica, y n8n vuelve a hacer lo que hace bien: conectar.</div>
+      </div>
+    </div>
+    <div class="caption" style="margin-top:22px">También existe el error inverso: montar un servidor entero para algo que era <b>un aviso de Telegram</b>.</div>
+  </div>
+
+  <!-- S12: CONVIVEN -->
+  <div class="slide" id="s12">
+    <div class="tag acc">El nivel pro</div>
+    <div class="headline" style="margin-bottom:30px">No eliges bando. <em>Conviven.</em></div>
+    <div class="flow">
+      <div class="flow-node hold"><div class="fn-name">El sistema propio</div><div class="fn-fn">carga el trabajo pesado: la pantalla, los datos, las reglas del negocio</div></div>
+      <div class="flow-node let"><div class="fn-name">n8n alrededor</div><div class="fn-fn">lo conecta con todo lo demás: avisos, CRM, correo, reportes</div></div>
+    </div>
+    <div class="flow-note">Así están montados los sistemas serios: <b>el corazón en código, y n8n repartiendo los recados.</b> Y las dos partes las construyes con IA.</div>
+  </div>
+
+  <!-- S13: AUTODIAGNÓSTICO -->
+  <div class="slide" id="s13">
+    <div class="tag">Antes de montar tu próxima automatización</div>
+    <div class="headline" style="margin-bottom:28px">Respóndete <em>esto</em> primero.</div>
+    <div class="check">
+      <div class="check-item"><div class="check-ico">1</div>¿Mis herramientas ya hacen el trabajo y solo falta conectarlas?</div>
+      <div class="check-item"><div class="check-ico alt">2</div>¿Alguien necesita una pantalla para usarlo?</div>
+      <div class="check-item"><div class="check-ico alt">3</div>¿Va a guardar información que consultaré después?</div>
+      <div class="check-item"><div class="check-ico">4</div>¿El flujo cabría en 10 cajas que entiendo de un vistazo?</div>
+      <div class="check-item"><div class="check-ico alt">5</div>¿Mi cliente lo ve o lo usa directamente?</div>
+    </div>
+    <div class="caption" style="margin-top:0">Sí a la <b>1 o la 4</b>: n8n. Sí a la <b>2, la 3 o la 5</b>: sistema propio.</div>
+  </div>
+
+  <!-- S14: CIERRE -->
+  <div class="slide" id="s14">
+    <div class="tag">En una línea</div>
+    <div class="headline" style="margin-bottom:28px">Conecta lo que ya existe. Construye lo que <em>falta</em>.</div>
+    <div class="final-quote">Si las piezas ya existen, únelas con n8n y sigue con tu día. Si la pieza no existe, constrúyela: la IA escribe el código contigo. <b>Lo único que ya no se vale es hacerlo a mano una tercera vez.</b></div>
+  </div>
+
+</div>
+
+<div class="dots" id="dots"></div>
+<button class="nav-btn left" id="prevBtn" aria-label="Anterior">‹</button>
+<button class="nav-btn right" id="nextBtn" aria-label="Siguiente">›</button>
+
+<script>
+const slides  = Array.from(document.querySelectorAll('.slide'));
+const dotsEl  = document.getElementById('dots');
+const progress= document.getElementById('progress');
+const counter = document.getElementById('counter');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const total   = slides.length;
+let current = 0, animating = false;
+
+slides.forEach((s, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '') + (s.classList.contains('divider') ? ' div' : '');
+  d.addEventListener('click', () => goTo(i));
+  dotsEl.appendChild(d);
+});
+
+function goTo(idx) {
+  if (animating || idx === current || idx < 0 || idx >= total) return;
+  animating = true;
+  const prev = slides[current];
+  prev.classList.remove('active'); prev.classList.add('exit');
+  current = idx;
+  slides[current].classList.add('active');
+  setTimeout(() => { prev.classList.remove('exit'); animating = false; }, 420);
+  updateUI();
+}
+function navigate(dir) { goTo(current + dir); }
+
+function updateUI() {
+  document.querySelectorAll('.dot').forEach((d, i) => {
+    d.classList.toggle('active', i === current);
+  });
+  progress.style.width = ((current + 1) / total * 100) + '%';
+  counter.textContent  = (current + 1) + ' / ' + total;
+  prevBtn.disabled = current === 0;
+  nextBtn.disabled = current === total - 1;
+}
+
+prevBtn.addEventListener('click', () => navigate(-1));
+nextBtn.addEventListener('click', () => navigate(1));
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); navigate(1); }
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')  { e.preventDefault(); navigate(-1); }
+});
+
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 56) navigate(dx < 0 ? 1 : -1);
+});
+
+updateUI();
+
+/* ── PANTALLA COMPLETA (botón arriba-izquierda + tecla F) ── */
+(function () {
+  const EXPAND   = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m13-5v3a2 2 0 0 1-2 2h-3"/></svg>';
+  const COMPRESS = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3m13-5h-3a2 2 0 0 0-2 2v3"/></svg>';
+  const btn = document.createElement('button');
+  btn.setAttribute('aria-label', 'Pantalla completa');
+  btn.title = 'Pantalla completa (F)';
+  btn.innerHTML = EXPAND;
+  Object.assign(btn.style, {
+    position:'fixed', top:'20px', left:'22px', zIndex:'150',
+    width:'46px', height:'46px', padding:'0', borderRadius:'50%',
+    border:'1px solid #D8CFF0', background:'#FFFFFF',
+    color:'#5B21B6', cursor:'pointer',
+    display:'flex', alignItems:'center', justifyContent:'center',
+    boxShadow:'0 6px 18px -6px rgba(124,58,237,.45)',
+    transition:'transform .18s, box-shadow .18s, background .18s, color .18s'
+  });
+  const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
+  function refresh() {
+    const on = !!fsEl();
+    btn.innerHTML = on ? COMPRESS : EXPAND;
+    btn.style.background = on ? '#5B21B6' : '#FFFFFF';
+    btn.style.color = on ? '#FFFFFF' : '#5B21B6';
+  }
+  function toggle() {
+    try {
+      if (fsEl()) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); }
+      else { const el = document.documentElement; (el.requestFullscreen || el.webkitRequestFullscreen).call(el); }
+    } catch (err) { console.warn('Fullscreen no disponible:', err); }
+  }
+  btn.addEventListener('mouseenter', () => { btn.style.transform = 'scale(1.06)'; btn.style.boxShadow = '0 10px 26px -8px rgba(124,58,237,.6)'; });
+  btn.addEventListener('mouseleave', () => { btn.style.transform = 'scale(1)'; btn.style.boxShadow = '0 6px 18px -6px rgba(124,58,237,.45)'; });
+  btn.addEventListener('click', toggle);
+  document.addEventListener('fullscreenchange', refresh);
+  document.addEventListener('webkitfullscreenchange', refresh);
+  document.addEventListener('keydown', e => {
+    if (e.key && e.key.toLowerCase() === 'f' && !e.metaKey && !e.ctrlKey && !e.altKey) { e.preventDefault(); toggle(); }
+  });
+  document.body.appendChild(btn);
+})();
+</script>
+</body>
+</html>
