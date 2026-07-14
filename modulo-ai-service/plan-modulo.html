@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Módulo AI Service — Plan de grabación</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2330; --border:#2a3342;
+    --text:#e6edf3; --muted:#8b98a9; --accent:#4ade80; --accent2:#60a5fa;
+    --warn:#fbbf24;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    line-height:1.65; padding:48px 20px;
+  }
+  .wrap{max-width:880px;margin:0 auto}
+  header{margin-bottom:48px;border-bottom:1px solid var(--border);padding-bottom:32px}
+  .tag{display:inline-block;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);border-radius:99px;padding:4px 14px;margin-bottom:16px}
+  h1{font-size:clamp(28px,5vw,40px);font-weight:800;letter-spacing:-.5px;margin-bottom:12px}
+  .promesa{background:var(--panel);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:18px 22px;color:var(--muted);font-style:italic;margin-top:20px}
+  .promesa strong{color:var(--text);font-style:normal}
+  h2{font-size:22px;font-weight:700;margin:56px 0 8px;display:flex;align-items:center;gap:12px}
+  h2 .num{font-size:13px;font-weight:700;color:var(--bg);background:var(--accent);border-radius:8px;padding:2px 10px;letter-spacing:1px;white-space:nowrap}
+  .sub{color:var(--muted);font-size:15px;margin-bottom:20px}
+  .sub b{color:var(--accent2);font-weight:600}
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14.5px}
+  th{color:var(--muted);text-align:left;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:1px;padding:10px 14px;border-bottom:1px solid var(--border)}
+  td{padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  td:first-child{color:var(--accent2);font-weight:600;white-space:nowrap}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:24px 28px;margin:18px 0}
+  .card h3{font-size:14px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:14px}
+  ul,ol{padding-left:22px;margin:10px 0}
+  li{margin:7px 0}
+  li::marker{color:var(--accent)}
+  .wow{background:linear-gradient(135deg,#14261b,#16202e);border:1px solid #2c4a38;border-radius:12px;padding:16px 20px;margin:16px 0;font-size:15px}
+  .wow b{color:var(--accent)}
+  .alert{background:#2a2113;border:1px solid #6b5620;border-radius:12px;padding:16px 20px;margin:16px 0;font-size:15px}
+  .alert b{color:var(--warn)}
+  .entregable{margin-top:16px;padding-top:14px;border-top:1px dashed var(--border);font-size:15px}
+  .entregable b{color:var(--accent)}
+  .check li{list-style:none;position:relative;padding-left:30px}
+  .check li::before{content:"";position:absolute;left:0;top:6px;width:16px;height:16px;border:2px solid var(--accent);border-radius:4px}
+  .ok{color:var(--accent);font-weight:700;white-space:nowrap}
+  .costo-total td{font-weight:700;color:var(--text)!important}
+  .costo-total td:first-child{color:var(--accent)!important}
+  footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--border);color:var(--muted);font-size:13px}
+  footer a{color:var(--accent2);text-decoration:none}
+  @media(prefers-color-scheme:light){
+    :root{--bg:#f8fafc;--panel:#ffffff;--panel2:#f1f5f9;--border:#dbe2ea;--text:#1a2332;--muted:#5b6b7f;--accent:#16a34a;--accent2:#2563eb;--warn:#b45309}
+    .wow{background:#f0fdf4;border-color:#bbf7d0}
+    .alert{background:#fffbeb;border-color:#fde68a}
+    h2 .num{color:#fff}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="tag">Plan de grabación</div>
+  <h1>Módulo AI Service<br>con GoHighLevel</h1>
+  <div class="promesa">
+    <strong>Promesa del módulo:</strong> "Usar la inteligencia artificial para atender a tus clientes de manera automática, automatizar procesos internos de tu empresa ahorrándote tiempo y dinero, y vender mucho más con un costo mucho menor."
+  </div>
+  <p style="margin-top:20px;color:var(--muted)"><b style="color:var(--text)">Narrativa:</b> el alumno construye UN empleado digital que gana capacidades clase a clase — primero cerebro, luego chat, luego voz, y al final trabaja dentro de la empresa. Stack: GHL (suscripción propia, trial 14 días) + Claude como diseñador del agente.</p>
+</header>
+
+<h2>Costos transparentes para el alumno <span style="font-size:13px;color:var(--muted);font-weight:400">(slide obligatoria)</span></h2>
+<div class="card">
+<table>
+  <tr><th>Concepto</th><th>USD / mes</th></tr>
+  <tr><td>GHL Starter</td><td>$97 <span style="color:var(--muted)">(trial 14 días gratis)</span></td></tr>
+  <tr><td>AI Employee Growth</td><td>$50 — 1,000 respuestas de chat + 100 min de voz <span style="color:var(--muted)">(Unlimited $97 si crece)</span></td></tr>
+  <tr><td>WhatsApp</td><td>$10 + fees de Meta por plantilla <span style="color:var(--muted)">(responder en ventana de 24h: gratis)</span></td></tr>
+  <tr><td>Número (LC Phone)</td><td>~$2–5 + uso</td></tr>
+  <tr class="costo-total"><td>Total realista</td><td>~$115–160 — vs $200+ con dos herramientas separadas</td></tr>
+</table>
+</div>
+
+<h2><span class="num">CLASE 0</span> Configura tu cuenta <span style="font-size:14px;color:var(--muted);font-weight:400">· video 15–20 min</span></h2>
+<p class="sub">Objetivo: llegar a la Clase 1 con cuenta viva y snapshot importado. <b>Cero teoría.</b></p>
+<div class="card">
+<ol>
+  <li>Crear cuenta GHL con el <b>link de afiliado de David</b> (trial 14 días · 40% recurrente = $38.80/alumno/mes)</li>
+  <li>La doble capa agencia/subcuenta en 60 segundos: "tu agencia eres tú; tu subcuenta es tu negocio"</li>
+  <li>Importar el <b>snapshot del módulo</b> (link permanente): pipeline, calendario, workflows y bot semi-armado</li>
+  <li>Conectar calendario de Google y poner horarios reales</li>
+  <li>Activar AI Employee en la subcuenta</li>
+</ol>
+<div class="entregable"><b>Entregable:</b> cuenta funcionando con snapshot cargado.</div>
+</div>
+
+<h2><span class="num">CLASE 1</span> Construye tu empleado digital</h2>
+<p class="sub">Promesa que ataca: <b>"IA que atiende a tus clientes"</b> — aquí nace el agente. Herramientas: Claude + Conversation AI.</p>
+<div class="card">
+<table>
+  <tr><th>Bloque</th><th>Min</th><th>Contenido</th></tr>
+  <tr><td>Apertura</td><td>5</td><td>El cambio de paradigma: antes chatbots = árboles de cajitas; hoy agente = prompt + conocimiento. Tu empleado digital no se enferma, no renuncia, contesta en &lt;3 segundos, 24/7</td></tr>
+  <tr><td>El prompt maestro</td><td>15</td><td>Anatomía: identidad, contexto del negocio, objetivo (calificar → agendar), reglas duras (qué NUNCA dice), tono. En vivo: brief a Claude → prompt completo</td></tr>
+  <tr><td>Montarlo en GHL</td><td>15</td><td>AI Agents → Conversation AI: pegar prompt, cargar knowledge base (FAQ, precios, horarios — acepta la URL del sitio), objetivo de agendado apuntando al calendario</td></tr>
+  <tr><td>Probarlo</td><td>10</td><td>Simulador del bot: David conversa con su propio agente — responde, califica, propone horarios reales</td></tr>
+  <tr><td>Tarea</td><td>5</td><td>Plantilla de brief → cada alumno genera SU prompt maestro con Claude y lo monta</td></tr>
+</table>
+<h3 style="margin-top:20px">Preparar antes de grabar</h3>
+<ul>
+  <li>Negocio ejemplo definido (recomendado: clínica dental o estética — agendar citas es natural)</li>
+  <li>Brief de 10 líneas → prompt de Claude ya probado (no improvisar en grabación)</li>
+  <li>Knowledge base lista: servicios, precios, horarios, 10 objeciones frecuentes</li>
+  <li>Calendario con disponibilidad cargada para que el bot proponga horarios reales</li>
+</ul>
+<div class="entregable"><b>Entregable del alumno:</b> su prompt maestro montado y probado en el simulador.</div>
+</div>
+
+<h2><span class="num">CLASE 2</span> Ponlo a atender tus chats — IG + WhatsApp</h2>
+<p class="sub">Promesa que ataca: <b>atención automática</b> en los canales donde compran los latinos.</p>
+<div class="card">
+<table>
+  <tr><th>Bloque</th><th>Min</th><th>Contenido</th></tr>
+  <tr><td>Conectar Instagram</td><td>10</td><td>Requisito: IG profesional vinculado a página de Facebook. El bot de la Clase 1 ya contesta DMs — mismo cerebro, nuevo canal</td></tr>
+  <tr><td>Demo IG en vivo</td><td>10</td><td>David manda DM desde su teléfono → el agente responde, califica y agenda</td></tr>
+  <tr><td>Conectar WhatsApp</td><td>15</td><td>$10/mes. Requisitos: número dedicado (NO el personal — la API lo toma exclusivo) + Meta Business verificado</td></tr>
+  <tr><td>Demo WhatsApp</td><td>10</td><td>Mismo flujo: mensaje → califica → agenda en el calendario real</td></tr>
+  <tr><td>Modos y control</td><td>10</td><td>Modo sugerencia vs auto-pilot; handoff a humano; una sola bandeja para todas las conversaciones</td></tr>
+</table>
+<div class="wow">⚡ <b>Momento wow #1:</b> el DM en vivo que termina en cita agendada.</div>
+<div class="alert">⚠️ <b>Honestidad en cámara:</b> fees de Meta (24h gratis, plantillas cuestan centavos) · arrancar en modo sugerencia la primera semana y soltar a auto-pilot cuando el bot demuestre criterio.</div>
+<div class="entregable"><b>Entregable del alumno:</b> agente vivo en IG (y WhatsApp cuando Meta apruebe).</div>
+</div>
+
+<h2><span class="num">CLASE 3</span> Dale voz — el agente contesta el teléfono</h2>
+<p class="sub">Promesa que ataca: <b>"vender más con costo menor"</b> — las llamadas perdidas son ventas perdidas; el agente contesta el 100%.</p>
+<div class="card">
+<table>
+  <tr><th>Bloque</th><th>Min</th><th>Contenido</th></tr>
+  <tr><td>Por qué voz</td><td>5</td><td>La mayoría de llamadas a PyMEs no se contestan o caen fuera de horario. Cada una es dinero</td></tr>
+  <tr><td>Comprar número</td><td>10</td><td>LC Phone dentro de GHL. Nota México: puede pedir documentación — guía en video aparte</td></tr>
+  <tr><td>Crear el agente de voz</td><td>15</td><td>AI Agents → Voice AI: adaptar el prompt maestro a voz con Claude (frases cortas, confirmar deletreando, sin listas). Elegir voz en español — probar 3–4 en cámara (340+ voces, 50+ idiomas)</td></tr>
+  <tr><td>Acciones del agente</td><td>10</td><td>Agendar cita, tomar recado, transferir a humano, SMS con link post-llamada</td></tr>
+  <tr><td>Llamada en vivo</td><td>10</td><td>David llama a su propio agente en altavoz: pregunta precios, objeta, agenda</td></tr>
+</table>
+<div class="wow">⚡ <b>Momento wow #2 — clímax del módulo:</b> la llamada en altavoz con objeción real ("¿es muy caro?") que el agente maneja y cierra en cita.</div>
+<h3 style="margin-top:20px">Preparar antes de grabar</h3>
+<ul>
+  <li>Número comprado y agente configurado con anticipación (no comprar en vivo por si falla)</li>
+  <li>Voz en español seleccionada y probada — la calidad varía entre voces</li>
+  <li>Guion mental de la llamada demo con una objeción real para lucir al agente</li>
+</ul>
+<div class="entregable"><b>Entregable del alumno:</b> agente de voz respondiendo su número, con cita de prueba agendada.</div>
+</div>
+
+<h2><span class="num">CLASE 4</span> Ponlo a trabajar dentro de tu empresa</h2>
+<p class="sub">Promesa que ataca: <b>"automatizar procesos internos, ahorrando tiempo y dinero"</b> — la promesa que ningún tutorial de chatbots cubre.</p>
+<div class="card">
+<table>
+  <tr><th>Bloque</th><th>Min</th><th>Contenido</th></tr>
+  <tr><td>El agente reporta</td><td>10</td><td>Workflow: resumen automático de cada llamada/conversación → notificación al dueño o equipo. Nadie vuelve a preguntar "¿qué dijo el cliente?"</td></tr>
+  <tr><td>Seguimiento automático</td><td>15</td><td>Lead que no agendó → recontacto a las 24h · cita agendada → recordatorio + confirmación (menos no-shows = más ventas)</td></tr>
+  <tr><td>Contenido y reputación</td><td>10</td><td>Reviews AI: pedir y responder reseñas de Google en automático · Content AI para posts/emails</td></tr>
+  <tr><td>Claude como analista</td><td>15</td><td>Exportar conversaciones del mes → "¿cuáles son las 5 objeciones más comunes?", "¿qué piden que no tenemos?" · cotizaciones y emails redactados. El dueño decide con datos</td></tr>
+</table>
+<div class="entregable"><b>Entregable del alumno:</b> 2 workflows activos (resumen post-llamada + follow-up 24h) y su primer análisis mensual con Claude.</div>
+</div>
+
+<h2>Checklist de David antes de grabar</h2>
+<div class="card">
+<h3>🔥 Arrancar YA (tienen tiempos de espera)</h3>
+<ul class="check">
+  <li>Verificación de Meta Business para el WhatsApp demo (tarda días)</li>
+  <li>Número dedicado para WhatsApp (no puede estar activo en la app)</li>
+  <li>Alta en el programa de afiliados de GHL → link listo para Clase 0</li>
+</ul>
+<h3 style="margin-top:24px">Cuenta demo (el negocio ejemplo)</h3>
+<ul class="check">
+  <li>Subcuenta con negocio ficticio completo: servicios, precios, horarios</li>
+  <li>Calendario conectado con disponibilidad real</li>
+  <li>Pipeline de ventas armado</li>
+  <li>Prompt maestro generado con Claude y PROBADO (chat y voz)</li>
+  <li>Knowledge base cargada</li>
+  <li>IG demo conectado (cuenta profesional + página FB)</li>
+  <li>Número LC Phone comprado y Voice AI configurado</li>
+  <li>Voz en español elegida (probar varias)</li>
+</ul>
+<h3 style="margin-top:24px">El snapshot (bono estrella)</h3>
+<ul class="check">
+  <li>Construir snapshot: bot + workflows de Clase 4 + pipeline + calendario template</li>
+  <li>Generar link permanente de compartir</li>
+  <li>Probar importándolo en una cuenta limpia</li>
+</ul>
+<h3 style="margin-top:24px">Materiales del alumno</h3>
+<ul class="check">
+  <li>Plantilla de brief para el prompt maestro</li>
+  <li>Prompt de Claude "adaptar mi prompt maestro a voz"</li>
+  <li>Guía en video: configurar número LC Phone en México</li>
+  <li>Slide de costos transparentes</li>
+</ul>
+</div>
+
+<h2>Verificación de datos <span style="font-size:13px;color:var(--muted);font-weight:400">· 12 jul 2026, fuentes oficiales HighLevel</span></h2>
+<div class="card">
+<table>
+  <tr><th>Afirmación</th><th>Estado</th></tr>
+  <tr><td style="white-space:normal;color:var(--text);font-weight:400">Voice AI habla español (50+ idiomas, 340+ voces)</td><td class="ok">✅ art. 155000004683</td></tr>
+  <tr><td style="white-space:normal;color:var(--text);font-weight:400">Conversation AI: IG DM, FB, WhatsApp, SMS, webchat + agenda citas reales</td><td class="ok">✅ art. 155000000210</td></tr>
+  <tr><td style="white-space:normal;color:var(--text);font-weight:400">AI Employee: $50 Growth / $97 Unlimited por subcuenta</td><td class="ok">✅ art. 155000006652</td></tr>
+  <tr><td style="white-space:normal;color:var(--text);font-weight:400">Cualquier plan puede USAR la IA ($497 solo para rebilling)</td><td class="ok">✅ art. 155000006652</td></tr>
+  <tr><td style="white-space:normal;color:var(--text);font-weight:400">WhatsApp: $10/mes por subcuenta + fees Meta; ventana 24h gratis</td><td class="ok">✅ art. 155000001428</td></tr>
+  <tr><td style="white-space:normal;color:var(--text);font-weight:400">Snapshots compartibles por link permanente a cualquier cuenta GHL</td><td class="ok">✅ art. 48000982513</td></tr>
+  <tr><td style="white-space:normal;color:var(--text);font-weight:400">Afiliados: 40% recurrente, pago mensual, cookie 90 días</td><td class="ok">✅ joinaffiliate</td></tr>
+  <tr><td style="white-space:normal;color:var(--text);font-weight:400">Trial 14 días</td><td class="ok">✅ Confirmado</td></tr>
+</table>
+</div>
+
+<footer>
+  Módulo AI Service · Plan de grabación · Investigación verificada el 12 de julio de 2026 en <a href="https://help.gohighlevel.com">help.gohighlevel.com</a>
+</footer>
+
+</div>
+</body>
+</html>
