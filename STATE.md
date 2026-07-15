@@ -4,6 +4,49 @@
 
 ---
 
+## Última sesión — 2026-07-14 — Clase nueva "¿n8n o sistema propio?" (construida, iterada en vivo y publicada)
+
+**Clase nueva de 16 slides publicada en `clases-sinergeticos.vercel.app/n8n-o-sistema-propio/` con card en el hub; David la usó EN VIVO durante la sesión y se iteró en caliente (recolor n8n + reencuadre completo del ángulo).**
+
+### Lo hecho hoy
+- **Clase "¿n8n o sistema propio?"** (`n8n-o-sistema-propio/index.html`): deck de 16 slides clonando el patrón del hub (nav teclado/swipe/dots, fullscreen con F). Mockups en CSS puro: lienzo de n8n con nodos conectados y ventana de app propia con panel.
+- **Recolor completo a paleta n8n** (pedido de David): blanco `#FFFDFB`, naranja `#FF6D2E`/`#D9480F`, negro cálido `#17130F`. Hecho con `sed` de reemplazo de hexes; verificado slide por slide con screenshots headless.
+- **Slide de origen de n8n** (slide 3): 2019 Berlín / Jan Oberhauser / nombre "nodemation" (n-8-n) / código abierto auto-hosteable, con gancho personal "el mío corre en mi propio servidor".
+- **Reencuadre completo al ángulo de LA RUTA** (iteración clave de David, en vivo): la clase NO compara herramientas ni casos personales — enseña la ruta "la primera versión nace en n8n (prueba barata), y cuando crece se muda a código". Tocó portada, mantra, pregunta que decide (¿probando o ya sabes qué quieres?), divisores, tags de secciones, autodiagnóstico y cierre ("Nace en el lienzo. Crece en código.").
+- **Card agregada al hub** (`index.html`, "IA · clase") junto a la de Fable 5.
+- **Commiteados los archivos pendientes de `modulo-ai-service/`** de la sesión anterior (29 archivos: PLAN-MODULO.md, plan-modulo.html, img/).
+- 4 deploys a prod vía push (auto-deploy), todos verificados con curl contra el contenido nuevo.
+
+### Decisiones tomadas
+- **El ángulo de la clase es la ruta, no la comparación**: David rechazó primero "Claude vs n8n" y luego la slide con el caso Lucero/Ali con nombres — el caso se usa como principio general ("La ruta", slide 12) y la historia la cuenta él en vivo.
+- Copy pasado por `GUIA-DE-VOZ.md`; datos duros del origen de n8n limitados a hechos verificables (2019, Oberhauser, nodemation).
+- Screenshots de verificación con `playwright-core` + chromium headless de caché (los MCP de navegador estaban lockeados por otra sesión) — patrón útil: script `shot.js` en scratchpad.
+
+### IDs críticos
+```
+GITHUB_REPO     = "synergy-code-3/clases-sinergeticos"
+VERCEL_PROD_URL = "https://clases-sinergeticos.vercel.app"
+CLASE_NUEVA_URL = "https://clases-sinergeticos.vercel.app/n8n-o-sistema-propio/"
+```
+
+### Pendientes — orden de prioridad
+
+#### 🔴 P0 — Bloqueante (heredado del módulo AI Service, sin avance hoy)
+- David: iniciar sesión en app.gohighlevel.com → ejecutar el rediseño SMS→Email de los 2 workflows (WF1 `16821c48`, WF2 `ebe9f258` + renombrar a "Seguimiento Leads Sin Visita"), dejar en Draft.
+
+#### 🟡 P1 — Esta semana
+- Feedback de David post-clase en vivo: ajustar las slides que se sintieron flojas al presentarla.
+- Módulo AI Service: conectar IG demo y arrancar verificación Meta Business + número WhatsApp (bloquean Clase 2).
+
+#### 🟢 P2 — Cuando haya tiempo
+- Card de la clase nueva sin tiempo estimado ("IA · clase") — agregar minutos si David quiere.
+- Pendientes P2 previos del módulo AI Service y la certificación siguen vigentes (ver sesiones anteriores).
+
+### Próximo paso para retomar
+Preguntar a David cómo se sintió la clase en vivo y ajustar el deck con su feedback; si no hay cambios, retomar el P0 del módulo AI Service (login GHL → rediseño de workflows a Email).
+
+---
+
 ## Última sesión — 2026-07-13 — Módulo AI Service: calendario conectado a bot y voz; workflows a Email diseñados (bloqueado por login GHL)
 
 **El circuito de agendado quedó cerrado y verificado: el bot de chat Y el agente de voz Valentina agendan citas reales en el calendario "Visitas a Propiedades" (crean contacto + cita en el CRM). Falta ejecutar el rediseño SMS→Email de los 2 workflows — quedó bloqueado porque la sesión de GHL expiró.**
