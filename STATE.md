@@ -4,6 +4,55 @@
 
 ---
 
+## Última sesión — 2026-07-14 — Módulo AI Service EDITADO COMPLETO: 5 videos + miniaturas + guías Skool
+
+**El módulo 4 (AI Service) quedó listo para subir a Skool: 5 videos editados con 3 pasadas de QA (54:07 finales de 76:36 grabados), 5 miniaturas con la estética de la certificación y 5 guías de lección en Google Docs.**
+
+### Lo hecho hoy
+- **Pipeline de edición de video construido de cero** (whisper.cpp + VAD silero + ffmpeg + DeepFilterNet, todo local): transcripción, mapeo de módulos, detección de retomas y render. Documentado en memoria (`reference_pipeline_edicion_clases`).
+- **Grabación de 77 min separada en 5 módulos** por tema: Introducción (3:42), Base de Conocimiento (3:37), Agente de Chat y Canales (22:25), Agente de Voz (20:21), Números y Central Telefónica (4:02).
+- **Cambio de fuente a mitad del proyecto**: la grabación del streaming tenía cámara a ~22fps efectivos (judder) y ruido; David trajo la captura OBS a 59.94fps. Offset medido por correlación de audio (-2.83s, constante, sin drift) → todos los cortes se transfirieron sin re-trabajo. La captura OBS traía 35 min de cola muerta (verificada vacía).
+- **Audio**: la grabación sale a -41dB con ruido fuerte de fondo. Cadena final: DeepFilterNet3 (elegido por David en A/B/C vs rnnoise) + ganancia fija +20dB + limitador. NUNCA loudnorm single-pass (es AGC: infla el ruido en las pausas).
+- **3 pasadas de QA sobre los videos finales**: (1) cortes quirúrgicos con VAD por palabra, (2) auditoría de las 49 costuras transcribiendo alrededor de cada una, (3) barrido de "frases huérfanas" (receta de David: transcribir el video final y leer buscando saltos de sentido) — cazó 8 errores que las otras dos no vieron, incl. pensamientos abortados corregidos con OTRAS palabras.
+- **Módulo 1 (cámara)**: disolvencias de 0.25s en costuras + fade de cierre; los módulos de pantalla van con corte duro.
+- **5 miniaturas 1920×1080** con gpt-image-2: L1 generada editando la referencia de la certificación (logo/layout reales), L2-L5 por **inpainting con máscara sobre la L1** para que logo, pill, footer y márgenes queden pixel-idénticos entre las 5 (fix al problema de alineación que reportó David).
+- **5 guías de lección en Google Docs** (formato rico, emojis, listas de "lo que hago en pantalla" paso a paso, sacadas 100% del transcript final; la L1 lleva el link de afiliado ×2).
+- Entrega final en `~/Desktop/Curso AI Service 13-07/` (videos + Miniaturas/ + Transcripciones/ .srt + CAMBIOS.md con los 31 cortes documentados).
+
+### Decisiones tomadas
+- Fuente definitiva = captura OBS 60fps (SIEMPRE preguntar por ella antes de editar la próxima).
+- Denoiser: DeepFilterNet3 > rnnoise > afftdn (con truco de 2.5s de warm-up antepuesto y recortado).
+- Encoder: videotoolbox 12M CFR para pantalla; x264 solo si la cámara viene ruidosa (con la fuente OBS ya no hizo falta).
+- Miniaturas: gpt-image-2 con máscara de inpainting sobre un master = consistencia de layout entre lecciones.
+- Guías Skool: estructura 🎯 qué ves → 🧠 conceptos → 🖥️ paso a paso → ⏭️ siguiente lección.
+
+### IDs críticos
+```
+CARPETA_ENTREGA   = "~/Desktop/Curso AI Service 13-07/"   // videos finales + miniaturas + srt + CAMBIOS.md
+FUENTE_FINAL      = "~/Desktop/2026-07-13 10-12-03.mp4"   // OBS 60fps; offset -2.83s vs streaming
+PLAN_CORTES       = "scratchpad curso/plan_edicion.py"     // 31 cortes documentados (efímero; copia lógica en CAMBIOS.md)
+GUIA_L1           = "1mlr5lJ9fqa0rxTFlOOzeEHK6S_pI1OAcvN5ls49q-xc"  // Google Doc; L2-L5: 1_Xhbb8RGZ..., 1AeJfMGYz..., 1l4ol5Z1A..., 1fl5YDukg...
+AFILIADO_GHL      = "https://www.gohighlevel.com/?fp_ref=sinergy-education13"
+```
+
+### Pendientes — orden de prioridad
+
+#### 🔴 P0 — Bloqueante / para que algo funcione en prod
+- David: subir a Skool las 5 lecciones (video + miniatura + guía) y validar en la plataforma.
+
+#### 🟡 P1 — Esta semana
+- Si David detecta algún corte más viendo los videos completos: formato "módulo + minuto:segundo" → se ajusta con el VAD fino y se re-renderiza solo ese módulo (~5 min).
+- Del lado GHL del módulo (sesión anterior): decisión de canal Email ya tomada — falta ejecutar el rediseño de los 2 workflows en la subcuenta Prueba Llamada (requiere login de David en GHL).
+
+#### 🟢 P2 — Post-launch o cuando haya tiempo
+- Snapshot final de la subcuenta Prueba Llamada + Permanent Link para los alumnos.
+- Borrar las grabaciones crudas del Desktop cuando el curso esté publicado (conservar la OBS hasta entonces).
+
+### Próximo paso para retomar
+David sube el paquete a Skool; si aparece cualquier defecto de corte, pasarlo como "módulo + timestamp" para cirugía puntual. Siguiente grabación: pedir la captura OBS de una vez y correr el pipeline completo de memoria (`reference_pipeline_edicion_clases`).
+
+---
+
 ## Última sesión — 2026-07-14 — Clase nueva "¿n8n o sistema propio?" (construida, iterada en vivo y publicada)
 
 **Clase nueva de 16 slides publicada en `clases-sinergeticos.vercel.app/n8n-o-sistema-propio/` con card en el hub; David la usó EN VIVO durante la sesión y se iteró en caliente (recolor n8n + reencuadre completo del ángulo).**
