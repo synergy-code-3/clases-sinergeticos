@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de inicio y cierre de sesión</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #FBFAFF;
+  --fg: #16101F;
+  --dark: #1C1140;
+  --mid: #6E6880;
+  --light: #E8E3F4;
+  --lighter: #F3F0FB;
+  --accent: #7C3AED;
+  --accent-deep: #5B21B6;
+  --accent-dim: #EDE9FE;
+  --white: #FFFFFF;
+  --danger: #E25555;
+  --danger-dim: #FCE7E7;
+  --font: 'Inter', -apple-system, sans-serif;
+  --ease: cubic-bezier(.4,0,.2,1);
+}
+
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── LAYOUT ── */
+.deck { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+.slide {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  justify-content: safe center; align-items: safe center; text-align: center;
+  padding: 3vh 4.5vw; overflow-y: auto; scrollbar-width: none;
+  opacity: 0; transform: translateY(28px);
+  transition: opacity .4s var(--ease), transform .4s var(--ease);
+  pointer-events: none; will-change: opacity, transform;
+}
+.slide.active { opacity: 1; transform: translateY(0); pointer-events: all; }
+.slide.exit   { opacity: 0; transform: translateY(-28px); }
+.slide::-webkit-scrollbar { width: 0; height: 0; }
+
+/* ── CHROME ── */
+.progress-bar {
+  position: fixed; top: 0; left: 0; height: 4px;
+  background: var(--accent); transition: width .4s var(--ease); z-index: 200;
+}
+.slide-counter {
+  position: fixed; top: 20px; right: 28px;
+  font-size: 14px; font-weight: 700; letter-spacing: .08em; color: var(--mid); z-index: 100;
+}
+.dots {
+  position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 6px; z-index: 100; max-width: 64vw; flex-wrap: wrap; justify-content: center;
+}
+.dot { width: 7px; height: 7px; border-radius: 3.5px; background: var(--light); transition: background .25s, width .25s; cursor: pointer; }
+.dot.active { background: var(--fg); width: 24px; }
+.dot.div { background: #BBE6D5; }
+.dot.div.active { background: var(--accent); }
+.nav-btn {
+  position: fixed; bottom: 18px; z-index: 100;
+  width: 46px; height: 46px; border-radius: 50%;
+  border: 1px solid var(--light); background: var(--white);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: var(--fg); transition: all .18s; user-select: none; font-family: var(--font);
+}
+.nav-btn.left { left: 28px; } .nav-btn.right { right: 28px; }
+.nav-btn:hover { background: var(--fg); color: var(--white); border-color: var(--fg); }
+.nav-btn:disabled { opacity: .2; cursor: not-allowed; }
+
+/* ── ATOMS ── */
+.tag {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 15px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--mid); border: 1px solid var(--light);
+  padding: 9px 20px; border-radius: 100px; margin-bottom: 24px;
+}
+.tag.acc { color: var(--accent-deep); border-color: #C9BCF5; background: var(--accent-dim); }
+.headline { font-size: clamp(38px, 5.4vw, 82px); font-weight: 800; letter-spacing: -.035em; line-height: 1.02; margin-bottom: 24px; }
+.headline em { font-style: normal; color: var(--accent); }
+.caption { font-size: clamp(19px, 2vw, 30px); color: var(--mid); line-height: 1.45; margin-top: 28px; max-width: 1000px; }
+.caption b { color: var(--accent-deep); font-weight: 700; }
+
+/* ── S1: COVER ── */
+#s1 { background: radial-gradient(115% 100% at 82% 0%, #2C1A63 0%, var(--dark) 58%); color: var(--white); }
+.cover-rule { width: 64px; height: 5px; background: var(--accent); margin-bottom: 40px; }
+.cover-kicker { font-size: 16px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); margin-bottom: 22px; }
+.cover-title { font-size: clamp(42px, 6.2vw, 98px); font-weight: 900; letter-spacing: -.05em; line-height: .94; color: var(--white); margin-bottom: 26px; max-width: 18ch; }
+.cover-title em { font-style: normal; color: var(--accent); }
+.cover-sub { font-size: clamp(21px, 2.3vw, 34px); font-weight: 400; color: rgba(255,255,255,.6); max-width: 760px; line-height: 1.45; margin-bottom: 42px; }
+.cover-tag { font-size: 15px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.45); border: 1px solid rgba(255,255,255,.16); padding: 9px 22px; border-radius: 100px; display: inline-block; }
+
+/* ── MAPA ── */
+.map { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 1160px; }
+.map-row { display: grid; grid-template-columns: 60px 1.1fr 1.35fr; align-items: center; gap: 24px; background: var(--white); border: 1px solid var(--light); border-radius: 16px; padding: 17px 28px; box-shadow: 0 6px 20px -12px rgba(124,58,237,.16); }
+.map-n { width: 48px; height: 48px; border-radius: 50%; background: var(--fg); color: var(--white); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 21px; }
+.map-row.hi { border-color: #C9BCF5; background: linear-gradient(180deg, var(--accent-dim), var(--white)); }
+.map-row.hi .map-n { background: var(--accent); }
+.map-name { font-weight: 800; font-size: clamp(20px, 2.1vw, 30px); letter-spacing: -.01em; text-align: left; }
+.map-fn { color: var(--mid); font-size: clamp(16px, 1.6vw, 23px); text-align: left; }
+.map-fn b { color: var(--accent-deep); font-weight: 700; }
+@media(max-width:720px){ .map-row { grid-template-columns: 46px 1fr; } .map-fn { grid-column: 2; } }
+
+/* ── DIVIDERS ── */
+.slide.divider { background: radial-gradient(120% 110% at 50% 0%, #271654 0%, var(--dark) 60%); color: var(--white); justify-content: safe center; overflow: hidden; }
+.div-ghost { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); font-size: clamp(240px, 42vw, 620px); font-weight: 900; line-height: .8; color: rgba(124,58,237,.28); letter-spacing: -.05em; pointer-events: none; z-index: 0; }
+.div-inner { position: relative; z-index: 1; }
+.div-kicker { font-size: 17px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+.div-name { font-size: clamp(48px, 7.4vw, 116px); font-weight: 900; letter-spacing: -.045em; line-height: .95; margin-bottom: 22px; }
+.div-fn { display: inline-flex; align-items: center; gap: 12px; font-size: clamp(19px, 2.1vw, 32px); font-weight: 600; color: rgba(255,255,255,.88); border: 1px solid rgba(255,255,255,.18); padding: 13px 28px; border-radius: 100px; }
+.div-fn .d { width: 11px; height: 11px; border-radius: 50%; background: var(--accent); }
+
+/* ── TITULOS DE PUNTO ── */
+.pts-title { font-size: clamp(32px, 4.2vw, 62px); font-weight: 800; letter-spacing: -.03em; line-height: 1.02; margin-bottom: 24px; }
+.pts-title em { font-style: normal; color: var(--accent); }
+
+/* ── ERROR vs BIEN ── */
+.eb { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; width: 100%; max-width: 1180px; }
+.eb-card { border-radius: 20px; padding: 30px 32px 32px; border: 1px solid var(--light); background: var(--white); text-align: left; }
+.eb-card.bad { background: var(--danger-dim); border-color: #F3C9C9; }
+.eb-card.good { background: var(--accent-dim); border-color: #C9BCF5; }
+.eb-h { display: flex; align-items: center; gap: 12px; font-size: 16px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 18px; }
+.eb-card.bad .eb-h { color: #B23B3B; } .eb-card.good .eb-h { color: var(--accent-deep); }
+.eb-ico { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 17px; }
+.eb-card.bad .eb-ico { background: var(--danger); } .eb-card.good .eb-ico { background: var(--accent); }
+.eb-txt { font-size: clamp(17px, 1.85vw, 24px); line-height: 1.55; }
+.eb-card.bad .eb-txt { color: #7a3030; } .eb-card.good .eb-txt { color: #33235F; }
+.eb-txt .q { font-style: italic; }
+@media(max-width:720px){ .eb { grid-template-columns: 1fr; } }
+
+/* ── ARCHIVO / PLANTILLA (tarjeta oscura) ── */
+.tpl { width: 100%; max-width: 980px; background: var(--dark); border-radius: 22px; padding: 34px 42px; text-align: left; box-shadow: 0 24px 60px -30px rgba(28,17,64,.55); }
+.tpl-file { font-size: 14px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
+.tpl-file .d { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); }
+.tpl p { font-size: clamp(16px, 1.7vw, 23px); line-height: 1.65; color: rgba(255,255,255,.88); margin-bottom: 14px; }
+.tpl p:last-child { margin-bottom: 0; }
+.tpl .blank { color: var(--accent); font-weight: 700; background: rgba(124,58,237,.16); border-radius: 6px; padding: 1px 8px; }
+.tpl .cm { color: rgba(255,255,255,.45); }
+.tpl code { font-family: 'SF Mono', Menlo, monospace; font-size: .92em; color: #C4B5FD; }
+
+/* ── CIERRE / CHECKLIST ── */
+.check { display: flex; flex-direction: column; gap: 12px; max-width: 940px; margin-bottom: 26px; }
+.check-item { display: flex; align-items: center; gap: 16px; font-size: clamp(19px, 1.9vw, 28px); font-weight: 600; text-align: left; }
+.check-ico { width: 42px; height: 42px; background: var(--accent); color: var(--white); border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 800; flex-shrink: 0; }
+.final-quote { font-size: clamp(18px, 1.85vw, 26px); color: var(--mid); max-width: 860px; line-height: 1.65; text-align: center; padding-top: 22px; border-top: 3px solid var(--accent); }
+.final-quote b { color: var(--fg); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress"></div>
+<div class="slide-counter" id="counter"></div>
+<div class="deck" id="deck">
+
+  <!-- S1: COVER -->
+  <div class="slide active" id="s1">
+    <div class="cover-rule"></div>
+    <div class="cover-kicker">Sinergéticos · Clase</div>
+    <div class="cover-title">Que Claude <em>no olvide</em> tu proyecto</div>
+    <div class="cover-sub">Cada conversación con Claude empieza en blanco. Hoy construimos el sistema de inicio y cierre de sesión que arregla eso.</div>
+    <div class="cover-tag">David Iriza</div>
+  </div>
+
+  <!-- S2: MAPA — los 5 puntos -->
+  <div class="slide" id="s2">
+    <div class="tag acc">El mapa de hoy</div>
+    <div class="headline" style="margin-bottom:24px">Lo construimos en <em>cinco pasos</em>.</div>
+    <div class="map">
+      <div class="map-row"><div class="map-n">1</div><div class="map-name">El problema</div><div class="map-fn">Cada chat nace <b>sin memoria</b> del proyecto</div></div>
+      <div class="map-row"><div class="map-n">2</div><div class="map-name">La solución</div><div class="map-fn">Un archivo de estado + <b>dos comandos</b></div></div>
+      <div class="map-row"><div class="map-n">3</div><div class="map-name">Comando de cierre</div><div class="map-fn">El que <b>guarda</b> lo que pasó en la sesión</div></div>
+      <div class="map-row"><div class="map-n">4</div><div class="map-name">Comando de inicio</div><div class="map-fn">El que <b>lee</b> el estado y retoma el trabajo</div></div>
+      <div class="map-row"><div class="map-n">5</div><div class="map-name">Automatizarlo</div><div class="map-fn">Que el contexto cargue <b>solo, sin pedirlo</b></div></div>
+    </div>
+  </div>
+
+  <!-- S3: DIVIDER — P1 -->
+  <div class="slide divider" id="s3">
+    <div class="div-ghost">1</div>
+    <div class="div-inner">
+      <div class="div-kicker">Paso 1</div>
+      <div class="div-name">El problema</div>
+      <div class="div-fn"><span class="d"></span> Cada chat nace sin memoria</div>
+    </div>
+  </div>
+
+  <!-- S4: P1 — el problema -->
+  <div class="slide" id="s4">
+    <div class="pts-title" style="margin-bottom:22px">Cierras el chat y el proyecto <em>se queda ahí adentro</em></div>
+    <div class="eb">
+      <div class="eb-card bad">
+        <div class="eb-h"><span class="eb-ico">✕</span> Lo que pasa hoy</div>
+        <div class="eb-txt">Mañana abres una conversación nueva y Claude no sabe nada: ni qué hicieron ayer, ni qué decidieron, ni qué faltaba. Pierdes 20 minutos re-explicando — o peor, <span class="q">rehace algo que ya habían decidido distinto</span>.</div>
+      </div>
+      <div class="eb-card good">
+        <div class="eb-h"><span class="eb-ico">✓</span> Lo que queremos</div>
+        <div class="eb-txt">Abres el chat, escribes una línea, y Claude te dice: <span class="q">"Quedamos en X, decidimos Y, lo siguiente es Z. ¿Le seguimos?"</span> Cero re-explicación. El trabajo continúa donde se quedó.</div>
+      </div>
+    </div>
+    <div class="caption">La memoria del proyecto no puede vivir en el chat. <b>Tiene que vivir en un archivo.</b></div>
+  </div>
+
+  <!-- S5: DIVIDER — P2 -->
+  <div class="slide divider" id="s5">
+    <div class="div-ghost">2</div>
+    <div class="div-inner">
+      <div class="div-kicker">Paso 2</div>
+      <div class="div-name">La solución</div>
+      <div class="div-fn"><span class="d"></span> Un archivo + dos comandos</div>
+    </div>
+  </div>
+
+  <!-- S6: P2 — la solución conceptual -->
+  <div class="slide" id="s6">
+    <div class="pts-title" style="margin-bottom:24px">Tres piezas. <em>Nada más.</em></div>
+    <div class="map">
+      <div class="map-row hi"><div class="map-n">📄</div><div class="map-name">STATE.md</div><div class="map-fn">Un archivo por proyecto con el estado: <b>qué se hizo, qué se decidió, qué falta</b></div></div>
+      <div class="map-row"><div class="map-n">↓</div><div class="map-name">/cerrar-sesion</div><div class="map-fn">Al terminar de trabajar, <b>escribe</b> el resumen de la sesión en STATE.md</div></div>
+      <div class="map-row"><div class="map-n">↑</div><div class="map-name">/iniciar-sesion</div><div class="map-fn">Al volver, <b>lee</b> STATE.md y te dice dónde quedaste</div></div>
+    </div>
+    <div class="caption">Un ciclo: trabajas → <b>cierras y guardas</b> → vuelves → <b>abres y retomas</b>. El archivo es la memoria; los comandos la mueven.</div>
+  </div>
+
+  <!-- S7: DIVIDER — P3 -->
+  <div class="slide divider" id="s7">
+    <div class="div-ghost">3</div>
+    <div class="div-inner">
+      <div class="div-kicker">Paso 3</div>
+      <div class="div-name">Comando<br>de cierre</div>
+      <div class="div-fn"><span class="d"></span> El que guarda la sesión</div>
+    </div>
+  </div>
+
+  <!-- S8: P3 — construir /cerrar-sesion -->
+  <div class="slide" id="s8">
+    <div class="pts-title" style="margin-bottom:24px">Un comando es solo <em>un archivo de instrucciones</em></div>
+    <div class="tpl">
+      <div class="tpl-file"><span class="d"></span> ~/.claude/commands/cerrar-sesion.md</div>
+      <p>Resume la sesión de hoy y guárdala al inicio de <code>STATE.md</code> del proyecto, con estas secciones:</p>
+      <p><span class="blank">Lo hecho hoy</span> — qué se construyó o cambió, en pasado y concreto.</p>
+      <p><span class="blank">Decisiones tomadas</span> — qué se decidió y por qué, para no re-discutirlo.</p>
+      <p><span class="blank">IDs y rutas críticas</span> — credenciales, archivos, links que la próxima sesión va a necesitar.</p>
+      <p><span class="blank">Pendientes por prioridad</span> — P0 bloqueante · P1 esta semana · P2 después.</p>
+    </div>
+    <div class="caption">Lo escribes una vez y desde entonces solo dices <b>"cerrar sesión"</b> al terminar. Claude hace el resumen, no tú.</div>
+  </div>
+
+  <!-- S9: DIVIDER — P4 -->
+  <div class="slide divider" id="s9">
+    <div class="div-ghost">4</div>
+    <div class="div-inner">
+      <div class="div-kicker">Paso 4</div>
+      <div class="div-name">Comando<br>de inicio</div>
+      <div class="div-fn"><span class="d"></span> El que retoma el trabajo</div>
+    </div>
+  </div>
+
+  <!-- S10: P4 — construir /iniciar-sesion -->
+  <div class="slide" id="s10">
+    <div class="pts-title" style="margin-bottom:24px">El espejo del cierre: <em>leer y proponer</em></div>
+    <div class="tpl">
+      <div class="tpl-file"><span class="d"></span> ~/.claude/commands/iniciar-sesion.md</div>
+      <p>Lee <code>STATE.md</code> del proyecto (y su <code>CLAUDE.md</code> si existe). Luego:</p>
+      <p><span class="blank">1.</span> Resume en 5 líneas dónde quedó el trabajo la última vez.</p>
+      <p><span class="blank">2.</span> Lista los pendientes en orden de prioridad.</p>
+      <p><span class="blank">3.</span> Propón el siguiente paso concreto y <span class="blank">espera mi confirmación</span> antes de ejecutar nada.</p>
+    </div>
+    <div class="caption">El detalle que importa: <b>propone y espera.</b> Tú decides si el plan de ayer sigue siendo el plan de hoy.</div>
+  </div>
+
+  <!-- S11: DIVIDER — P5 -->
+  <div class="slide divider" id="s11">
+    <div class="div-ghost">5</div>
+    <div class="div-inner">
+      <div class="div-kicker">Paso 5</div>
+      <div class="div-name">Automatizarlo</div>
+      <div class="div-fn"><span class="d"></span> Que cargue solo, sin pedirlo</div>
+    </div>
+  </div>
+
+  <!-- S12: P5 — automatizar -->
+  <div class="slide" id="s12">
+    <div class="pts-title" style="margin-bottom:22px">El mejor comando es el que <em>ya no tienes que invocar</em></div>
+    <div class="tpl" style="margin-bottom:6px">
+      <div class="tpl-file"><span class="d"></span> ~/.claude/CLAUDE.md &nbsp;·&nbsp; instrucción global</div>
+      <p>Al iniciar cualquier conversación en un proyecto que tenga <code>STATE.md</code>: <span class="blank">léelo en silencio</span> y úsalo como contexto base. Solo menciónalo si es relevante para lo que se pregunta.</p>
+    </div>
+    <div class="caption">El inicio se vuelve automático. El cierre se queda manual a propósito: <b>guardar el estado es una decisión tuya</b>, no un accidente.</div>
+  </div>
+
+  <!-- S13: RESUMEN / CHECKLIST -->
+  <div class="slide" id="s13">
+    <div class="tag">Para armarlo hoy</div>
+    <div class="headline" style="margin-bottom:28px">Tu checklist de <em>salida</em>.</div>
+    <div class="check">
+      <div class="check-item"><div class="check-ico">1</div>Crea el archivo del comando de cierre y define sus 4 secciones</div>
+      <div class="check-item"><div class="check-ico">2</div>Crea el comando de inicio: leer, resumir, proponer, esperar</div>
+      <div class="check-item"><div class="check-ico">3</div>Cierra tu sesión de hoy — ese es tu primer STATE.md</div>
+      <div class="check-item"><div class="check-ico">4</div>Mañana, abre un chat nuevo y comprueba que retoma solo</div>
+      <div class="check-item"><div class="check-ico">5</div>Agrega la instrucción global para que el inicio sea automático</div>
+    </div>
+  </div>
+
+  <!-- S14: CIERRE -->
+  <div class="slide" id="s14">
+    <div class="tag">En una línea</div>
+    <div class="headline" style="margin-bottom:28px">Tu proyecto vive en un <em>archivo</em>,<br>no en el chat.</div>
+    <div class="final-quote">Los chats se cierran, los modelos cambian, las conversaciones se pierden. El archivo de estado se queda — y con dos comandos, cada sesión empieza donde terminó la anterior. <b>Eso es trabajar con Claude en serio: con continuidad.</b></div>
+  </div>
+
+</div>
+
+<div class="dots" id="dots"></div>
+<button class="nav-btn left" id="prevBtn" aria-label="Anterior">‹</button>
+<button class="nav-btn right" id="nextBtn" aria-label="Siguiente">›</button>
+
+<script>
+const slides  = Array.from(document.querySelectorAll('.slide'));
+const dotsEl  = document.getElementById('dots');
+const progress= document.getElementById('progress');
+const counter = document.getElementById('counter');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const total   = slides.length;
+let current = 0, animating = false;
+
+slides.forEach((s, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '') + (s.classList.contains('divider') ? ' div' : '');
+  d.addEventListener('click', () => goTo(i));
+  dotsEl.appendChild(d);
+});
+
+function goTo(idx) {
+  if (animating || idx === current || idx < 0 || idx >= total) return;
+  animating = true;
+  const prev = slides[current];
+  prev.classList.remove('active'); prev.classList.add('exit');
+  current = idx;
+  slides[current].classList.add('active');
+  setTimeout(() => { prev.classList.remove('exit'); animating = false; }, 420);
+  updateUI();
+}
+function navigate(dir) { goTo(current + dir); }
+
+function updateUI() {
+  document.querySelectorAll('.dot').forEach((d, i) => {
+    d.classList.toggle('active', i === current);
+  });
+  progress.style.width = ((current + 1) / total * 100) + '%';
+  counter.textContent  = (current + 1) + ' / ' + total;
+  prevBtn.disabled = current === 0;
+  nextBtn.disabled = current === total - 1;
+}
+
+prevBtn.addEventListener('click', () => navigate(-1));
+nextBtn.addEventListener('click', () => navigate(1));
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); navigate(1); }
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')  { e.preventDefault(); navigate(-1); }
+});
+
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 56) navigate(dx < 0 ? 1 : -1);
+});
+
+updateUI();
+
+/* ── PANTALLA COMPLETA (botón arriba-izquierda + tecla F) ── */
+(function () {
+  const EXPAND   = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m13-5v3a2 2 0 0 1-2 2h-3"/></svg>';
+  const COMPRESS = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3m13-5h-3a2 2 0 0 0-2 2v3"/></svg>';
+  const btn = document.createElement('button');
+  btn.setAttribute('aria-label', 'Pantalla completa');
+  btn.title = 'Pantalla completa (F)';
+  btn.innerHTML = EXPAND;
+  Object.assign(btn.style, {
+    position:'fixed', top:'20px', left:'22px', zIndex:'150',
+    width:'46px', height:'46px', padding:'0', borderRadius:'50%',
+    border:'1px solid #D8CFF0', background:'#FFFFFF',
+    color:'#5B21B6', cursor:'pointer',
+    display:'flex', alignItems:'center', justifyContent:'center',
+    boxShadow:'0 6px 18px -6px rgba(124,58,237,.45)',
+    transition:'transform .18s, box-shadow .18s, background .18s, color .18s'
+  });
+  const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
+  function refresh() {
+    const on = !!fsEl();
+    btn.innerHTML = on ? COMPRESS : EXPAND;
+    btn.style.background = on ? '#5B21B6' : '#FFFFFF';
+    btn.style.color = on ? '#FFFFFF' : '#5B21B6';
+  }
+  function toggle() {
+    try {
+      if (fsEl()) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); }
+      else { const el = document.documentElement; (el.requestFullscreen || el.webkitRequestFullscreen).call(el); }
+    } catch (err) { console.warn('Fullscreen no disponible:', err); }
+  }
+  btn.addEventListener('mouseenter', () => { btn.style.transform = 'scale(1.06)'; btn.style.boxShadow = '0 10px 26px -8px rgba(124,58,237,.6)'; });
+  btn.addEventListener('mouseleave', () => { btn.style.transform = 'scale(1)'; btn.style.boxShadow = '0 6px 18px -6px rgba(124,58,237,.45)'; });
+  btn.addEventListener('click', toggle);
+  document.addEventListener('fullscreenchange', refresh);
+  document.addEventListener('webkitfullscreenchange', refresh);
+  document.addEventListener('keydown', e => {
+    if (e.key && e.key.toLowerCase() === 'f' && !e.metaKey && !e.ctrlKey && !e.altKey) { e.preventDefault(); toggle(); }
+  });
+  document.body.appendChild(btn);
+})();
+</script>
+</body>
+</html>
