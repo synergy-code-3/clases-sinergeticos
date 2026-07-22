@@ -145,6 +145,7 @@ html, body {
 .split-facts { display: flex; flex-direction: column; gap: 12px; margin-top: 6px; }
 .fact { display: flex; align-items: baseline; gap: 14px; font-size: clamp(17px, 1.8vw, 25px); line-height: 1.45; color: var(--fg); }
 .fact .y { font-weight: 800; color: var(--accent-deep); flex-shrink: 0; min-width: 64px; }
+.fact .t { display: block; }
 .fact b { color: var(--accent-deep); }
 @media(max-width:820px){ .split { grid-template-columns: 1fr; gap: 22px; } .split .photo { aspect-ratio: 16/9; } }
 
@@ -227,9 +228,9 @@ html, body {
       <div class="split-body">
         <div class="pts-title" style="margin-bottom:18px">Cien años vendiéndole <em>al mismo cliente</em></div>
         <div class="split-facts">
-          <div class="fact"><span class="y">1913</span>William Stanley inventa el termo de acero de doble pared.</div>
-          <div class="fact"><span class="y">100 años</span>Su cliente: obreros, cazadores, soldados. Hombres, vida al aire libre.</div>
-          <div class="fact"><span class="y">2019</span>Ventas: <b>$73 millones de dólares</b>. Un negocio sólido… y estancado.</div>
+          <div class="fact"><span class="y">1913</span><span class="t">William Stanley inventa el termo de acero de doble pared.</span></div>
+          <div class="fact"><span class="y">100 años</span><span class="t">Su cliente: obreros, cazadores, soldados. Hombres, vida al aire libre.</span></div>
+          <div class="fact"><span class="y">2019</span><span class="t">Ventas: <b>$73 millones de dólares</b>. Un negocio sólido… y estancado.</span></div>
         </div>
       </div>
     </div>
@@ -258,10 +259,10 @@ html, body {
       <div class="split-body">
         <div class="pts-title" style="margin-bottom:18px">Mismo vaso, <em>nueva audiencia</em></div>
         <div class="split-facts">
-          <div class="fact"><span class="y">2020</span>Llega un presidente nuevo (venía de Crocs) y <b>escucha</b> a las del blog.</div>
-          <div class="fact"><span class="y">→</span>Colores pastel, ediciones limitadas, colaboraciones con creadoras.</div>
-          <div class="fact"><span class="y">→</span>El canal deja de ser la tienda de caza. Ahora es <b>TikTok e Instagram</b>.</div>
-          <div class="fact"><span class="y">→</span>El producto por dentro: <b>exactamente el mismo</b>.</div>
+          <div class="fact"><span class="y">2020</span><span class="t">Llega un presidente nuevo (venía de Crocs) y <b>escucha</b> a las del blog.</span></div>
+          <div class="fact"><span class="y">→</span><span class="t">Colores pastel, ediciones limitadas, colaboraciones con creadoras.</span></div>
+          <div class="fact"><span class="y">→</span><span class="t">El canal deja de ser la tienda de caza. Ahora es <b>TikTok e Instagram</b>.</span></div>
+          <div class="fact"><span class="y">→</span><span class="t">El producto por dentro: <b>exactamente el mismo</b>.</span></div>
         </div>
       </div>
       <img class="photo" src="img/stanley-colores.jpg" alt="Colección de vasos térmicos en colores pastel">
@@ -275,8 +276,8 @@ html, body {
       <div class="split-body">
         <div class="pts-title" style="margin-bottom:18px">El coche se quemó. <em>El vaso no.</em></div>
         <div class="split-facts">
-          <div class="fact"><span class="y">Nov 2023</span>Una clienta sube a TikTok su coche incendiado: el vaso quedó intacto, <b>con el hielo adentro</b>. 94 millones de vistas.</div>
-          <div class="fact"><span class="y">+2 días</span>El presidente de Stanley le responde en video: vasos nuevos… <b>y un coche nuevo</b>. 54 millones de vistas más.</div>
+          <div class="fact"><span class="y">Nov 2023</span><span class="t">Una clienta sube a TikTok su coche incendiado: el vaso quedó intacto, <b>con el hielo adentro</b>. 94 millones de vistas.</span></div>
+          <div class="fact"><span class="y">+2 días</span><span class="t">El presidente de Stanley le responde en video: vasos nuevos… <b>y un coche nuevo</b>. 54 millones de vistas más.</span></div>
         </div>
       </div>
     </div>
