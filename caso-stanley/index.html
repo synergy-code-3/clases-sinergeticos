@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El termo que rompió internet — Caso Stanley</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #FAF8F2;
+  --fg: #131C16;
+  --dark: #0F231B;
+  --mid: #66746C;
+  --light: #E2E6DD;
+  --lighter: #F0F2EA;
+  --accent: #1D7A53;
+  --accent-deep: #14573B;
+  --accent-dim: #E3F0E8;
+  --white: #FFFFFF;
+  --danger: #D95B43;
+  --danger-dim: #FBE9E4;
+  --font: 'Inter', -apple-system, sans-serif;
+  --ease: cubic-bezier(.4,0,.2,1);
+}
+
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── LAYOUT ── */
+.deck { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+.slide {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  justify-content: safe center; align-items: safe center; text-align: center;
+  padding: 3vh 4.5vw; overflow-y: auto; scrollbar-width: none;
+  opacity: 0; transform: translateY(28px);
+  transition: opacity .4s var(--ease), transform .4s var(--ease);
+  pointer-events: none; will-change: opacity, transform;
+}
+.slide.active { opacity: 1; transform: translateY(0); pointer-events: all; }
+.slide.exit   { opacity: 0; transform: translateY(-28px); }
+.slide::-webkit-scrollbar { width: 0; height: 0; }
+
+/* ── CHROME ── */
+.progress-bar {
+  position: fixed; top: 0; left: 0; height: 4px;
+  background: var(--accent); transition: width .4s var(--ease); z-index: 200;
+}
+.slide-counter {
+  position: fixed; top: 20px; right: 28px;
+  font-size: 14px; font-weight: 700; letter-spacing: .08em; color: var(--mid); z-index: 100;
+}
+.dots {
+  position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 6px; z-index: 100; max-width: 64vw; flex-wrap: wrap; justify-content: center;
+}
+.dot { width: 7px; height: 7px; border-radius: 3.5px; background: var(--light); transition: background .25s, width .25s; cursor: pointer; }
+.dot.active { background: var(--fg); width: 24px; }
+.dot.div { background: #BBD9C8; }
+.dot.div.active { background: var(--accent); }
+.nav-btn {
+  position: fixed; bottom: 18px; z-index: 100;
+  width: 46px; height: 46px; border-radius: 50%;
+  border: 1px solid var(--light); background: var(--white);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: var(--fg); transition: all .18s; user-select: none; font-family: var(--font);
+}
+.nav-btn.left { left: 28px; } .nav-btn.right { right: 28px; }
+.nav-btn:hover { background: var(--fg); color: var(--white); border-color: var(--fg); }
+.nav-btn:disabled { opacity: .2; cursor: not-allowed; }
+
+/* ── ATOMS ── */
+.tag {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 15px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--mid); border: 1px solid var(--light);
+  padding: 9px 20px; border-radius: 100px; margin-bottom: 24px;
+}
+.tag.acc { color: var(--accent-deep); border-color: #B9D6C6; background: var(--accent-dim); }
+.headline { font-size: clamp(38px, 5.4vw, 82px); font-weight: 800; letter-spacing: -.035em; line-height: 1.02; margin-bottom: 24px; }
+.headline em { font-style: normal; color: var(--accent); }
+.caption { font-size: clamp(19px, 2vw, 30px); color: var(--mid); line-height: 1.45; margin-top: 28px; max-width: 1000px; }
+.caption b { color: var(--accent-deep); font-weight: 700; }
+
+/* ── S1: COVER ── */
+#s1 { background: radial-gradient(115% 100% at 82% 0%, #1B4A36 0%, var(--dark) 58%); color: var(--white); }
+.cover-rule { width: 64px; height: 5px; background: var(--accent); margin-bottom: 40px; }
+.cover-kicker { font-size: 16px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #4FC98F; margin-bottom: 22px; }
+.cover-title { font-size: clamp(42px, 6.2vw, 98px); font-weight: 900; letter-spacing: -.05em; line-height: .94; color: var(--white); margin-bottom: 26px; max-width: 18ch; }
+.cover-title em { font-style: normal; color: #4FC98F; }
+.cover-sub { font-size: clamp(21px, 2.3vw, 34px); font-weight: 400; color: rgba(255,255,255,.6); max-width: 820px; line-height: 1.45; margin-bottom: 42px; }
+.cover-tag { font-size: 15px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.45); border: 1px solid rgba(255,255,255,.16); padding: 9px 22px; border-radius: 100px; display: inline-block; }
+
+/* ── MAPA ── */
+.map { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 1160px; }
+.map-row { display: grid; grid-template-columns: 60px 1.1fr 1.35fr; align-items: center; gap: 24px; background: var(--white); border: 1px solid var(--light); border-radius: 16px; padding: 17px 28px; box-shadow: 0 6px 20px -12px rgba(29,122,83,.18); }
+.map-n { width: 48px; height: 48px; border-radius: 50%; background: var(--fg); color: var(--white); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 21px; }
+.map-row.hi { border-color: #B9D6C6; background: linear-gradient(180deg, var(--accent-dim), var(--white)); }
+.map-row.hi .map-n { background: var(--accent); }
+.map-name { font-weight: 800; font-size: clamp(20px, 2.1vw, 30px); letter-spacing: -.01em; text-align: left; }
+.map-fn { color: var(--mid); font-size: clamp(16px, 1.6vw, 23px); text-align: left; }
+.map-fn b { color: var(--accent-deep); font-weight: 700; }
+@media(max-width:720px){ .map-row { grid-template-columns: 46px 1fr; } .map-fn { grid-column: 2; } }
+
+/* ── DIVIDERS ── */
+.slide.divider { background: radial-gradient(120% 110% at 50% 0%, #1B4A36 0%, var(--dark) 60%); color: var(--white); justify-content: safe center; overflow: hidden; }
+.div-ghost { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); font-size: clamp(240px, 42vw, 620px); font-weight: 900; line-height: .8; color: rgba(29,122,83,.30); letter-spacing: -.05em; pointer-events: none; z-index: 0; }
+.div-inner { position: relative; z-index: 1; }
+.div-kicker { font-size: 17px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: #4FC98F; margin-bottom: 14px; }
+.div-name { font-size: clamp(48px, 7.4vw, 116px); font-weight: 900; letter-spacing: -.045em; line-height: .95; margin-bottom: 22px; }
+.div-fn { display: inline-flex; align-items: center; gap: 12px; font-size: clamp(19px, 2.1vw, 32px); font-weight: 600; color: rgba(255,255,255,.88); border: 1px solid rgba(255,255,255,.18); padding: 13px 28px; border-radius: 100px; }
+.div-fn .d { width: 11px; height: 11px; border-radius: 50%; background: #4FC98F; }
+
+/* ── TITULOS DE PUNTO ── */
+.pts-title { font-size: clamp(32px, 4.2vw, 62px); font-weight: 800; letter-spacing: -.03em; line-height: 1.02; margin-bottom: 24px; }
+.pts-title em { font-style: normal; color: var(--accent); }
+
+/* ── ERROR vs BIEN ── */
+.eb { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; width: 100%; max-width: 1180px; }
+.eb-card { border-radius: 20px; padding: 30px 32px 32px; border: 1px solid var(--light); background: var(--white); text-align: left; }
+.eb-card.bad { background: var(--danger-dim); border-color: #F0CCC2; }
+.eb-card.good { background: var(--accent-dim); border-color: #B9D6C6; }
+.eb-h { display: flex; align-items: center; gap: 12px; font-size: 16px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 18px; }
+.eb-card.bad .eb-h { color: #A94430; } .eb-card.good .eb-h { color: var(--accent-deep); }
+.eb-ico { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 17px; }
+.eb-card.bad .eb-ico { background: var(--danger); } .eb-card.good .eb-ico { background: var(--accent); }
+.eb-txt { font-size: clamp(17px, 1.85vw, 24px); line-height: 1.55; }
+.eb-card.bad .eb-txt { color: #7A3A2B; } .eb-card.good .eb-txt { color: #1C3A2C; }
+.eb-txt .q { font-style: italic; }
+@media(max-width:720px){ .eb { grid-template-columns: 1fr; } }
+
+/* ── SPLIT (imagen + texto) ── */
+.split { display: grid; grid-template-columns: 1fr 1.1fr; gap: 40px; align-items: center; width: 100%; max-width: 1220px; text-align: left; }
+.split .photo { width: 100%; border-radius: 22px; box-shadow: 0 26px 60px -28px rgba(15,35,27,.5); display: block; aspect-ratio: 4/3; object-fit: cover; }
+.split-body .pts-title { text-align: left; }
+.split-facts { display: flex; flex-direction: column; gap: 12px; margin-top: 6px; }
+.fact { display: flex; align-items: baseline; gap: 14px; font-size: clamp(17px, 1.8vw, 25px); line-height: 1.45; color: var(--fg); }
+.fact .y { font-weight: 800; color: var(--accent-deep); flex-shrink: 0; min-width: 64px; }
+.fact b { color: var(--accent-deep); }
+@media(max-width:820px){ .split { grid-template-columns: 1fr; gap: 22px; } .split .photo { aspect-ratio: 16/9; } }
+
+/* ── STATS GRANDES ── */
+.stats { display: grid; grid-template-columns: 1fr auto 1fr; gap: 28px; align-items: center; width: 100%; max-width: 1100px; margin-bottom: 10px; }
+.stat { background: var(--white); border: 1px solid var(--light); border-radius: 24px; padding: 40px 30px; box-shadow: 0 14px 40px -20px rgba(29,122,83,.25); }
+.stat.big { background: var(--dark); border-color: var(--dark); }
+.stat-n { font-size: clamp(52px, 6.5vw, 104px); font-weight: 900; letter-spacing: -.045em; line-height: 1; }
+.stat.big .stat-n { color: #4FC98F; }
+.stat-l { font-size: clamp(15px, 1.5vw, 21px); font-weight: 600; color: var(--mid); margin-top: 12px; }
+.stat.big .stat-l { color: rgba(255,255,255,.65); }
+.stat-arrow { font-size: clamp(36px, 4vw, 60px); font-weight: 900; color: var(--accent); }
+@media(max-width:720px){ .stats { grid-template-columns: 1fr; } .stat-arrow { transform: rotate(90deg); } }
+
+/* ── CIERRE / CHECKLIST ── */
+.check { display: flex; flex-direction: column; gap: 12px; max-width: 980px; margin-bottom: 26px; }
+.check-item { display: flex; align-items: center; gap: 16px; font-size: clamp(18px, 1.85vw, 27px); font-weight: 600; text-align: left; }
+.check-ico { width: 42px; height: 42px; background: var(--accent); color: var(--white); border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 800; flex-shrink: 0; }
+.final-quote { font-size: clamp(18px, 1.85vw, 26px); color: var(--mid); max-width: 880px; line-height: 1.65; text-align: center; padding-top: 22px; border-top: 3px solid var(--accent); }
+.final-quote b { color: var(--fg); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress"></div>
+<div class="slide-counter" id="counter"></div>
+<div class="deck" id="deck">
+
+  <!-- S1: COVER -->
+  <div class="slide active" id="s1">
+    <div class="cover-rule"></div>
+    <div class="cover-kicker">Martes de Estrategia Digital</div>
+    <div class="cover-title">El termo que <em>rompió</em> internet</div>
+    <div class="cover-sub">Stanley lleva 113 años fabricando el mismo termo. En cuatro años multiplicó sus ventas por diez — sin cambiar el producto. Hoy vemos qué hizo, y qué le puedes copiar.</div>
+    <div class="cover-tag">David Iriza</div>
+  </div>
+
+  <!-- S2: EL MITO -->
+  <div class="slide" id="s2">
+    <div class="pts-title" style="margin-bottom:22px">«El marketing digital es para <em>negocios digitales</em>»</div>
+    <div class="eb">
+      <div class="eb-card bad">
+        <div class="eb-h"><span class="eb-ico">✕</span> Lo que muchos creen</div>
+        <div class="eb-txt">Que las estrategias digitales son para apps, cursos en línea y tiendas de e-commerce. <span class="q">"Yo vendo un producto físico, eso no aplica para mí."</span></div>
+      </div>
+      <div class="eb-card good">
+        <div class="eb-h"><span class="eb-ico">✓</span> Lo que muestra este caso</div>
+        <div class="eb-txt">Una fábrica de termos fundada en <b>1913</b> — acero, soldadores, bodegas — logró su mayor crecimiento en un siglo con una estrategia 100% digital. El negocio más análogo que se te ocurra puede hacerlo.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S3: MAPA -->
+  <div class="slide" id="s3">
+    <div class="tag acc">El mapa de hoy</div>
+    <div class="headline" style="margin-bottom:24px">La clase en <em>cinco partes</em>.</div>
+    <div class="map">
+      <div class="map-row"><div class="map-n">1</div><div class="map-name">El caso</div><div class="map-fn">Quién es Stanley y de qué tamaño fue el brinco</div></div>
+      <div class="map-row"><div class="map-n">2</div><div class="map-name">El giro</div><div class="map-fn">La decisión que lo cambió todo: <b>nueva audiencia, mismo producto</b></div></div>
+      <div class="map-row"><div class="map-n">3</div><div class="map-name">Los principios</div><div class="map-fn">Por qué funcionó — y por qué funciona en <b>cualquier negocio</b></div></div>
+      <div class="map-row"><div class="map-n">4</div><div class="map-name">Cópialo</div><div class="map-fn">Acciones que puedes ejecutar <b>esta semana</b></div></div>
+      <div class="map-row"><div class="map-n">5</div><div class="map-name">Mídelo</div><div class="map-fn">Cómo saber si tu estrategia <b>está funcionando</b></div></div>
+    </div>
+  </div>
+
+  <!-- S4: DIVIDER — EL CASO -->
+  <div class="slide divider" id="s4">
+    <div class="div-ghost">1</div>
+    <div class="div-inner">
+      <div class="div-kicker">Parte 1</div>
+      <div class="div-name">El caso</div>
+      <div class="div-fn"><span class="d"></span> Una fábrica de termos de 1913</div>
+    </div>
+  </div>
+
+  <!-- S5: QUIÉN ES STANLEY -->
+  <div class="slide" id="s5">
+    <div class="split">
+      <img class="photo" src="img/stanley-origen.jpg" alt="Termo clásico de acero verde sobre una mesa de taller">
+      <div class="split-body">
+        <div class="pts-title" style="margin-bottom:18px">Cien años vendiéndole <em>al mismo cliente</em></div>
+        <div class="split-facts">
+          <div class="fact"><span class="y">1913</span>William Stanley inventa el termo de acero de doble pared.</div>
+          <div class="fact"><span class="y">100 años</span>Su cliente: obreros, cazadores, soldados. Hombres, vida al aire libre.</div>
+          <div class="fact"><span class="y">2019</span>Ventas: <b>$73 millones de dólares</b>. Un negocio sólido… y estancado.</div>
+        </div>
+      </div>
+    </div>
+    <div class="caption">Producto excelente, marca respetada, cero crecimiento. <b>¿Te suena?</b></div>
+  </div>
+
+  <!-- S6: EL DATO INCÓMODO -->
+  <div class="slide" id="s6">
+    <div class="pts-title" style="margin-bottom:22px">Su producto estrella <em>casi muere</em> por vender poco</div>
+    <div class="eb">
+      <div class="eb-card bad">
+        <div class="eb-h"><span class="eb-ico">✕</span> Lo que hizo Stanley en 2019</div>
+        <div class="eb-txt">El vaso Quencher — hoy el más famoso del mundo — vendía tan poco que Stanley <span class="q">lo sacó de su página web</span>. Para la empresa, era un fracaso.</div>
+      </div>
+      <div class="eb-card good">
+        <div class="eb-h"><span class="eb-ico">✓</span> Lo que Stanley no veía</div>
+        <div class="eb-txt">Tres mujeres con un blog de recomendaciones (<b>The Buy Guide</b>) lo amaban y se lo recomendaban a su audiencia: mamás, maestras, enfermeras. Compraron miles de unidades por su cuenta… <b>y las agotaron en días.</b></div>
+      </div>
+    </div>
+    <div class="caption">La audiencia que iba a multiplicar el negocio <b>ya existía</b>. Solo que nadie en la empresa la estaba viendo.</div>
+  </div>
+
+  <!-- S7: EL GIRO -->
+  <div class="slide" id="s7">
+    <div class="split">
+      <div class="split-body">
+        <div class="pts-title" style="margin-bottom:18px">Mismo vaso, <em>nueva audiencia</em></div>
+        <div class="split-facts">
+          <div class="fact"><span class="y">2020</span>Llega un presidente nuevo (venía de Crocs) y <b>escucha</b> a las del blog.</div>
+          <div class="fact"><span class="y">→</span>Colores pastel, ediciones limitadas, colaboraciones con creadoras.</div>
+          <div class="fact"><span class="y">→</span>El canal deja de ser la tienda de caza. Ahora es <b>TikTok e Instagram</b>.</div>
+          <div class="fact"><span class="y">→</span>El producto por dentro: <b>exactamente el mismo</b>.</div>
+        </div>
+      </div>
+      <img class="photo" src="img/stanley-colores.jpg" alt="Colección de vasos térmicos en colores pastel">
+    </div>
+  </div>
+
+  <!-- S8: EL INCENDIO -->
+  <div class="slide" id="s8">
+    <div class="split">
+      <img class="photo" src="img/stanley-incendio.jpg" alt="Interior de coche quemado con un vaso térmico intacto en el portavasos">
+      <div class="split-body">
+        <div class="pts-title" style="margin-bottom:18px">El coche se quemó. <em>El vaso no.</em></div>
+        <div class="split-facts">
+          <div class="fact"><span class="y">Nov 2023</span>Una clienta sube a TikTok su coche incendiado: el vaso quedó intacto, <b>con el hielo adentro</b>. 94 millones de vistas.</div>
+          <div class="fact"><span class="y">+2 días</span>El presidente de Stanley le responde en video: vasos nuevos… <b>y un coche nuevo</b>. 54 millones de vistas más.</div>
+        </div>
+      </div>
+    </div>
+    <div class="caption">El anuncio más rentable de la historia de Stanley <b>no lo hizo Stanley</b>. Lo hizo una clienta — y la empresa supo responder en grande.</div>
+  </div>
+
+  <!-- S9: LOS NÚMEROS -->
+  <div class="slide" id="s9">
+    <div class="tag acc">El resultado</div>
+    <div class="headline" style="margin-bottom:32px">Ventas <em>por diez</em> en cuatro años.</div>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-n">$73M</div>
+        <div class="stat-l">2019 · antes del giro</div>
+      </div>
+      <div class="stat-arrow">→</div>
+      <div class="stat big">
+        <div class="stat-n">$750M</div>
+        <div class="stat-l">2023 · mismo termo, nueva audiencia</div>
+      </div>
+    </div>
+    <div class="caption">Sin abrir tiendas nuevas. Sin reinventar el producto. <b>Cambió a quién le hablaba y dónde.</b></div>
+  </div>
+
+  <!-- S10: DIVIDER — PRINCIPIOS -->
+  <div class="slide divider" id="s10">
+    <div class="div-ghost">2</div>
+    <div class="div-inner">
+      <div class="div-kicker">Parte 2</div>
+      <div class="div-name">Los principios</div>
+      <div class="div-fn"><span class="d"></span> Por qué funcionó</div>
+    </div>
+  </div>
+
+  <!-- S11: PRINCIPIO 1 -->
+  <div class="slide" id="s11">
+    <div class="tag acc">Principio 1</div>
+    <div class="pts-title" style="margin-bottom:22px">Escucha a quien <em>ya te compra</em> raro</div>
+    <div class="eb">
+      <div class="eb-card bad">
+        <div class="eb-h"><span class="eb-ico">✕</span> El reflejo normal</div>
+        <div class="eb-txt">"Ese cliente no es mi mercado." Stanley veía mamás comprando un vaso de cazadores y lo leyó como ruido. <span class="q">Casi mata su mejor producto por eso.</span></div>
+      </div>
+      <div class="eb-card good">
+        <div class="eb-h"><span class="eb-ico">✓</span> La lectura correcta</div>
+        <div class="eb-txt">El cliente "raro" que llega solo, sin que lo busques, es una <b>señal de mercado</b>. Ahí suele estar tu siguiente audiencia — una que ya te compra y a la que nadie le habla.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S12: PRINCIPIO 2 -->
+  <div class="slide" id="s12">
+    <div class="tag acc">Principio 2</div>
+    <div class="pts-title" style="margin-bottom:22px">Tus clientes son <em>tu mejor canal</em></div>
+    <div class="eb">
+      <div class="eb-card bad">
+        <div class="eb-h"><span class="eb-ico">✕</span> Marketing que empuja</div>
+        <div class="eb-txt">Pagar anuncios para decir lo bueno que eres. Funciona, pero cada peso compra un impacto <span class="q">y ahí se acaba</span>.</div>
+      </div>
+      <div class="eb-card good">
+        <div class="eb-h"><span class="eb-ico">✓</span> Marketing que contagia</div>
+        <div class="eb-txt">El video del incendio no salió de la agencia de Stanley: lo subió una clienta. La marca solo hizo dos cosas bien: <b>un producto presumible</b> y <b>una respuesta rápida y generosa</b> cuando pasó.</div>
+      </div>
+    </div>
+    <div class="caption">No controlas cuándo llega tu momento viral. Sí controlas <b>que tu producto dé de qué hablar</b> — y qué haces cuando pasa.</div>
+  </div>
+
+  <!-- S13: PRINCIPIO 3 -->
+  <div class="slide" id="s13">
+    <div class="tag acc">Principio 3</div>
+    <div class="pts-title" style="margin-bottom:22px">Dale al cliente <em>razones de volver</em></div>
+    <div class="map">
+      <div class="map-row"><div class="map-n">🎨</div><div class="map-name">Colores nuevos</div><div class="map-fn">Cada temporada trae tonos que <b>no existían antes</b></div></div>
+      <div class="map-row"><div class="map-n">⏳</div><div class="map-name">Ediciones limitadas</div><div class="map-fn">Se agotan en minutos — <b>la escasez es real</b>, no un truco de copy</div></div>
+      <div class="map-row"><div class="map-n">🤝</div><div class="map-name">Colaboraciones</div><div class="map-fn">Con marcas y creadoras que la audiencia nueva ya ama</div></div>
+      <div class="map-row hi"><div class="map-n">↻</div><div class="map-name">El efecto</div><div class="map-fn">Nadie tiene <b>un</b> Stanley. La gente los <b>colecciona</b></div></div>
+    </div>
+    <div class="caption">Un termo dura 30 años. Stanley logró que un producto <b>que no se repone… se recompre</b>.</div>
+  </div>
+
+  <!-- S14: DIVIDER — CÓPIALO -->
+  <div class="slide divider" id="s14">
+    <div class="div-ghost">3</div>
+    <div class="div-inner">
+      <div class="div-kicker">Parte 3</div>
+      <div class="div-name">Cópialo</div>
+      <div class="div-fn"><span class="d"></span> En tu negocio, esta semana</div>
+    </div>
+  </div>
+
+  <!-- S15: ACCIONES -->
+  <div class="slide" id="s15">
+    <div class="tag">Para ejecutar esta semana</div>
+    <div class="headline" style="margin-bottom:28px">Cinco movimientos <em>concretos</em>.</div>
+    <div class="check">
+      <div class="check-item"><div class="check-ico">1</div>Pregunta a tus últimos 10 clientes quiénes son y cómo usan lo que vendes — busca al cliente "raro"</div>
+      <div class="check-item"><div class="check-ico">2</div>Haz tu producto presumible: empaque, un detalle, un momento que dé ganas de foto</div>
+      <div class="check-item"><div class="check-ico">3</div>Pide la foto o reseña en cada venta, y reposta todo lo que tus clientes publiquen</div>
+      <div class="check-item"><div class="check-ico">4</div>Crea una razón de recompra: edición limitada, temporada, variante nueva</div>
+      <div class="check-item"><div class="check-ico">5</div>Cuando un cliente te dé un momento bueno, responde rápido y en grande — eso también es marketing</div>
+    </div>
+  </div>
+
+  <!-- S16: MEDIRLO -->
+  <div class="slide" id="s16">
+    <div class="tag acc">Parte 5 · Mídelo</div>
+    <div class="pts-title" style="margin-bottom:24px">Cuatro números te dicen <em>si está funcionando</em></div>
+    <div class="map">
+      <div class="map-row"><div class="map-n">1</div><div class="map-name">"¿Cómo nos conociste?"</div><div class="map-fn">Pregúntalo en <b>cada venta</b>. Es tu medidor de boca en boca digital</div></div>
+      <div class="map-row"><div class="map-n">2</div><div class="map-name">Contenido de clientes</div><div class="map-fn">¿Cuántas fotos, reseñas y menciones te hicieron esta semana?</div></div>
+      <div class="map-row"><div class="map-n">3</div><div class="map-name">Recompra</div><div class="map-fn">De cada 10 clientes, ¿cuántos vuelven o te recomiendan?</div></div>
+      <div class="map-row"><div class="map-n">4</div><div class="map-name">Ventas por canal</div><div class="map-fn">Compara antes y después de cada acción — <b>una a la vez</b></div></div>
+    </div>
+  </div>
+
+  <!-- S17: CIERRE -->
+  <div class="slide" id="s17">
+    <div class="tag">En una línea</div>
+    <div class="headline" style="margin-bottom:28px">No cambies el producto.<br>Cambia <em>a quién se lo cuentas</em>.</div>
+    <div class="final-quote">Stanley no inventó un termo nuevo: encontró a la gente que ya lo amaba y le dio algo que presumir. Tu siguiente crecimiento probablemente no está en un producto nuevo — está en <b>una audiencia que ya te compra y que nadie está atendiendo</b>.</div>
+  </div>
+
+</div>
+
+<div class="dots" id="dots"></div>
+<button class="nav-btn left" id="prevBtn" aria-label="Anterior">‹</button>
+<button class="nav-btn right" id="nextBtn" aria-label="Siguiente">›</button>
+
+<script>
+const slides  = Array.from(document.querySelectorAll('.slide'));
+const dotsEl  = document.getElementById('dots');
+const progress= document.getElementById('progress');
+const counter = document.getElementById('counter');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const total   = slides.length;
+let current = 0, animating = false;
+
+slides.forEach((s, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '') + (s.classList.contains('divider') ? ' div' : '');
+  d.addEventListener('click', () => goTo(i));
+  dotsEl.appendChild(d);
+});
+
+function goTo(idx) {
+  if (animating || idx === current || idx < 0 || idx >= total) return;
+  animating = true;
+  const prev = slides[current];
+  prev.classList.remove('active'); prev.classList.add('exit');
+  current = idx;
+  slides[current].classList.add('active');
+  setTimeout(() => { prev.classList.remove('exit'); animating = false; }, 420);
+  updateUI();
+}
+function navigate(dir) { goTo(current + dir); }
+
+function updateUI() {
+  document.querySelectorAll('.dot').forEach((d, i) => {
+    d.classList.toggle('active', i === current);
+  });
+  progress.style.width = ((current + 1) / total * 100) + '%';
+  counter.textContent  = (current + 1) + ' / ' + total;
+  prevBtn.disabled = current === 0;
+  nextBtn.disabled = current === total - 1;
+}
+
+prevBtn.addEventListener('click', () => navigate(-1));
+nextBtn.addEventListener('click', () => navigate(1));
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); navigate(1); }
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')  { e.preventDefault(); navigate(-1); }
+});
+
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 56) navigate(dx < 0 ? 1 : -1);
+});
+
+updateUI();
+
+/* ── PANTALLA COMPLETA (botón arriba-izquierda + tecla F) ── */
+(function () {
+  const EXPAND   = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m13-5v3a2 2 0 0 1-2 2h-3"/></svg>';
+  const COMPRESS = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3m13-5h-3a2 2 0 0 0-2 2v3"/></svg>';
+  const btn = document.createElement('button');
+  btn.setAttribute('aria-label', 'Pantalla completa');
+  btn.title = 'Pantalla completa (F)';
+  btn.innerHTML = EXPAND;
+  Object.assign(btn.style, {
+    position:'fixed', top:'20px', left:'22px', zIndex:'150',
+    width:'46px', height:'46px', padding:'0', borderRadius:'50%',
+    border:'1px solid #CFE0D5', background:'#FFFFFF',
+    color:'#14573B', cursor:'pointer',
+    display:'flex', alignItems:'center', justifyContent:'center',
+    boxShadow:'0 6px 18px -6px rgba(29,122,83,.45)',
+    transition:'transform .18s, box-shadow .18s, background .18s, color .18s'
+  });
+  const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
+  function refresh() {
+    const on = !!fsEl();
+    btn.innerHTML = on ? COMPRESS : EXPAND;
+    btn.style.background = on ? '#14573B' : '#FFFFFF';
+    btn.style.color = on ? '#FFFFFF' : '#14573B';
+  }
+  function toggle() {
+    try {
+      if (fsEl()) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); }
+      else { const el = document.documentElement; (el.requestFullscreen || el.webkitRequestFullscreen).call(el); }
+    } catch (err) { console.warn('Fullscreen no disponible:', err); }
+  }
+  btn.addEventListener('mouseenter', () => { btn.style.transform = 'scale(1.06)'; btn.style.boxShadow = '0 10px 26px -8px rgba(29,122,83,.6)'; });
+  btn.addEventListener('mouseleave', () => { btn.style.transform = 'scale(1)'; btn.style.boxShadow = '0 6px 18px -6px rgba(29,122,83,.45)'; });
+  btn.addEventListener('click', toggle);
+  document.addEventListener('fullscreenchange', refresh);
+  document.addEventListener('webkitfullscreenchange', refresh);
+  document.addEventListener('keydown', e => {
+    if (e.key && e.key.toLowerCase() === 'f' && !e.metaKey && !e.ctrlKey && !e.altKey) { e.preventDefault(); toggle(); }
+  });
+  document.body.appendChild(btn);
+})();
+</script>
+</body>
+</html>
