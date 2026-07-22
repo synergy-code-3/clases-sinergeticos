@@ -148,6 +148,11 @@ html, body {
 .fact .t { display: block; }
 .fact b { color: var(--accent-deep); }
 @media(max-width:820px){ .split { grid-template-columns: 1fr; gap: 22px; } .split .photo { aspect-ratio: 16/9; } }
+.split.media-sq { grid-template-columns: .85fr 1.45fr; }
+.split .photo.sq { aspect-ratio: 1/1; }
+.photo-credit { font-size: 13px; color: var(--mid); margin-top: 10px; text-align: left; }
+.split-cards { display: flex; flex-direction: column; gap: 14px; }
+.split-cards .eb-card { padding: 22px 26px 24px; }
 
 /* ── STATS GRANDES ── */
 .stats { display: grid; grid-template-columns: 1fr auto 1fr; gap: 28px; align-items: center; width: 100%; max-width: 1100px; margin-bottom: 10px; }
@@ -240,14 +245,20 @@ html, body {
   <!-- S6: EL DATO INCÓMODO -->
   <div class="slide" id="s6">
     <div class="pts-title" style="margin-bottom:22px">Su producto estrella <em>casi muere</em> por vender poco</div>
-    <div class="eb">
-      <div class="eb-card bad">
-        <div class="eb-h"><span class="eb-ico">✕</span> Lo que hizo Stanley en 2019</div>
-        <div class="eb-txt">El vaso Quencher — hoy el más famoso del mundo — vendía tan poco que Stanley <span class="q">lo sacó de su página web</span>. Para la empresa, era un fracaso.</div>
+    <div class="split media-sq">
+      <div>
+        <img class="photo sq" src="img/the-buy-guide.jpg" alt="Linley Hutchinson, Ashlee LeSueur y Taylor Cannon, fundadoras de The Buy Guide">
+        <div class="photo-credit">Linley, Ashlee y Taylor — fundadoras de The Buy Guide · Foto: The Buy Guide / Retail Dive</div>
       </div>
-      <div class="eb-card good">
-        <div class="eb-h"><span class="eb-ico">✓</span> Lo que Stanley no veía</div>
-        <div class="eb-txt">Tres mujeres con un blog de recomendaciones (<b>The Buy Guide</b>) lo amaban y se lo recomendaban a su audiencia: mamás, maestras, enfermeras. Compraron miles de unidades por su cuenta… <b>y las agotaron en días.</b></div>
+      <div class="split-cards">
+        <div class="eb-card bad">
+          <div class="eb-h"><span class="eb-ico">✕</span> Lo que hizo Stanley en 2019</div>
+          <div class="eb-txt">El vaso Quencher — hoy el más famoso del mundo — vendía tan poco que Stanley <span class="q">lo sacó de su página web</span>. Para la empresa, era un fracaso.</div>
+        </div>
+        <div class="eb-card good">
+          <div class="eb-h"><span class="eb-ico">✓</span> Lo que Stanley no veía</div>
+          <div class="eb-txt">Estas tres mujeres, con su blog de recomendaciones (<b>The Buy Guide</b>), lo amaban y se lo recomendaban a su audiencia: mamás, maestras, enfermeras. Stanley las retó a comprar <b>10,000 vasos al mayoreo</b>… y vendieron los primeros 5,000 <b>en 4 días</b> — y los otros 5,000 <b>en 1 hora</b>.</div>
+        </div>
       </div>
     </div>
     <div class="caption">La audiencia que iba a multiplicar el negocio <b>ya existía</b>. Solo que nadie en la empresa la estaba viendo.</div>
