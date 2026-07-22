@@ -4,6 +4,48 @@
 
 ---
 
+## Última sesión — 2026-07-22 — Clase nueva "Caso Stanley" (Martes de Estrategia Digital) investigada, construida y publicada
+
+**Clase completa de 17 slides en `clases-sinergeticos.vercel.app/caso-stanley/` con 3 imágenes generadas + 1 foto real de prensa, card en el hub, verificada en prod.**
+
+### Lo hecho hoy
+- **Investigación de casos** para la clase "estrategia digital en negocio NO digital": se evaluaron Outdoor Elegance ($194→$106k en Facebook Ads), Blendtec (+700%), Kogi BBQ (Twitter, $0), Domino's (+9,000% stock) y **Stanley (elegido por David)**: $73M (2019) → $750M (2023), mismo termo, nueva audiencia. Todos los datos verificados con fuente (Retail Dive, Forbes, ABC7, HubSpot, CreatorIQ).
+- **Deck `caso-stanley/index.html`** (17 slides): clon del patrón del hub (nav teclado/swipe/dots, F fullscreen) con paleta propia verde Stanley sobre crema (`#1D7A53` / `#FAF8F2` / dark `#0F231B`). Estructura: mito → caso → giro (The Buy Guide) → incendio viral → números ($73M→$750M) → 3 principios → 5 acciones → 4 métricas → cierre "No cambies el producto. Cambia a quién se lo cuentas."
+- **3 imágenes con Higgsfield** (Seedream 4.5 modo rápido, ~3 créditos, con OK de David): termo vintage en taller, vasos pastel, coche quemado con vaso intacto. Optimizadas con `sips -Z 1200` a JPG 120-230KB. Sin logos de Stanley (tema de marca).
+- **Foto real de The Buy Guide** (las 3 fundadoras, foto de prensa vía Retail Dive) publicada en slide 6 por decisión explícita de David ("es solo para la clase"), con crédito al pie.
+- **Slide 6 enriquecida** con los números reales: Stanley sin programa de afiliados les ofreció la única vía — mayoreo de 10,000 vasos con dinero propio; 5,000 vendidos en 4 días, los otros 5,000 en 1 hora. Copy ajustado a pedido de David ("las retó" era impreciso).
+- **Fix de layout**: el flex de `.fact` partía los `<b>` en columnas; texto envuelto en `span.t`.
+- **Card agregada al hub** ("El termo que rompió internet", Estrategia · clase). 4 deploys a prod vía push, todos verificados con curl + screenshots headless.
+
+### Decisiones tomadas
+- **El caso es Stanley**, no el 217% del título promocional: David anuncia "217%" pero el deck cuenta los números reales con fuente (regla: datos duros publicables solo de la fuente).
+- Foto de prensa de The Buy Guide SÍ publicada en el deck — decisión de David, uso educativo de la clase.
+- Screenshots de verificación: el path viejo de chromium (1223) ya no existe; el patrón vigente es `playwright-core` de `~/proyectos/ghl-workflows-mcp/node_modules` + ejecutable `~/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell`. Ojo: esperar ≥600ms entre flechazos o el deck ignora la navegación (lock de animación de 420ms).
+
+### IDs críticos
+```
+GITHUB_REPO     = "synergy-code-3/clases-sinergeticos"
+VERCEL_PROD_URL = "https://clases-sinergeticos.vercel.app"
+CLASE_NUEVA_URL = "https://clases-sinergeticos.vercel.app/caso-stanley/"
+```
+
+### Pendientes — orden de prioridad
+
+#### 🔴 P0 — Bloqueante / para que algo funcione en prod
+- David: subir a Skool las 5 lecciones del módulo AI Service (video + miniatura + guía) — arrastrado de la sesión del 14-jul.
+
+#### 🟡 P1 — Esta semana
+- Del lado GHL del módulo AI Service: rediseño de los 2 workflows en la subcuenta Prueba Llamada (requiere login de David).
+
+#### 🟢 P2 — Post-launch o cuando haya tiempo
+- Si David quiere ajustar algo del deck Stanley al ensayarla: pasar "slide + qué cambiar" y se ajusta puntual.
+- Snapshot final de la subcuenta Prueba Llamada + Permanent Link (arrastrado).
+
+### Próximo paso para retomar
+David da la clase del martes con el deck de Stanley; cualquier ajuste se pide como "slide + cambio". Los pendientes reales del proyecto siguen siendo los del módulo AI Service (subir a Skool + workflows GHL).
+
+---
+
 ## Última sesión — 2026-07-14 — Módulo AI Service EDITADO COMPLETO: 5 videos + miniaturas + guías Skool
 
 **El módulo 4 (AI Service) quedó listo para subir a Skool: 5 videos editados con 3 pasadas de QA (54:07 finales de 76:36 grabados), 5 miniaturas con la estética de la certificación y 5 guías de lección en Google Docs.**
