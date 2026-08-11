@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evita hackeos en lo que haces con IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F6FAFA;
+  --fg: #0B1618;
+  --dark: #081A1D;
+  --mid: #5C7478;
+  --light: #DCEBEA;
+  --lighter: #EDF6F5;
+  --accent: #0EA5A0;
+  --accent-deep: #0A7A76;
+  --accent-dim: #E0F5F3;
+  --white: #FFFFFF;
+  --danger: #E2463D;
+  --danger-dim: #FCE6E4;
+  --font: 'Inter', -apple-system, sans-serif;
+  --ease: cubic-bezier(.4,0,.2,1);
+}
+
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── LAYOUT ── */
+.deck { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+.slide {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  justify-content: safe center; align-items: safe center; text-align: center;
+  padding: 3vh 4.5vw; overflow-y: auto; scrollbar-width: none;
+  opacity: 0; transform: translateY(28px);
+  transition: opacity .4s var(--ease), transform .4s var(--ease);
+  pointer-events: none; will-change: opacity, transform;
+}
+.slide.active { opacity: 1; transform: translateY(0); pointer-events: all; }
+.slide.exit   { opacity: 0; transform: translateY(-28px); }
+.slide::-webkit-scrollbar { width: 0; height: 0; }
+
+/* ── CHROME ── */
+.progress-bar {
+  position: fixed; top: 0; left: 0; height: 4px;
+  background: var(--accent); transition: width .4s var(--ease); z-index: 200;
+}
+.slide-counter {
+  position: fixed; top: 20px; right: 28px;
+  font-size: 14px; font-weight: 700; letter-spacing: .08em; color: var(--mid); z-index: 100;
+}
+.dots {
+  position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 6px; z-index: 100; max-width: 64vw; flex-wrap: wrap; justify-content: center;
+}
+.dot { width: 7px; height: 7px; border-radius: 3.5px; background: var(--light); transition: background .25s, width .25s; cursor: pointer; }
+.dot.active { background: var(--fg); width: 24px; }
+.dot.div { background: #A9DAD6; }
+.dot.div.active { background: var(--accent); }
+.nav-btn {
+  position: fixed; bottom: 18px; z-index: 100;
+  width: 46px; height: 46px; border-radius: 50%;
+  border: 1px solid var(--light); background: var(--white);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: var(--fg); transition: all .18s; user-select: none; font-family: var(--font);
+}
+.nav-btn.left { left: 28px; } .nav-btn.right { right: 28px; }
+.nav-btn:hover { background: var(--fg); color: var(--white); border-color: var(--fg); }
+.nav-btn:disabled { opacity: .2; cursor: not-allowed; }
+
+/* ── ATOMS ── */
+.tag {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 15px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--mid); border: 1px solid var(--light);
+  padding: 9px 20px; border-radius: 100px; margin-bottom: 24px;
+}
+.tag.acc { color: var(--accent-deep); border-color: #A9DAD6; background: var(--accent-dim); }
+.headline { font-size: clamp(38px, 5.4vw, 82px); font-weight: 800; letter-spacing: -.035em; line-height: 1.02; margin-bottom: 24px; }
+.headline em { font-style: normal; color: var(--accent); }
+.caption { font-size: clamp(19px, 2vw, 30px); color: var(--mid); line-height: 1.45; margin-top: 28px; max-width: 1000px; }
+.caption b { color: var(--accent-deep); font-weight: 700; }
+
+/* ── S1: COVER ── */
+#s1 { background: radial-gradient(115% 100% at 82% 0%, #103B3E 0%, var(--dark) 58%); color: var(--white); }
+.cover-rule { width: 64px; height: 5px; background: var(--accent); margin-bottom: 40px; }
+.cover-kicker { font-size: 16px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); margin-bottom: 22px; }
+.cover-title { font-size: clamp(42px, 6.2vw, 98px); font-weight: 900; letter-spacing: -.05em; line-height: .94; color: var(--white); margin-bottom: 26px; max-width: 19ch; }
+.cover-title em { font-style: normal; color: var(--accent); }
+.cover-sub { font-size: clamp(21px, 2.3vw, 34px); font-weight: 400; color: rgba(255,255,255,.6); max-width: 780px; line-height: 1.45; margin-bottom: 42px; }
+.cover-tag { font-size: 15px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.45); border: 1px solid rgba(255,255,255,.16); padding: 9px 22px; border-radius: 100px; display: inline-block; }
+
+/* ── MAPA ── */
+.map { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 1160px; }
+.map-row { display: grid; grid-template-columns: 60px 1.1fr 1.35fr; align-items: center; gap: 24px; background: var(--white); border: 1px solid var(--light); border-radius: 16px; padding: 17px 28px; box-shadow: 0 6px 20px -12px rgba(14,165,160,.16); }
+.map-n { width: 48px; height: 48px; border-radius: 50%; background: var(--fg); color: var(--white); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 21px; }
+.map-row.hi { border-color: #A9DAD6; background: linear-gradient(180deg, var(--accent-dim), var(--white)); }
+.map-row.hi .map-n { background: var(--accent); }
+.map-name { font-weight: 800; font-size: clamp(20px, 2.1vw, 30px); letter-spacing: -.01em; text-align: left; }
+.map-fn { color: var(--mid); font-size: clamp(16px, 1.6vw, 23px); text-align: left; }
+.map-fn b { color: var(--accent-deep); font-weight: 700; }
+@media(max-width:720px){ .map-row { grid-template-columns: 46px 1fr; } .map-fn { grid-column: 2; } }
+
+/* ── DIVIDERS ── */
+.slide.divider { background: radial-gradient(120% 110% at 50% 0%, #0F3336 0%, var(--dark) 60%); color: var(--white); justify-content: safe center; overflow: hidden; }
+.div-ghost { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); font-size: clamp(240px, 42vw, 620px); font-weight: 900; line-height: .8; color: rgba(14,165,160,.24); letter-spacing: -.05em; pointer-events: none; z-index: 0; }
+.div-inner { position: relative; z-index: 1; }
+.div-kicker { font-size: 17px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+.div-name { font-size: clamp(48px, 7.4vw, 116px); font-weight: 900; letter-spacing: -.045em; line-height: .95; margin-bottom: 22px; }
+.div-fn { display: inline-flex; align-items: center; gap: 12px; font-size: clamp(19px, 2.1vw, 32px); font-weight: 600; color: rgba(255,255,255,.88); border: 1px solid rgba(255,255,255,.18); padding: 13px 28px; border-radius: 100px; }
+.div-fn .d { width: 11px; height: 11px; border-radius: 50%; background: var(--accent); }
+
+/* ── TITULOS DE PUNTO ── */
+.pts-title { font-size: clamp(30px, 3.9vw, 56px); font-weight: 800; letter-spacing: -.03em; line-height: 1.05; margin-bottom: 22px; }
+.pts-title em { font-style: normal; color: var(--accent); }
+
+/* ── EJEMPLO DEL PROBLEMA (tarjeta ancha) ── */
+.case { width: 100%; max-width: 1040px; background: var(--danger-dim); border: 1px solid #F3C9C6; border-radius: 20px; padding: 28px 34px; text-align: left; }
+.case-h { display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #B23B33; margin-bottom: 14px; }
+.case-ico { width: 30px; height: 30px; border-radius: 50%; background: var(--danger); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; flex-shrink: 0; }
+.case-txt { font-size: clamp(17px, 1.8vw, 23px); line-height: 1.6; color: #7a332e; }
+.case-txt b { color: #B23B33; }
+.fix { width: 100%; max-width: 1040px; margin-top: 16px; display: flex; align-items: flex-start; gap: 14px; text-align: left; }
+.fix-ico { width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; flex-shrink: 0; margin-top: 2px; }
+.fix-txt { font-size: clamp(17px, 1.8vw, 23px); line-height: 1.55; color: var(--fg); }
+.fix-txt b { color: var(--accent-deep); }
+
+/* ── ARCHIVO / PROMPT (tarjeta oscura) ── */
+.tpl { width: 100%; max-width: 1000px; background: var(--dark); border-radius: 22px; padding: 32px 40px; text-align: left; box-shadow: 0 24px 60px -30px rgba(8,26,29,.55); }
+.tpl-file { font-size: 14px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
+.tpl-file .d { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); }
+.tpl p { font-size: clamp(16px, 1.65vw, 22px); line-height: 1.65; color: rgba(255,255,255,.88); margin-bottom: 14px; }
+.tpl p:last-child { margin-bottom: 0; }
+.tpl .blank { color: var(--accent); font-weight: 700; background: rgba(14,165,160,.16); border-radius: 6px; padding: 1px 8px; }
+.tpl .cm { color: rgba(255,255,255,.45); }
+.tpl code { font-family: 'SF Mono', Menlo, monospace; font-size: .92em; color: #6EE7DE; }
+.tpl-prompt { font-family: 'SF Mono', Menlo, monospace; font-size: clamp(14.5px, 1.5vw, 18px); line-height: 1.7; color: #E7FBF9; background: rgba(14,165,160,.1); border: 1px solid rgba(14,165,160,.3); border-radius: 12px; padding: 20px 22px; }
+
+/* ── CIERRE / CHECKLIST ── */
+.check { display: flex; flex-direction: column; gap: 12px; max-width: 940px; margin-bottom: 26px; }
+.check-item { display: flex; align-items: center; gap: 16px; font-size: clamp(19px, 1.9vw, 28px); font-weight: 600; text-align: left; }
+.check-ico { width: 42px; height: 42px; background: var(--accent); color: var(--white); border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 800; flex-shrink: 0; }
+.final-quote { font-size: clamp(18px, 1.85vw, 26px); color: var(--mid); max-width: 860px; line-height: 1.65; text-align: center; padding-top: 22px; border-top: 3px solid var(--accent); }
+.final-quote b { color: var(--fg); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress"></div>
+<div class="slide-counter" id="counter"></div>
+<div class="deck" id="deck">
+
+  <!-- S1: COVER -->
+  <div class="slide active" id="s1">
+    <div class="cover-rule"></div>
+    <div class="cover-kicker">Martes de IA</div>
+    <div class="cover-title">Evita <em>hackeos</em> en lo que construyes con IA</div>
+    <div class="cover-sub">Claude te ayuda a lanzar rápido. Si no le pides seguridad explícitamente, también lanza rápido las puertas abiertas.</div>
+    <div class="cover-tag">David Iriza</div>
+  </div>
+
+  <!-- S2: MAPA -->
+  <div class="slide" id="s2">
+    <div class="tag acc">El mapa de hoy</div>
+    <div class="headline" style="margin-bottom:24px">Cuatro puertas, el <em>ejemplo</em> y el <em>prompt</em> para cada una.</div>
+    <div class="map">
+      <div class="map-row"><div class="map-n">1</div><div class="map-name">Bases de datos</div><div class="map-fn">Que nadie más pueda <b>leerlas ni borrarlas</b></div></div>
+      <div class="map-row"><div class="map-n">2</div><div class="map-name">API keys</div><div class="map-fn">Que vivan en el servidor, <b>nunca en el navegador</b></div></div>
+      <div class="map-row"><div class="map-n">3</div><div class="map-name">Límite de peticiones</div><div class="map-fn">Que nadie pueda <b>saturarte o vaciarte la cuenta</b></div></div>
+      <div class="map-row"><div class="map-n">4</div><div class="map-name">Contraseñas</div><div class="map-fn">Que lo interno no sea <b>"secreto por URL"</b></div></div>
+    </div>
+    <div class="caption">Cada puerta va igual: <b>el ejemplo real del problema</b> → <b>el prompt exacto</b> para pedirle a Claude que la cierre.</div>
+  </div>
+
+  <!-- ══════════ PUERTA 1 — BASES DE DATOS ══════════ -->
+
+  <!-- S3: DIVIDER — P1 -->
+  <div class="slide divider" id="s3">
+    <div class="div-ghost">1</div>
+    <div class="div-inner">
+      <div class="div-kicker">Puerta 1</div>
+      <div class="div-name">Bases de<br>datos</div>
+      <div class="div-fn"><span class="d"></span> La que casi nadie cierra</div>
+    </div>
+  </div>
+
+  <!-- S4: P1 — el problema -->
+  <div class="slide" id="s4">
+    <div class="pts-title">Por default, tu tabla <em>es pública</em></div>
+    <div class="case">
+      <div class="case-h"><span class="case-ico">✕</span> El problema, en concreto</div>
+      <div class="case-txt">Creas la tabla en Supabase, Claude la conecta, todo funciona. Pero sin configurar nada más, <b>cualquiera puede abrir las herramientas de desarrollador de su navegador, copiar la URL de tu proyecto y pegarle <code style="font-family:inherit">/rest/v1/usuarios</code> directo</b> — sin loguearse, ve la tabla completa. Hay bots que rastrean el internet buscando exactamente esa URL.</div>
+    </div>
+    <div class="fix"><div class="fix-ico">✓</div><div class="fix-txt">La corrección: <b>Row Level Security (RLS)</b> activado en cada tabla — cada una decide quién puede leer y quién puede escribir. Sin sesión válida, no hay acceso a nada.</div></div>
+  </div>
+
+  <!-- S5: P1 — el prompt -->
+  <div class="slide" id="s5">
+    <div class="pts-title">El prompt para <em>esta puerta</em></div>
+    <div class="tpl">
+      <div class="tpl-file"><span class="d"></span> Pégalo cuando conectes o audites una base de datos</div>
+      <div class="tpl-prompt">"Revisa todas mis tablas en Supabase y dime cuáles tienen Row Level Security desactivado. Actívalo en todas. Después crea las políticas necesarias para que cada usuario autenticado solo pueda leer y escribir sus propios datos — nadie más, ni siquiera otro usuario logueado."</div>
+    </div>
+    <div class="caption">RLS no se activa solo — hay que pedirlo <b>por su nombre</b>, no asumir que "conectar la base de datos" ya lo incluyó.</div>
+  </div>
+
+  <!-- ══════════ PUERTA 2 — API KEYS ══════════ -->
+
+  <!-- S6: DIVIDER — P2 -->
+  <div class="slide divider" id="s6">
+    <div class="div-ghost">2</div>
+    <div class="div-inner">
+      <div class="div-kicker">Puerta 2</div>
+      <div class="div-name">API keys</div>
+      <div class="div-fn"><span class="d"></span> La que se copia con un clic</div>
+    </div>
+  </div>
+
+  <!-- S7: P2 — el problema -->
+  <div class="slide" id="s7">
+    <div class="pts-title">Si el navegador la lee, <em>un desconocido también</em></div>
+    <div class="case">
+      <div class="case-h"><span class="case-ico">✕</span> El problema, en concreto</div>
+      <div class="case-txt">Publicas la landing. Alguien abre <b>"Ver código fuente"</b> o la pestaña Sources de las herramientas de desarrollador, busca la palabra "key" y la encuentra <b>en texto plano dentro del JavaScript que se manda al navegador</b>. La usa desde su propia cuenta — el cargo llega a la tuya.</div>
+    </div>
+    <div class="fix"><div class="fix-ico">✓</div><div class="fix-txt">La corrección: la key vive <b>solo en el servidor</b>, en una variable de entorno que el navegador nunca recibe. Todo lo que la necesita pasa primero por tu backend.</div></div>
+  </div>
+
+  <!-- S8: P2 — el prompt -->
+  <div class="slide" id="s8">
+    <div class="pts-title">El prompt para <em>esta puerta</em></div>
+    <div class="tpl">
+      <div class="tpl-file"><span class="d"></span> Pégalo antes de publicar cualquier proyecto con Next.js</div>
+      <div class="tpl-prompt">"Revisa mi proyecto y dime qué variables de entorno con datos sensibles — API keys, tokens, contraseñas de servicio — quedan expuestas al navegador. En Next.js, eso es cualquier variable con el prefijo NEXT_PUBLIC_, o cualquier key usada directo en un componente cliente. Muévelas a rutas de servidor (API routes) y confírmame que ninguna llega al bundle del navegador."</div>
+    </div>
+    <div class="caption">La palabra clave es <b>NEXT_PUBLIC_</b>: ese prefijo significa literalmente "mándala al navegador". Ninguna key sensible debería llevarlo.</div>
+  </div>
+
+  <!-- ══════════ PUERTA 3 — LÍMITE DE PETICIONES ══════════ -->
+
+  <!-- S9: DIVIDER — P3 -->
+  <div class="slide divider" id="s9">
+    <div class="div-ghost">3</div>
+    <div class="div-inner">
+      <div class="div-kicker">Puerta 3</div>
+      <div class="div-name">Límite de<br>peticiones</div>
+      <div class="div-fn"><span class="d"></span> La que evita el cheque en blanco</div>
+    </div>
+  </div>
+
+  <!-- S10: P3 — el problema -->
+  <div class="slide" id="s10">
+    <div class="pts-title">Un endpoint sin límite es <em>una cuenta abierta</em></div>
+    <div class="case">
+      <div class="case-h"><span class="case-ico">✕</span> El problema, en concreto</div>
+      <div class="case-txt">Tu formulario de contacto dispara un correo o una llamada a una API de pago por cada envío. <b>Un bot descubre la URL del endpoint y lo llama miles de veces en una hora</b> — tu proveedor te suspende la cuenta, o el cargo por uso te llega multiplicado por mil.</div>
+    </div>
+    <div class="fix"><div class="fix-ico">✓</div><div class="fix-txt">La corrección: un <b>límite de peticiones (rate limit)</b> por IP o por usuario — diez intentos por minuto, no diez mil — más verificación humana en lo público.</div></div>
+  </div>
+
+  <!-- S11: P3 — el prompt -->
+  <div class="slide" id="s11">
+    <div class="pts-title">El prompt para <em>esta puerta</em></div>
+    <div class="tpl">
+      <div class="tpl-file"><span class="d"></span> Pégalo en cualquier endpoint o formulario público</div>
+      <div class="tpl-prompt">"Agrega límite de peticiones (rate limiting) a todos mis endpoints públicos: máximo X peticiones por minuto por IP. Si alguien pasa el límite, responde con error 429 en vez de ejecutar la acción. Si es un formulario público, agrega también verificación tipo captcha."</div>
+    </div>
+    <div class="caption">No es paranoia: <b>una API de pago sin límite es tu tarjeta con el número abierto.</b> Pide el límite antes de publicar, no después del cargo.</div>
+  </div>
+
+  <!-- ══════════ PUERTA 4 — CONTRASEÑAS ══════════ -->
+
+  <!-- S12: DIVIDER — P4 -->
+  <div class="slide divider" id="s12">
+    <div class="div-ghost">4</div>
+    <div class="div-inner">
+      <div class="div-kicker">Puerta 4</div>
+      <div class="div-name">Contraseñas</div>
+      <div class="div-fn"><span class="d"></span> Lo interno no es "secreto por URL"</div>
+    </div>
+  </div>
+
+  <!-- S13: P4 — el problema -->
+  <div class="slide" id="s13">
+    <div class="pts-title">"Nadie va a encontrar esa URL" <em>no es seguridad</em></div>
+    <div class="case">
+      <div class="case-h"><span class="case-ico">✕</span> El problema, en concreto</div>
+      <div class="case-txt">Compartes por WhatsApp el link de tu dashboard de ventas "para que lo vea el equipo". <b>Ese chat se reenvía, o alguien lo copia a un grupo más grande</b>, y ahora cualquiera con el link ve tus números — sin haber iniciado sesión nunca, porque la página nunca la pidió.</div>
+    </div>
+    <div class="fix"><div class="fix-ico">✓</div><div class="fix-txt">La corrección: <b>contraseña verificada del lado del servidor</b> antes de mostrar cualquier dato. Si la verificación falla, la página no carga la información — no basta con ocultarla en pantalla.</div></div>
+  </div>
+
+  <!-- S14: P4 — el prompt -->
+  <div class="slide" id="s14">
+    <div class="pts-title">El prompt para <em>esta puerta</em></div>
+    <div class="tpl">
+      <div class="tpl-file"><span class="d"></span> Pégalo en cualquier dashboard o panel interno</div>
+      <div class="tpl-prompt">"Este panel es interno. Agrega verificación de contraseña del lado del servidor: si la contraseña no es correcta, la página no debe cargar ningún dato, ni siquiera en el HTML inicial. No lo resuelvas solo ocultando el contenido con CSS o JavaScript del lado del cliente."</div>
+    </div>
+    <div class="caption">La diferencia importa: verificar <b>en el servidor</b> significa que los datos nunca salen si la contraseña falla — no que solo se esconden con estilos.</div>
+  </div>
+
+  <!-- S15: RESUMEN / CHECKLIST -->
+  <div class="slide" id="s15">
+    <div class="tag">Para revisar hoy</div>
+    <div class="headline" style="margin-bottom:28px">Tu checklist antes de <em>publicar</em>.</div>
+    <div class="check">
+      <div class="check-item"><div class="check-ico">1</div>Row Level Security activado en cada tabla nueva</div>
+      <div class="check-item"><div class="check-ico">2</div>Ninguna key sensible en código que corre en el navegador</div>
+      <div class="check-item"><div class="check-ico">3</div>Límite de peticiones en todo endpoint público</div>
+      <div class="check-item"><div class="check-ico">4</div>Contraseña verificada en el servidor para lo interno</div>
+      <div class="check-item"><div class="check-ico">5</div>Los cuatro prompts pedidos antes del primer deploy, no después</div>
+    </div>
+  </div>
+
+  <!-- S16: CIERRE -->
+  <div class="slide" id="s16">
+    <div class="tag">En una línea</div>
+    <div class="headline" style="margin-bottom:28px">La IA construye rápido.<br>La seguridad no es <em>un paso que se salta</em>.</div>
+    <div class="final-quote">Es la pregunta que haces antes de publicar, no el problema que resuelves después del hackeo. Claude cierra la puerta que le pides — no las que da por hecho que ya cerraste tú. <b>Pídesela por su nombre, cada vez.</b></div>
+  </div>
+
+</div>
+
+<div class="dots" id="dots"></div>
+<button class="nav-btn left" id="prevBtn" aria-label="Anterior">‹</button>
+<button class="nav-btn right" id="nextBtn" aria-label="Siguiente">›</button>
+
+<script>
+const slides  = Array.from(document.querySelectorAll('.slide'));
+const dotsEl  = document.getElementById('dots');
+const progress= document.getElementById('progress');
+const counter = document.getElementById('counter');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const total   = slides.length;
+let current = 0, animating = false;
+
+slides.forEach((s, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '') + (s.classList.contains('divider') ? ' div' : '');
+  d.addEventListener('click', () => goTo(i));
+  dotsEl.appendChild(d);
+});
+
+function goTo(idx) {
+  if (animating || idx === current || idx < 0 || idx >= total) return;
+  animating = true;
+  const prev = slides[current];
+  prev.classList.remove('active'); prev.classList.add('exit');
+  current = idx;
+  slides[current].classList.add('active');
+  setTimeout(() => { prev.classList.remove('exit'); animating = false; }, 420);
+  updateUI();
+}
+function navigate(dir) { goTo(current + dir); }
+
+function updateUI() {
+  document.querySelectorAll('.dot').forEach((d, i) => {
+    d.classList.toggle('active', i === current);
+  });
+  progress.style.width = ((current + 1) / total * 100) + '%';
+  counter.textContent  = (current + 1) + ' / ' + total;
+  prevBtn.disabled = current === 0;
+  nextBtn.disabled = current === total - 1;
+}
+
+prevBtn.addEventListener('click', () => navigate(-1));
+nextBtn.addEventListener('click', () => navigate(1));
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); navigate(1); }
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')  { e.preventDefault(); navigate(-1); }
+});
+
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 56) navigate(dx < 0 ? 1 : -1);
+});
+
+updateUI();
+
+/* ── PANTALLA COMPLETA (botón arriba-izquierda + tecla F) ── */
+(function () {
+  const EXPAND   = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m13-5v3a2 2 0 0 1-2 2h-3"/></svg>';
+  const COMPRESS = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3m13-5h-3a2 2 0 0 0-2 2v3"/></svg>';
+  const btn = document.createElement('button');
+  btn.setAttribute('aria-label', 'Pantalla completa');
+  btn.title = 'Pantalla completa (F)';
+  btn.innerHTML = EXPAND;
+  Object.assign(btn.style, {
+    position:'fixed', top:'20px', left:'22px', zIndex:'150',
+    width:'46px', height:'46px', padding:'0', borderRadius:'50%',
+    border:'1px solid #BFE3E0', background:'#FFFFFF',
+    color:'#0A7A76', cursor:'pointer',
+    display:'flex', alignItems:'center', justifyContent:'center',
+    boxShadow:'0 6px 18px -6px rgba(14,165,160,.45)',
+    transition:'transform .18s, box-shadow .18s, background .18s, color .18s'
+  });
+  const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
+  function refresh() {
+    const on = !!fsEl();
+    btn.innerHTML = on ? COMPRESS : EXPAND;
+    btn.style.background = on ? '#0A7A76' : '#FFFFFF';
+    btn.style.color = on ? '#FFFFFF' : '#0A7A76';
+  }
+  function toggle() {
+    try {
+      if (fsEl()) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); }
+      else { const el = document.documentElement; (el.requestFullscreen || el.webkitRequestFullscreen).call(el); }
+    } catch (err) { console.warn('Fullscreen no disponible:', err); }
+  }
+  btn.addEventListener('mouseenter', () => { btn.style.transform = 'scale(1.06)'; btn.style.boxShadow = '0 10px 26px -8px rgba(14,165,160,.6)'; });
+  btn.addEventListener('mouseleave', () => { btn.style.transform = 'scale(1)'; btn.style.boxShadow = '0 6px 18px -6px rgba(14,165,160,.45)'; });
+  btn.addEventListener('click', toggle);
+  document.addEventListener('fullscreenchange', refresh);
+  document.addEventListener('webkitfullscreenchange', refresh);
+  document.addEventListener('keydown', e => {
+    if (e.key && e.key.toLowerCase() === 'f' && !e.metaKey && !e.ctrlKey && !e.altKey) { e.preventDefault(); toggle(); }
+  });
+  document.body.appendChild(btn);
+})();
+</script>
+</body>
+</html>
