@@ -172,12 +172,13 @@ html, body {
   <!-- S2: MAPA -->
   <div class="slide" id="s2">
     <div class="tag acc">El mapa de hoy</div>
-    <div class="headline" style="margin-bottom:24px">Cuatro puertas, el <em>ejemplo</em> y el <em>prompt</em> para cada una.</div>
+    <div class="headline" style="margin-bottom:24px">Cinco puertas, el <em>ejemplo</em> y el <em>prompt</em> para cada una.</div>
     <div class="map">
       <div class="map-row"><div class="map-n">1</div><div class="map-name">Bases de datos</div><div class="map-fn">Que nadie más pueda <b>leerlas ni borrarlas</b></div></div>
       <div class="map-row"><div class="map-n">2</div><div class="map-name">API keys</div><div class="map-fn">Que vivan en el servidor, <b>nunca en el navegador</b></div></div>
       <div class="map-row"><div class="map-n">3</div><div class="map-name">Límite de peticiones</div><div class="map-fn">Que nadie pueda <b>saturarte o vaciarte la cuenta</b></div></div>
       <div class="map-row"><div class="map-n">4</div><div class="map-name">Contraseñas</div><div class="map-fn">Que lo interno no sea <b>"secreto por URL"</b></div></div>
+      <div class="map-row"><div class="map-n">5</div><div class="map-name">El repo en GitHub</div><div class="map-fn">Que el <b>.env no viaje</b> con tu primer commit</div></div>
     </div>
     <div class="caption">Cada puerta va igual: <b>el ejemplo real del problema</b> → <b>el prompt exacto</b> para pedirle a Claude que la cierre.</div>
   </div>
@@ -310,8 +311,40 @@ html, body {
     <div class="caption">La diferencia importa: verificar <b>en el servidor</b> significa que los datos nunca salen si la contraseña falla — no que solo se esconden con estilos.</div>
   </div>
 
-  <!-- S15: RESUMEN / CHECKLIST -->
-  <div class="slide" id="s15">
+  <!-- ══════════ PUERTA 5 — EL REPO EN GITHUB ══════════ -->
+
+  <!-- S15: DIVIDER — P5 -->
+  <div class="slide divider" id="s15">
+    <div class="div-ghost">5</div>
+    <div class="div-inner">
+      <div class="div-kicker">Puerta 5</div>
+      <div class="div-name">El repo en<br>GitHub</div>
+      <div class="div-fn"><span class="d"></span> La que es más común que las otras cuatro</div>
+    </div>
+  </div>
+
+  <!-- S16: P5 — el problema -->
+  <div class="slide" id="s16">
+    <div class="pts-title">Un buen candado no sirve si <em>la llave va en la caja</em></div>
+    <div class="case">
+      <div class="case-h"><span class="case-ico">✕</span> El problema, en concreto</div>
+      <div class="case-txt">Haces el primer commit antes de que el <code style="font-family:inherit">.gitignore</code> esté listo, o pegas el <code style="font-family:inherit">.env</code> "solo para probar" en un repo que después haces público. <b>Todas las keys de las otras cuatro puertas quedan en el historial de GitHub</b> — aunque el código en producción esté perfecto. Y borrarlas del archivo hoy no las borra del historial de ayer.</div>
+    </div>
+    <div class="fix"><div class="fix-ico">✓</div><div class="fix-txt"><b>.env</b> en el <code style="font-family:inherit">.gitignore</code> desde antes del primer commit. Si ya se subió algo sensible, la corrección no es borrarlo — es <b>rotar esa credencial</b> (generar una nueva y desactivar la vieja).</div></div>
+  </div>
+
+  <!-- S17: P5 — el prompt -->
+  <div class="slide" id="s17">
+    <div class="pts-title">El prompt para <em>esta puerta</em></div>
+    <div class="tpl">
+      <div class="tpl-file"><span class="d"></span> Pégalo antes del primer commit — y si ya hiciste push, hoy mismo</div>
+      <div class="tpl-prompt">"Antes de mi primer commit, confirma que .env, .env.local y cualquier archivo con credenciales están en .gitignore. Revisa si ya hice algún commit que incluya alguno de esos archivos. Si encuentras que ya se subió un secreto, dime exactamente cuál y qué credencial tengo que rotar — no basta con borrarlo del archivo o del .gitignore ahora."</div>
+    </div>
+    <div class="caption">Esta es la puerta que más se abre por accidente, no por ignorancia: <b>casi nadie la revisa</b> porque asume que "ya está en .gitignore".</div>
+  </div>
+
+  <!-- S18: RESUMEN / CHECKLIST -->
+  <div class="slide" id="s18">
     <div class="tag">Para revisar hoy</div>
     <div class="headline" style="margin-bottom:28px">Tu checklist antes de <em>publicar</em>.</div>
     <div class="check">
@@ -319,12 +352,13 @@ html, body {
       <div class="check-item"><div class="check-ico">2</div>Ninguna key sensible en código que corre en el navegador</div>
       <div class="check-item"><div class="check-ico">3</div>Límite de peticiones en todo endpoint público</div>
       <div class="check-item"><div class="check-ico">4</div>Contraseña verificada en el servidor para lo interno</div>
-      <div class="check-item"><div class="check-ico">5</div>Los cuatro prompts pedidos antes del primer deploy, no después</div>
+      <div class="check-item"><div class="check-ico">5</div>.env fuera del repo desde el primer commit — y credenciales rotadas si ya se subió alguna</div>
+      <div class="check-item"><div class="check-ico">6</div>Los cinco prompts pedidos antes del primer deploy, no después</div>
     </div>
   </div>
 
-  <!-- S16: CIERRE -->
-  <div class="slide" id="s16">
+  <!-- S19: CIERRE -->
+  <div class="slide" id="s19">
     <div class="tag">En una línea</div>
     <div class="headline" style="margin-bottom:28px">La IA construye rápido.<br>La seguridad no es <em>un paso que se salta</em>.</div>
     <div class="final-quote">Es la pregunta que haces antes de publicar, no el problema que resuelves después del hackeo. Claude cierra la puerta que le pides — no las que da por hecho que ya cerraste tú. <b>Pídesela por su nombre, cada vez.</b></div>
