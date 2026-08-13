@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cómo hacer que la IA analice tus ventas</title>
+<meta name="description" content="Instala el grabador, saca el transcript y dale a la IA los cinco prompts que leen tus llamadas de venta.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@600;700&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --paper: #EDEBE3;
+  --paper-2: #E3E0D5;
+  --card: #F7F6F1;
+  --ink: #15140F;
+  --ink-2: #56534A;
+  --ink-3: #8B8779;
+  --rule: #CFCBBC;
+  --rule-soft: #DEDBCF;
+  --rust: #A8431A;
+  --rust-deep: #7C3010;
+  --rust-dim: #F4DED2;
+  --rust-line: #E0BCA6;
+  --mark: rgba(255, 201, 61, .58);
+  --dark: #14130E;
+  --dark-2: #1E1C15;
+  --display: 'Zilla Slab', Georgia, serif;
+  --body: 'Source Sans 3', -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  --ease: cubic-bezier(.4,0,.2,1);
+}
+
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  font-family: var(--body);
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "tnum" 0;
+}
+
+/* grano de imprenta — la capa de materialidad del sistema plano */
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: 300; pointer-events: none;
+  opacity: .32; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.42'/%3E%3C/svg%3E");
+}
+
+/* ── LAYOUT ── */
+.deck { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+.slide {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  justify-content: safe center; align-items: safe center; text-align: center;
+  padding: 3vh 4.5vw; overflow-y: auto; scrollbar-width: none;
+  opacity: 0; transform: translateY(24px);
+  transition: opacity .4s var(--ease), transform .4s var(--ease);
+  pointer-events: none; will-change: opacity, transform;
+}
+.slide.active { opacity: 1; transform: translateY(0); pointer-events: all; }
+.slide.exit   { opacity: 0; transform: translateY(-24px); }
+.slide::-webkit-scrollbar { width: 0; height: 0; }
+
+/* ── CHROME ── */
+.progress-bar { position: fixed; top: 0; left: 0; height: 4px; background: var(--rust); transition: width .4s var(--ease); z-index: 200; }
+.slide-counter {
+  position: fixed; top: 20px; right: 28px; z-index: 100;
+  font-family: var(--mono); font-size: 13px; font-weight: 700;
+  letter-spacing: .04em; color: var(--ink-3); font-variant-numeric: tabular-nums;
+}
+.dots { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; z-index: 100; max-width: 62vw; flex-wrap: wrap; justify-content: center; }
+.dot { width: 7px; height: 7px; border-radius: 1px; background: var(--rule); transition: background .25s, width .25s; cursor: pointer; }
+.dot.active { background: var(--ink); width: 24px; }
+.dot.div { background: var(--rust-line); }
+.dot.div.active { background: var(--rust); }
+.nav-btn {
+  position: fixed; bottom: 18px; z-index: 100;
+  width: 46px; height: 46px; border-radius: 3px;
+  border: 1px solid var(--rule); background: var(--card);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: var(--ink); transition: all .18s; user-select: none; font-family: var(--body);
+  box-shadow: 0 1px 0 var(--rule);
+}
+.nav-btn.left { left: 28px; } .nav-btn.right { right: 28px; }
+.nav-btn:hover { background: var(--ink); color: var(--card); border-color: var(--ink); }
+.nav-btn:disabled { opacity: .22; cursor: not-allowed; }
+
+/* ── ATOMS ── */
+.tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--mono); font-size: 12.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink-2); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+  padding: 7px 2px; margin-bottom: 26px;
+}
+.tag.acc { color: var(--rust-deep); border-color: var(--rust-line); }
+.tag .d { width: 7px; height: 7px; background: var(--rust); }
+
+.headline {
+  font-family: var(--display); font-size: clamp(36px, 5.1vw, 76px); font-weight: 700;
+  letter-spacing: -.02em; line-height: 1.04; margin-bottom: 22px; max-width: 20ch;
+  text-shadow: 0 1px 0 rgba(21,20,15,.07);
+}
+.headline em { font-style: normal; color: var(--rust); }
+.caption { font-size: clamp(18px, 1.9vw, 27px); color: var(--ink-2); line-height: 1.5; margin-top: 26px; max-width: 950px; }
+.caption b { color: var(--rust-deep); font-weight: 700; }
+.pts-title { font-family: var(--display); font-size: clamp(28px, 3.7vw, 52px); font-weight: 700; letter-spacing: -.02em; line-height: 1.07; margin-bottom: 22px; text-shadow: 0 1px 0 rgba(21,20,15,.06); }
+.pts-title em { font-style: normal; color: var(--rust); }
+
+/* ── S1: COVER ── */
+#s1 { background: var(--dark); color: #F3F1E8; }
+#s1::before {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(120% 90% at 78% 4%, rgba(168,67,26,.30) 0%, transparent 58%);
+  pointer-events: none;
+}
+.cover-in { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; }
+.cover-rule { width: 72px; height: 0; border-top: 3px solid var(--rust); border-bottom: 1px solid var(--rust); padding-bottom: 3px; margin-bottom: 36px; }
+.cover-kicker { font-family: var(--mono); font-size: 14px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: #D98A5C; margin-bottom: 24px; }
+.cover-title {
+  font-family: var(--display); font-size: clamp(40px, 5.9vw, 92px); font-weight: 700;
+  letter-spacing: -.032em; line-height: .99; color: #FAF8F0; margin-bottom: 26px; max-width: 17ch;
+  text-shadow: 0 2px 24px rgba(0,0,0,.4);
+}
+.cover-title em { font-style: normal; color: #E0763F; }
+.cover-sub { font-size: clamp(20px, 2.2vw, 31px); color: rgba(243,241,232,.62); max-width: 800px; line-height: 1.45; margin-bottom: 42px; }
+.cover-tag { font-family: var(--mono); font-size: 13px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: rgba(243,241,232,.5); border: 1px solid rgba(243,241,232,.18); padding: 9px 20px; display: inline-block; }
+
+/* ── DIVIDERS ── */
+.slide.divider { background: var(--dark); color: #F3F1E8; overflow: hidden; }
+.div-ghost {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+  font-family: var(--display); font-size: clamp(230px, 40vw, 580px); font-weight: 700; line-height: .78;
+  color: rgba(168,67,26,.26); letter-spacing: -.05em; pointer-events: none; z-index: 0;
+}
+.div-inner { position: relative; z-index: 1; }
+.div-kicker { font-family: var(--mono); font-size: 15px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: #D98A5C; margin-bottom: 16px; }
+.div-name { font-family: var(--display); font-size: clamp(44px, 6.9vw, 106px); font-weight: 700; letter-spacing: -.035em; line-height: .96; margin-bottom: 24px; text-shadow: 0 2px 24px rgba(0,0,0,.4); }
+.div-fn { display: inline-flex; align-items: center; gap: 12px; font-size: clamp(18px, 2vw, 30px); font-weight: 600; color: rgba(243,241,232,.86); border-top: 1px solid rgba(243,241,232,.2); border-bottom: 1px solid rgba(243,241,232,.2); padding: 12px 24px; }
+.div-fn .d { width: 9px; height: 9px; background: var(--rust); flex-shrink: 0; }
+
+/* ══ ELEMENTO FIRMA: EL TRANSCRIPT MARCADO ══ */
+.tx {
+  width: 100%; max-width: 1080px; background: var(--card);
+  border: 1px solid var(--rule); border-left: 4px solid var(--ink);
+  padding: 24px 30px; text-align: left;
+  box-shadow: 0 1px 0 var(--rule-soft), 0 14px 34px -26px rgba(21,20,15,.5);
+}
+.tx-head {
+  display: flex; align-items: center; gap: 12px; padding-bottom: 13px; margin-bottom: 16px;
+  border-bottom: 1px solid var(--rule-soft);
+  font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3);
+}
+.tx-head .rec { width: 8px; height: 8px; border-radius: 50%; background: var(--rust); flex-shrink: 0; }
+.tx-line { display: grid; grid-template-columns: 92px 1fr; gap: 18px; align-items: baseline; margin-bottom: 11px; }
+.tx-line:last-child { margin-bottom: 0; }
+.tx-who { font-family: var(--mono); font-size: clamp(11.5px, 1.15vw, 14px); font-weight: 700; color: var(--ink-3); letter-spacing: .02em; font-variant-numeric: tabular-nums; text-align: right; }
+.tx-who.p { color: var(--rust-deep); }
+.tx-said { font-family: var(--mono); font-size: clamp(13px, 1.42vw, 18px); line-height: 1.62; color: var(--ink); }
+.tx-said mark {
+  background-image: linear-gradient(var(--mark), var(--mark));
+  background-repeat: no-repeat; background-size: 0% 92%; background-position: 0 58%;
+  color: inherit; padding: 0 3px; margin: 0 -3px;
+  transition: background-size .75s cubic-bezier(.3,.8,.3,1);
+  transition-delay: var(--d, .35s);
+}
+.slide.active .tx-said mark { background-size: 100% 92%; }
+@media (prefers-reduced-motion: reduce) { .tx-said mark { transition: none; } }
+
+/* anotación de la IA colgada del transcript */
+.note { width: 100%; max-width: 1080px; margin-top: 14px; display: flex; align-items: flex-start; gap: 14px; text-align: left; }
+.note-ico { width: 30px; height: 30px; background: var(--rust); color: #FBF7F0; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-weight: 700; font-size: 14px; flex-shrink: 0; margin-top: 3px; }
+.note-txt { font-size: clamp(16px, 1.65vw, 22px); line-height: 1.55; color: var(--ink-2); }
+.note-txt b { color: var(--ink); font-weight: 700; }
+
+/* ── TARJETA DE PROMPT ── */
+.tpl { width: 100%; max-width: 1020px; background: var(--dark); padding: 28px 34px; text-align: left; box-shadow: 0 20px 50px -30px rgba(21,20,15,.6); }
+.tpl-file { font-family: var(--mono); font-size: 12.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #D98A5C; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+.tpl-file .d { width: 8px; height: 8px; background: var(--rust); flex-shrink: 0; }
+.tpl-prompt {
+  font-family: var(--mono); font-size: clamp(13px, 1.4vw, 17px); line-height: 1.72; color: #EFEADF;
+  border-left: 2px solid rgba(224,118,63,.55); padding-left: 20px; white-space: pre-line;
+}
+.tpl-prompt b { color: #E0763F; font-weight: 700; }
+.tpl-prompt .fill { color: #FFC93D; }
+
+/* ── LISTAS / MAPA ── */
+.map { display: flex; flex-direction: column; gap: 9px; width: 100%; max-width: 1120px; }
+.map-row { display: grid; grid-template-columns: 54px 1fr 1.3fr; align-items: center; gap: 22px; background: var(--card); border: 1px solid var(--rule); padding: 15px 24px; box-shadow: 0 1px 0 var(--rule-soft); }
+.map-n { width: 42px; height: 42px; background: var(--ink); color: var(--card); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-weight: 700; font-size: 18px; }
+.map-row.hi { border-color: var(--rust-line); background: linear-gradient(180deg, var(--rust-dim), var(--card)); }
+.map-row.hi .map-n { background: var(--rust); }
+.map-name { font-family: var(--display); font-weight: 700; font-size: clamp(19px, 2vw, 29px); letter-spacing: -.01em; text-align: left; }
+.map-fn { color: var(--ink-2); font-size: clamp(15px, 1.55vw, 22px); text-align: left; }
+.map-fn b { color: var(--rust-deep); font-weight: 700; }
+@media(max-width:760px){ .map-row { grid-template-columns: 42px 1fr; } .map-fn { grid-column: 2; } }
+
+/* ── PASOS NUMERADOS ── */
+.steps { display: flex; flex-direction: column; gap: 11px; width: 100%; max-width: 1000px; text-align: left; }
+.step { display: grid; grid-template-columns: 44px 1fr; gap: 18px; align-items: start; }
+.step-n { width: 36px; height: 36px; border: 1px solid var(--ink); color: var(--ink); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-weight: 700; font-size: 15px; flex-shrink: 0; margin-top: 2px; }
+.step-t { font-size: clamp(17px, 1.75vw, 25px); line-height: 1.5; color: var(--ink-2); }
+.step-t b { color: var(--ink); font-weight: 700; }
+.step-t .k { font-family: var(--mono); font-size: .92em; color: var(--rust-deep); font-weight: 700; }
+
+/* ── PLANES ── */
+.plans { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; max-width: 980px; text-align: left; }
+@media(max-width:760px){ .plans { grid-template-columns: 1fr; } }
+.plan { background: var(--card); border: 1px solid var(--rule); padding: 24px 26px; box-shadow: 0 1px 0 var(--rule-soft); }
+.plan.hi { border: 1px solid var(--rust-line); background: linear-gradient(180deg, var(--rust-dim), var(--card)); }
+.plan-n { font-family: var(--mono); font-size: 12.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 8px; }
+.plan.hi .plan-n { color: var(--rust-deep); }
+.plan-p { font-family: var(--display); font-size: clamp(28px, 3.2vw, 44px); font-weight: 700; letter-spacing: -.02em; margin-bottom: 14px; }
+.plan ul { list-style: none; }
+.plan li { font-size: clamp(15px, 1.5vw, 20px); line-height: 1.45; color: var(--ink-2); padding-left: 20px; position: relative; margin-bottom: 7px; }
+.plan li::before { content: ""; position: absolute; left: 0; top: .62em; width: 8px; height: 1px; background: var(--rust); }
+
+/* ── LINK COPIABLE ── */
+.link-box { width: 100%; max-width: 1000px; background: var(--card); border: 1px solid var(--rule); border-top: 3px solid var(--rust); padding: 24px 26px; text-align: left; box-shadow: 0 1px 0 var(--rule-soft), 0 14px 34px -26px rgba(21,20,15,.5); }
+.link-lb { font-family: var(--mono); font-size: 12.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 14px; }
+.link-url { font-family: var(--mono); font-size: clamp(13px, 1.5vw, 19px); line-height: 1.5; color: var(--ink); word-break: break-all; display: block; text-decoration: none; border-bottom: 1px solid var(--rust-line); padding-bottom: 14px; margin-bottom: 16px; }
+.link-url:hover { color: var(--rust-deep); }
+.link-acts { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn { font-family: var(--body); font-size: clamp(15px, 1.5vw, 19px); font-weight: 700; padding: 12px 22px; border: 1px solid var(--ink); background: var(--ink); color: var(--card); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 9px; transition: all .16s; box-shadow: inset 0 1px 0 rgba(255,255,255,.14); }
+.btn:hover { background: var(--rust); border-color: var(--rust); }
+.btn:active { transform: translateY(1px); }
+.btn.ghost { background: transparent; color: var(--ink); box-shadow: none; }
+.btn.ghost:hover { background: var(--ink); color: var(--card); border-color: var(--ink); }
+.btn.done { background: var(--rust); border-color: var(--rust); }
+
+/* ── ESCALERA ── */
+.ladder { display: flex; flex-direction: column; gap: 7px; width: 100%; max-width: 1060px; }
+.rung { display: grid; grid-template-columns: 46px 1fr; gap: 18px; align-items: center; background: var(--card); border: 1px solid var(--rule); padding: 13px 22px; text-align: left; box-shadow: 0 1px 0 var(--rule-soft); }
+.rung-n { width: 34px; height: 34px; background: var(--ink); color: var(--card); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-weight: 700; font-size: 15px; }
+.rung.big { border-color: var(--rust-line); background: linear-gradient(180deg, var(--rust-dim), var(--card)); }
+.rung.big .rung-n { background: var(--rust); }
+.rung-t { font-size: clamp(16px, 1.62vw, 23px); line-height: 1.4; color: var(--ink-2); }
+.rung-t b { font-family: var(--display); color: var(--ink); font-weight: 700; font-size: 1.08em; }
+
+/* ── CIERRE ── */
+.check { display: flex; flex-direction: column; gap: 11px; max-width: 940px; text-align: left; }
+.check-item { display: flex; align-items: center; gap: 16px; font-size: clamp(18px, 1.85vw, 27px); font-weight: 600; }
+.check-ico { width: 40px; height: 40px; background: var(--rust); color: #FBF7F0; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 17px; font-weight: 700; flex-shrink: 0; }
+.final-quote { font-size: clamp(17px, 1.8vw, 25px); color: var(--ink-2); max-width: 880px; line-height: 1.6; text-align: center; padding-top: 22px; border-top: 3px solid var(--rust); }
+.final-quote b { color: var(--ink); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress"></div>
+<div class="slide-counter" id="counter"></div>
+<div class="deck" id="deck">
+
+  <!-- S1: COVER -->
+  <div class="slide active" id="s1">
+    <div class="cover-in">
+      <div class="cover-rule"></div>
+      <div class="cover-kicker">Martes de Estrategia Digital</div>
+      <div class="cover-title">Tus llamadas ya te dijeron <em>por qué no cerraste</em></div>
+      <div class="cover-sub">Están grabadas, transcritas y sin abrir. Hoy instalamos el grabador y le damos a la IA los cinco prompts que las leen por ti.</div>
+      <div class="cover-tag">David Iriza</div>
+    </div>
+  </div>
+
+  <!-- S2: LA TESIS -->
+  <div class="slide" id="s2">
+    <div class="tag"><span class="d"></span> El punto de partida</div>
+    <div class="headline">Haces veinte llamadas al mes y no vuelves a oír <em>ninguna</em>.</div>
+    <div class="caption">Colgaste, anotaste dos cosas en una libreta y pasaste a la siguiente. La llamada donde el prospecto te dijo textualmente qué le faltaba para comprar <b>se borró de tu memoria en cuarenta minutos</b>. Y la de la semana pasada, y la de hace un mes.</div>
+  </div>
+
+  <!-- S3: EL MAPA -->
+  <div class="slide" id="s3">
+    <div class="tag acc"><span class="d"></span> El mapa de hoy</div>
+    <div class="headline" style="margin-bottom:26px">Tres pasos, y el tercero es <em>el que multiplica</em>.</div>
+    <div class="map">
+      <div class="map-row"><div class="map-n">1</div><div class="map-name">Grabar</div><div class="map-fn">Instalar Fathom para que <b>entre solo</b> a tus llamadas</div></div>
+      <div class="map-row"><div class="map-n">2</div><div class="map-name">Sacar el texto</div><div class="map-fn">Copiar el transcript — <b>esa es la materia prima</b></div></div>
+      <div class="map-row hi"><div class="map-n">3</div><div class="map-name">Los cinco prompts</div><div class="map-fn">Del diagnóstico de una llamada al <b>patrón entre veinte</b></div></div>
+    </div>
+    <div class="caption">Nada de esto necesita que sepas programar, ni que pagues una suscripción. <b>Hoy mismo puedes tenerlo corriendo.</b></div>
+  </div>
+
+  <!-- ══════════ PASO 1 — GRABAR ══════════ -->
+
+  <!-- S4: DIVIDER 1 -->
+  <div class="slide divider" id="s4">
+    <div class="div-ghost">1</div>
+    <div class="div-inner">
+      <div class="div-kicker">Paso 1</div>
+      <div class="div-name">Grabar</div>
+      <div class="div-fn"><span class="d"></span> Lo único que se instala una vez</div>
+    </div>
+  </div>
+
+  <!-- S5: QUÉ ES FATHOM -->
+  <div class="slide" id="s5">
+    <div class="pts-title">Un asistente que <em>entra a la junta</em> y toma nota</div>
+    <div class="caption" style="margin-top:0;margin-bottom:28px;max-width:900px">Fathom se conecta a tu calendario y se mete solo a tus llamadas de Zoom, Google Meet o Teams. Graba, transcribe y resume. Vive en <b>fathom.ai</b> — si escribes el viejo fathom.video, te redirige ahí.</div>
+    <div class="plans">
+      <div class="plan hi">
+        <div class="plan-n">Plan gratis · lo que usamos hoy</div>
+        <div class="plan-p">$0</div>
+        <ul>
+          <li>Grabaciones y transcripciones ilimitadas</li>
+          <li>Resumen de IA al terminar la llamada</li>
+          <li>Clips, playlists y búsqueda dentro de la llamada</li>
+        </ul>
+      </div>
+      <div class="plan">
+        <div class="plan-n">Premium · si después lo quieres</div>
+        <div class="plan-p">$20<span style="font-size:.42em;color:var(--ink-3)"> /mes</span></div>
+        <ul>
+          <li>Resúmenes con tu propio formato</li>
+          <li>Tareas y siguientes pasos automáticos</li>
+          <li>Asistente para preguntarle a la llamada</li>
+        </ul>
+      </div>
+    </div>
+    <div class="caption">Para la clase de hoy <b>no hace falta pagar nada</b>. Lo gratis ya te da el transcript, que es todo lo que la IA necesita.</div>
+  </div>
+
+  <!-- S6: INSTALACIÓN -->
+  <div class="slide" id="s6">
+    <div class="pts-title">Cuatro pasos, <em>seis minutos</em></div>
+    <div class="steps">
+      <div class="step"><div class="step-n">1</div><div class="step-t">Entra a <span class="k">fathom.ai</span> y crea la cuenta con <b>el correo con el que agendas</b> — el de Google o Microsoft que ya usas para tus juntas.</div></div>
+      <div class="step"><div class="step-n">2</div><div class="step-t"><b>Conecta el calendario.</b> Este es el paso que hace que todo lo demás sea automático: Fathom lee tus juntas y se mete solo a las que tienen liga.</div></div>
+      <div class="step"><div class="step-n">3</div><div class="step-t">Elige cómo graba: <b>con bot</b> (aparece como un participante más en la llamada) o sin él. Con bot es lo que recomiendo — se ve, y eso te ahorra la conversación incómoda.</div></div>
+      <div class="step"><div class="step-n">4</div><div class="step-t"><b>Pruébalo ahora</b> con una llamada de dos minutos contigo mismo. No esperes a tu próximo prospecto para descubrir que algo faltaba.</div></div>
+    </div>
+    <div class="caption">Funciona en <b>Zoom, Google Meet y Microsoft Teams</b>. Si vendes por esos tres, ya está cubierto.</div>
+  </div>
+
+  <!-- S7: AVISAR -->
+  <div class="slide" id="s7">
+    <div class="pts-title">Avisa que estás grabando. <em>Siempre.</em></div>
+    <div class="caption" style="margin-top:0;max-width:900px">No es solo por la ley — es que el prospecto lo va a ver de todos modos cuando el bot entre a la sala. Decirlo tú primero, en una línea, sale gratis:</div>
+    <div class="tx" style="max-width:920px;margin-top:22px">
+      <div class="tx-head"><span class="rec"></span> Cómo se dice</div>
+      <div class="tx-line">
+        <div class="tx-who p">TÚ</div>
+        <div class="tx-said">Antes de empezar: <mark style="--d:.4s">grabo la llamada para no tomar notas y poner atención completa</mark>. Si en algún momento prefieres que la pare, me dices.</div>
+      </div>
+    </div>
+    <div class="note"><div class="note-ico">!</div><div class="note-txt">Nadie ha dicho nunca que no. Y el que lo dice, te acaba de dar <b>información sobre cómo es trabajar con él.</b></div></div>
+  </div>
+
+  <!-- ══════════ PASO 2 — EL TRANSCRIPT ══════════ -->
+
+  <!-- S8: DIVIDER 2 -->
+  <div class="slide divider" id="s8">
+    <div class="div-ghost">2</div>
+    <div class="div-inner">
+      <div class="div-kicker">Paso 2</div>
+      <div class="div-name">Sacar<br>el texto</div>
+      <div class="div-fn"><span class="d"></span> La materia prima de todo lo demás</div>
+    </div>
+  </div>
+
+  <!-- S9: LA LLAMADA DE EJEMPLO -->
+  <div class="slide" id="s9">
+    <div class="pts-title">Practiquemos con <em>esta llamada</em></div>
+    <div class="link-box">
+      <div class="link-lb">Llamada de ejemplo · ábrela en otra pestaña</div>
+      <a class="link-url" id="demoLink" href="https://fathom.video/share/Dwc4C-m1qqeA67ivzrtbFjRG1cxH41tB" target="_blank" rel="noopener">https://fathom.video/share/Dwc4C-m1qqeA67ivzrtbFjRG1cxH41tB</a>
+      <div class="link-acts">
+        <a class="btn" href="https://fathom.video/share/Dwc4C-m1qqeA67ivzrtbFjRG1cxH41tB" target="_blank" rel="noopener">Abrir la llamada ↗</a>
+        <button class="btn ghost" id="copyBtn" type="button">Copiar la liga</button>
+      </div>
+    </div>
+    <div class="caption" style="max-width:1000px">Dentro de la llamada, el panel de la derecha tiene la pestaña <b>Transcript</b>. Ahí está el botón de copiar. Eso — el texto completo, con quién habló y en qué minuto — <b>es lo que se pega en Claude.</b></div>
+  </div>
+
+  <!-- S10: QUÉ ES UN TRANSCRIPT — ELEMENTO FIRMA -->
+  <div class="slide" id="s10">
+    <div class="pts-title">Esto es lo que la IA <em>sí puede leer</em></div>
+    <div class="tx">
+      <div class="tx-head"><span class="rec"></span> Transcript · ejemplo</div>
+      <div class="tx-line"><div class="tx-who">00:04:12</div><div class="tx-said">…entonces el equipo son cuatro personas y ahorita todo lo llevamos en una hoja de cálculo.</div></div>
+      <div class="tx-line"><div class="tx-who p">TÚ</div><div class="tx-said">Perfecto. Te platico cómo funciona nuestra plataforma, tiene tres módulos…</div></div>
+      <div class="tx-line"><div class="tx-who">00:11:47</div><div class="tx-said">Oye sí, <mark style="--d:.35s">yo lo veo bien, nada más que la decisión no la tomo yo solo</mark>, la vería con mi socio.</div></div>
+      <div class="tx-line"><div class="tx-who p">TÚ</div><div class="tx-said">Claro, claro. Entonces te mando la propuesta y quedamos pendientes.</div></div>
+      <div class="tx-line"><div class="tx-who">00:19:03</div><div class="tx-said">Va. <mark style="--d:1.05s">Déjame lo checo y yo te busco</mark>.</div></div>
+    </div>
+    <div class="note"><div class="note-ico">→</div><div class="note-txt">Un humano lee esto y ve una llamada normal. La IA ve <b>una objeción de autoridad en el minuto 11 que nunca se atendió</b> — y un cierre que quedó en manos del prospecto.</div></div>
+  </div>
+
+  <!-- ══════════ PASO 3 — LOS PROMPTS ══════════ -->
+
+  <!-- S11: DIVIDER 3 -->
+  <div class="slide divider" id="s11">
+    <div class="div-ghost">3</div>
+    <div class="div-inner">
+      <div class="div-kicker">Paso 3</div>
+      <div class="div-name">Los cinco<br>prompts</div>
+      <div class="div-fn"><span class="d"></span> En escalera: cada uno usa el anterior</div>
+    </div>
+  </div>
+
+  <!-- S12: PROMPT 1 -->
+  <div class="slide" id="s12">
+    <div class="pts-title">Prompt 1 — <em>El diagnóstico</em></div>
+    <div class="tpl">
+      <div class="tpl-file"><span class="d"></span> Pégalo con el transcript de una sola llamada</div>
+      <div class="tpl-prompt">Eres un analista de ventas consultivas. Te paso el transcript de una llamada de ventas real. Analízala y dame:
+
+<b>1.</b> Qué vendía y a quién, en una línea.
+<b>2.</b> La línea de tiempo en bloques (apertura, diagnóstico, presentación, precio, cierre) con el minuto donde empieza cada uno.
+<b>3.</b> Qué porcentaje habló el vendedor y qué porcentaje el prospecto.
+<b>4.</b> Las 3 mejores preguntas que hizo el vendedor, citadas textual.
+<b>5.</b> Las 3 preguntas que debió hacer y no hizo, y en qué momento cabían.
+<b>6.</b> La temperatura del prospecto al inicio y al final, justificada con una cita.
+
+Regla: todo lo que afirmes va respaldado con cita textual del transcript. Si algo no está, di "no aparece en la llamada". No inventes.
+
+TRANSCRIPT: <span class="fill">[pegar aquí]</span></div>
+    </div>
+    <div class="caption">El número que duele es el 3. <b>Si hablaste más de la mitad de la llamada, no diagnosticaste: presentaste.</b></div>
+  </div>
+
+  <!-- S13: PROMPT 2 -->
+  <div class="slide" id="s13">
+    <div class="pts-title">Prompt 2 — <em>El inventario de objeciones</em></div>
+    <div class="tpl">
+      <div class="tpl-file"><span class="d"></span> Sobre el mismo transcript, en el mismo chat</div>
+      <div class="tpl-prompt">Del mismo transcript, extrae TODAS las objeciones, dudas y frenos del prospecto — incluyendo los suaves y disfrazados: "déjame pensarlo", "lo tengo que ver con mi socio", "está interesante", los silencios largos después del precio.
+
+Dame una tabla con: la cita textual, el minuto, qué hay debajo realmente, cómo respondió el vendedor, qué tan bien la resolvió del 1 al 5, y la mejor respuesta posible.
+
+En "qué hay debajo": distingue si es <b>dinero, tiempo, confianza, prioridad o autoridad para decidir</b>. Son cinco cosas distintas y se responden distinto.
+
+En "mejor respuesta": escríbela como se diría en voz alta, en el tono de este vendedor. Máximo 3 líneas.</div>
+    </div>
+    <div class="caption">"Déjame pensarlo" no es una objeción. Es <b>la envoltura de otra que no te dijo</b> — y la IA sí distingue cuál.</div>
+  </div>
+
+  <!-- S14: PROMPT 3 -->
+  <div class="slide" id="s14">
+    <div class="pts-title">Prompt 3 — <em>La autopsia</em></div>
+    <div class="tpl">
+      <div class="tpl-file"><span class="d"></span> El que encuentra el minuto exacto donde se cayó</div>
+      <div class="tpl-prompt">Del mismo transcript, encuentra EL MOMENTO EXACTO donde la llamada cambió de dirección: el punto donde el prospecto se enfrió, se cerró o dejó de ser el que empujaba.
+
+Dame:
+<b>·</b> El minuto y la cita textual de ese momento.
+<b>·</b> Qué venía pasando justo antes.
+<b>·</b> Qué hizo o dijo el vendedor que lo provocó.
+<b>·</b> Las señales que el vendedor no vio.
+<b>·</b> Los 3 caminos que tenía ahí y qué habría pasado con cada uno.
+<b>·</b> Reescribe esos 60 segundos completos, diálogo línea por línea, como debió haber sido.
+
+Si la llamada nunca se enfrió, dilo, y señala en su lugar el momento donde se ganó.</div>
+    </div>
+    <div class="caption">Este es el que incomoda. Vas a reconocer <b>el momento donde también se te cae a ti</b>, llamada tras llamada.</div>
+  </div>
+
+  <!-- S15: PROMPT 4 -->
+  <div class="slide" id="s15">
+    <div class="pts-title">Prompt 4 — <em>El patrón</em></div>
+    <div class="tpl">
+      <div class="tpl-file"><span class="d"></span> Aquí es donde deja de ser una lección y se vuelve un sistema</div>
+      <div class="tpl-prompt">Te paso los transcripts de varias llamadas. Te indico cuáles cerraron y cuáles no. <b>No las analices una por una: busca el patrón.</b>
+
+<b>1.</b> ¿Qué hacen diferente las que cerraron? Sé concreto: no me digas "hubo más rapport", dime qué se dijo, en qué minuto y con qué palabras.
+<b>2.</b> ¿Cuáles son las 5 objeciones más repetidas y en qué minuto suelen aparecer?
+<b>3.</b> ¿Hay un patrón de duración o de orden de los temas que separe a las que cierran?
+<b>4.</b> ¿Qué pregunta aparece en las ganadas y NO en las perdidas?
+<b>5.</b> ¿Qué frase aparece en las perdidas y NO en las ganadas?
+
+Termina con las 3 cosas que debo cambiar mañana, por impacto, cada una con su evidencia.
+
+<span class="fill">--- LLAMADA 1 — CERRÓ ---</span>
+<span class="fill">--- LLAMADA 2 — NO CERRÓ ---</span></div>
+    </div>
+    <div class="caption">Con cinco llamadas ya salen patrones. Con quince, <b>salen patrones en los que puedes apostar presupuesto.</b></div>
+  </div>
+
+  <!-- S16: PROMPT 5 -->
+  <div class="slide" id="s16">
+    <div class="pts-title">Prompt 5 — <em>Convertirlo en material</em></div>
+    <div class="tpl">
+      <div class="tpl-file"><span class="d"></span> El análisis que no se vuelve material, no sirve</div>
+      <div class="tpl-prompt">Con base en todo el análisis anterior, constrúyeme cuatro cosas. Usa las palabras reales de los prospectos siempre que puedas: quiero que suene a cómo hablan ellos, no a cómo hablo yo.
+
+<b>1. Guion de diagnóstico.</b> Las 10 preguntas que debería hacer siempre, en orden, con para qué sirve cada una.
+<b>2. Manual de objeciones.</b> Cada una con qué significa de verdad, la respuesta corta de 2 líneas y la pregunta que la devuelve.
+<b>3. Lista de verificación pre-cierre.</b> Qué debe cumplirse ANTES de decir el precio, sacado de las llamadas que sí cerraron.
+<b>4. Materia prima de marketing.</b> Las 10 frases textuales que sirven como copy, los 3 dolores más repetidos en sus palabras, y las 3 objeciones que conviene contestar en el anuncio para que ya no lleguen a la llamada.
+
+Nada inventado: todo sale de los transcripts.</div>
+    </div>
+    <div class="caption">El punto 4 es el que casi nadie ve: <b>el transcript de ventas es la mejor fuente de copy que vas a encontrar.</b> Ahí está tu mercado hablando solo.</div>
+  </div>
+
+  <!-- S17: LA ESCALERA -->
+  <div class="slide" id="s17">
+    <div class="tag acc"><span class="d"></span> Los cinco, de un vistazo</div>
+    <div class="headline" style="margin-bottom:24px">Cada peldaño <em>se para sobre el anterior</em>.</div>
+    <div class="ladder">
+      <div class="rung"><div class="rung-n">1</div><div class="rung-t"><b>Diagnóstico.</b> Qué pasó en la llamada, minuto por minuto.</div></div>
+      <div class="rung"><div class="rung-n">2</div><div class="rung-t"><b>Objeciones.</b> Qué te frenó de verdad, debajo de lo que te dijeron.</div></div>
+      <div class="rung"><div class="rung-n">3</div><div class="rung-t"><b>Autopsia.</b> El minuto exacto donde se cayó, reescrito.</div></div>
+      <div class="rung big"><div class="rung-n">4</div><div class="rung-t"><b>Patrón.</b> Qué separa a las que cierran de las que no. <span style="color:var(--rust-deep);font-weight:700">Aquí multiplicas.</span></div></div>
+      <div class="rung"><div class="rung-n">5</div><div class="rung-t"><b>Material.</b> Guion, manual de objeciones, checklist y copy para anuncios.</div></div>
+    </div>
+    <div class="caption">Los tres primeros los corres sobre una llamada. El cuarto necesita varias — <b>por eso hoy instalas el grabador y no la próxima semana.</b></div>
+  </div>
+
+  <!-- S18: TAREA -->
+  <div class="slide" id="s18">
+    <div class="tag"><span class="d"></span> Para hacer esta semana</div>
+    <div class="headline" style="margin-bottom:28px">Tres cosas, y el lunes <em>ya tienes patrón</em>.</div>
+    <div class="check">
+      <div class="check-item"><div class="check-ico">1</div>Instalar Fathom hoy y conectarle el calendario</div>
+      <div class="check-item"><div class="check-ico">2</div>Correr los prompts 1, 2 y 3 sobre la llamada de ejemplo</div>
+      <div class="check-item"><div class="check-ico">3</div>Grabar tus próximas 5 llamadas y el lunes correr el prompt 4</div>
+    </div>
+    <div class="caption">Si solo haces la 1, ya ganaste: <b>a partir de hoy tus llamadas dejan de evaporarse.</b></div>
+  </div>
+
+  <!-- S19: CIERRE -->
+  <div class="slide" id="s19">
+    <div class="tag"><span class="d"></span> En una línea</div>
+    <div class="headline" style="margin-bottom:28px">Ya tenías las llamadas.<br>Te faltaba <em>quien las oyera todas</em>.</div>
+    <div class="final-quote">Nadie vuelve a escuchar una llamada de hace tres semanas. La IA sí, y además escucha las veinte juntas, que es donde está lo que una sola nunca te va a enseñar. <b>Tú ya hiciste el trabajo caro: hablar con la gente.</b></div>
+  </div>
+
+</div>
+
+<div class="dots" id="dots"></div>
+<button class="nav-btn left" id="prevBtn" aria-label="Anterior">‹</button>
+<button class="nav-btn right" id="nextBtn" aria-label="Siguiente">›</button>
+
+<script>
+const slides  = Array.from(document.querySelectorAll('.slide'));
+const dotsEl  = document.getElementById('dots');
+const progress= document.getElementById('progress');
+const counter = document.getElementById('counter');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const total   = slides.length;
+let current = 0, animating = false;
+
+slides.forEach((s, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '') + (s.classList.contains('divider') ? ' div' : '');
+  d.addEventListener('click', () => goTo(i));
+  dotsEl.appendChild(d);
+});
+
+function goTo(idx) {
+  if (animating || idx === current || idx < 0 || idx >= total) return;
+  animating = true;
+  const prev = slides[current];
+  prev.classList.remove('active'); prev.classList.add('exit');
+  current = idx;
+  slides[current].classList.add('active');
+  setTimeout(() => { prev.classList.remove('exit'); animating = false; }, 420);
+  updateUI();
+}
+function navigate(dir) { goTo(current + dir); }
+
+function updateUI() {
+  document.querySelectorAll('.dot').forEach((d, i) => {
+    d.classList.toggle('active', i === current);
+  });
+  progress.style.width = ((current + 1) / total * 100) + '%';
+  counter.textContent  = (current + 1) + ' / ' + total;
+  prevBtn.disabled = current === 0;
+  nextBtn.disabled = current === total - 1;
+}
+
+prevBtn.addEventListener('click', () => navigate(-1));
+nextBtn.addEventListener('click', () => navigate(1));
+
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'BUTTON' && e.key === ' ') return;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); navigate(1); }
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')  { e.preventDefault(); navigate(-1); }
+});
+
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 56) navigate(dx < 0 ? 1 : -1);
+});
+
+updateUI();
+
+/* ── COPIAR LA LIGA DE LA LLAMADA ── */
+(function () {
+  const btn = document.getElementById('copyBtn');
+  const url = document.getElementById('demoLink').href;
+  if (!btn) return;
+  btn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch (err) {
+      const ta = document.createElement('textarea');
+      ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch (e2) { console.warn('No se pudo copiar:', e2); }
+      document.body.removeChild(ta);
+    }
+    btn.textContent = 'Copiada ✓';
+    btn.classList.add('done');
+    setTimeout(() => { btn.textContent = 'Copiar la liga'; btn.classList.remove('done'); }, 2200);
+  });
+})();
+
+/* ── PANTALLA COMPLETA (botón arriba-izquierda + tecla F) ── */
+(function () {
+  const EXPAND   = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m13-5v3a2 2 0 0 1-2 2h-3"/></svg>';
+  const COMPRESS = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3m13-5h-3a2 2 0 0 0-2 2v3"/></svg>';
+  const btn = document.createElement('button');
+  btn.setAttribute('aria-label', 'Pantalla completa');
+  btn.title = 'Pantalla completa (F)';
+  btn.innerHTML = EXPAND;
+  Object.assign(btn.style, {
+    position:'fixed', top:'20px', left:'22px', zIndex:'150',
+    width:'46px', height:'46px', padding:'0', borderRadius:'3px',
+    border:'1px solid #CFCBBC', background:'#F7F6F1',
+    color:'#7C3010', cursor:'pointer',
+    display:'flex', alignItems:'center', justifyContent:'center',
+    boxShadow:'0 1px 0 #DEDBCF',
+    transition:'transform .18s, background .18s, color .18s, border-color .18s'
+  });
+  const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
+  function refresh() {
+    const on = !!fsEl();
+    btn.innerHTML = on ? COMPRESS : EXPAND;
+    btn.style.background = on ? '#7C3010' : '#F7F6F1';
+    btn.style.color = on ? '#F7F6F1' : '#7C3010';
+    btn.style.borderColor = on ? '#7C3010' : '#CFCBBC';
+  }
+  function toggle() {
+    try {
+      if (fsEl()) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); }
+      else { const el = document.documentElement; (el.requestFullscreen || el.webkitRequestFullscreen).call(el); }
+    } catch (err) { console.warn('Fullscreen no disponible:', err); }
+  }
+  btn.addEventListener('mouseenter', () => { btn.style.transform = 'scale(1.06)'; });
+  btn.addEventListener('mouseleave', () => { btn.style.transform = 'scale(1)'; });
+  btn.addEventListener('click', toggle);
+  document.addEventListener('fullscreenchange', refresh);
+  document.addEventListener('webkitfullscreenchange', refresh);
+  document.addEventListener('keydown', e => {
+    if (e.key && e.key.toLowerCase() === 'f' && !e.metaKey && !e.ctrlKey && !e.altKey) { e.preventDefault(); toggle(); }
+  });
+  document.body.appendChild(btn);
+})();
+</script>
+</body>
+</html>
