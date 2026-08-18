@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Investigación de mercado con IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #FAFAFD;
+  --fg: #16141F;
+  --dark: #14101F;
+  --mid: #6B6478;
+  --light: #E7E3EF;
+  --lighter: #F5F3FA;
+  --accent: #6C5CE7;
+  --accent-deep: #4B3FC0;
+  --accent-dim: #EDE9FE;
+  --white: #FFFFFF;
+  --danger: #E25555;
+  --danger-dim: #FCE7E7;
+  --font: 'Inter', -apple-system, sans-serif;
+  --ease: cubic-bezier(.4,0,.2,1);
+}
+
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── LAYOUT ── */
+.deck { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+.slide {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  justify-content: safe center; align-items: safe center; text-align: center;
+  padding: 3vh 4.5vw; overflow-y: auto; scrollbar-width: none;
+  opacity: 0; transform: translateY(28px);
+  transition: opacity .4s var(--ease), transform .4s var(--ease);
+  pointer-events: none; will-change: opacity, transform;
+}
+.slide.active { opacity: 1; transform: translateY(0); pointer-events: all; }
+.slide.exit   { opacity: 0; transform: translateY(-28px); }
+.slide::-webkit-scrollbar { width: 0; height: 0; }
+.centered { align-items: safe center; text-align: center; justify-content: safe center; }
+
+/* ── CHROME ── */
+.progress-bar {
+  position: fixed; top: 0; left: 0; height: 4px;
+  background: var(--accent); transition: width .4s var(--ease); z-index: 200;
+}
+.slide-counter {
+  position: fixed; top: 20px; right: 28px;
+  font-size: 14px; font-weight: 700; letter-spacing: .08em; color: var(--mid); z-index: 100;
+}
+.dots {
+  position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 6px; z-index: 100; max-width: 64vw; flex-wrap: wrap; justify-content: center;
+}
+.dot { width: 7px; height: 7px; border-radius: 3.5px; background: var(--light); transition: background .25s, width .25s; cursor: pointer; }
+.dot.active { background: var(--fg); width: 24px; }
+.dot.div { background: #D6CCF2; }
+.dot.div.active { background: var(--accent); }
+.nav-btn {
+  position: fixed; bottom: 18px; z-index: 100;
+  width: 46px; height: 46px; border-radius: 50%;
+  border: 1px solid var(--light); background: var(--white);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: var(--fg); transition: all .18s; user-select: none; font-family: var(--font);
+}
+.nav-btn.left { left: 28px; } .nav-btn.right { right: 28px; }
+.nav-btn:hover { background: var(--fg); color: var(--white); border-color: var(--fg); }
+.nav-btn:disabled { opacity: .2; cursor: not-allowed; }
+
+/* ── ATOMS ── */
+.tag {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 15px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--mid); border: 1px solid var(--light);
+  padding: 9px 20px; border-radius: 100px; margin-bottom: 24px;
+}
+.tag.acc { color: var(--accent-deep); border-color: #D6CCF2; background: var(--accent-dim); }
+.headline { font-size: clamp(38px, 5.4vw, 82px); font-weight: 800; letter-spacing: -.035em; line-height: 1.02; margin-bottom: 24px; }
+.headline em { font-style: normal; color: var(--accent); }
+.caption { font-size: clamp(19px, 2vw, 30px); color: var(--mid); line-height: 1.45; margin-top: 28px; max-width: 1000px; }
+.caption b { color: var(--accent-deep); font-weight: 700; }
+
+/* ── S1: COVER ── */
+#s1 { background: radial-gradient(115% 100% at 82% 0%, #2B2050 0%, var(--dark) 58%); color: var(--white); }
+.cover-rule { width: 64px; height: 5px; background: var(--accent); margin-bottom: 40px; }
+.cover-kicker { font-size: 16px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); margin-bottom: 22px; }
+.cover-title { font-size: clamp(42px, 6.6vw, 100px); font-weight: 900; letter-spacing: -.05em; line-height: .94; color: var(--white); margin-bottom: 26px; max-width: 16ch; }
+.cover-title em { font-style: normal; color: var(--accent); }
+.cover-sub { font-size: clamp(21px, 2.3vw, 34px); font-weight: 400; color: rgba(255,255,255,.6); max-width: 740px; line-height: 1.45; margin-bottom: 42px; }
+.cover-tag { font-size: 15px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.45); border: 1px solid rgba(255,255,255,.16); padding: 9px 22px; border-radius: 100px; display: inline-block; }
+
+/* ── S2: MANTRA ── */
+#s2 { background: radial-gradient(120% 110% at 50% 0%, #291F4D 0%, var(--dark) 60%); color: var(--white); }
+.mantra-kicker { font-size: 17px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); margin-bottom: 28px; }
+.mantra { font-size: clamp(34px, 4.6vw, 72px); font-weight: 800; letter-spacing: -.03em; line-height: 1.12; max-width: 21ch; color: var(--white); }
+.mantra em { font-style: normal; color: var(--accent); }
+.mantra-sub { font-size: clamp(19px, 2vw, 30px); color: rgba(255,255,255,.6); line-height: 1.5; margin-top: 34px; max-width: 780px; }
+.mantra-sub b { color: var(--white); font-weight: 700; }
+
+/* ── MAPA (ORIGEN) ── */
+.map { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 1160px; }
+.map-row { display: grid; grid-template-columns: 220px 1fr; align-items: center; gap: 24px; background: var(--white); border: 1px solid var(--light); border-radius: 16px; padding: 19px 28px; box-shadow: 0 6px 20px -12px rgba(108,92,231,.16); }
+.map-name { font-weight: 800; font-size: clamp(20px, 2.1vw, 30px); letter-spacing: -.01em; text-align: left; color: var(--accent-deep); }
+.map-fn { color: var(--mid); font-size: clamp(16px, 1.6vw, 23px); text-align: left; line-height: 1.4; }
+.map-fn b { color: var(--fg); font-weight: 700; }
+@media(max-width:720px){ .map-row { grid-template-columns: 1fr; gap: 6px; } }
+
+/* ── VS CARDS ── */
+.vs { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; width: 100%; max-width: 1160px; margin-top: 6px; }
+.vs-card { background: var(--white); border: 1px solid var(--light); border-radius: 22px; padding: 30px 36px 34px; box-shadow: 0 10px 30px -18px rgba(108,92,231,.2); text-align: left; }
+.vs-card.dim { background: var(--lighter); }
+.vs-card.acc { border-color: #D6CCF2; background: linear-gradient(180deg, var(--accent-dim), var(--white)); }
+.vs-card.dark { background: var(--dark); border-color: var(--dark); }
+.vs-card.dark .vs-h { color: var(--white); }
+.vs-card.dark .vs-p { color: rgba(255,255,255,.62); }
+.vs-card.dark .vs-k { color: var(--accent); }
+.vs-k { font-size: 15px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--mid); margin-bottom: 16px; }
+.vs-card.acc .vs-k { color: var(--accent-deep); }
+.vs-h { font-size: clamp(26px, 2.8vw, 40px); font-weight: 800; letter-spacing: -.02em; margin-bottom: 16px; line-height: 1.1; }
+.vs-p { font-size: clamp(18px, 1.8vw, 25px); color: var(--mid); line-height: 1.55; }
+.vs-p b { color: var(--accent-deep); }
+@media(max-width:720px){ .vs { grid-template-columns: 1fr; } }
+
+/* ── DIVIDERS ── */
+.slide.divider { background: radial-gradient(120% 110% at 50% 0%, #291F4D 0%, var(--dark) 60%); color: var(--white); justify-content: safe center; }
+.div-ghost { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); font-size: clamp(140px, 24vw, 400px); font-weight: 900; line-height: .8; color: rgba(108,92,231,.28); letter-spacing: -.05em; pointer-events: none; z-index: 0; white-space: nowrap; }
+.div-inner { position: relative; z-index: 1; }
+.div-kicker { font-size: 17px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); margin-bottom: 20px; }
+.div-name { font-size: clamp(52px, 8vw, 128px); font-weight: 900; letter-spacing: -.045em; line-height: .94; margin-bottom: 28px; }
+.div-fn { display: inline-flex; align-items: center; gap: 12px; font-size: clamp(20px, 2.2vw, 34px); font-weight: 600; color: rgba(255,255,255,.88); border: 1px solid rgba(255,255,255,.18); padding: 13px 28px; border-radius: 100px; }
+.div-fn .d { width: 11px; height: 11px; border-radius: 50%; background: var(--accent); }
+
+/* ── POINTS ── */
+.pts-tag { display:inline-flex; align-items:center; gap:8px; font-size:15px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--mid); border:1px solid var(--light); padding:9px 20px; border-radius:100px; margin-bottom:22px; }
+.pts-tag b { color:var(--accent-deep); }
+.pts-title { font-size:clamp(32px,4.2vw,60px); font-weight:800; letter-spacing:-.03em; line-height:1.05; margin-bottom:24px; }
+.pts-title em { font-style: normal; color: var(--accent); }
+.pts-grid { display:grid; grid-template-columns:1fr 1fr; gap:15px; width:100%; max-width:1200px; }
+.point { display:flex; gap:18px; background:var(--white); border:1px solid var(--light); border-radius:16px; padding:22px 26px; box-shadow:0 6px 20px -12px rgba(108,92,231,.18); text-align:left; }
+.point .pn { width:48px; height:48px; flex-shrink:0; border-radius:13px; background:var(--accent-dim); color:var(--accent-deep); display:flex; align-items:center; justify-content:center; font-weight:900; font-size:20px; }
+.point h4 { font-size:clamp(20px,2vw,28px); font-weight:800; letter-spacing:-.01em; margin-bottom:7px; }
+.point p { font-size:clamp(16px,1.5vw,20px); color:var(--mid); line-height:1.45; }
+@media(max-width:720px){ .pts-grid { grid-template-columns:1fr; } }
+
+/* ── ERROR vs BIEN ── */
+.eb { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; width: 100%; max-width: 1180px; }
+.eb-card { border-radius: 20px; padding: 30px 32px 32px; border: 1px solid var(--light); background: var(--white); text-align: left; }
+.eb-card.bad { background: var(--danger-dim); border-color: #F3C9C9; }
+.eb-card.good { background: var(--accent-dim); border-color: #D6CCF2; }
+.eb-h { display: flex; align-items: center; gap: 12px; font-size: 16px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 18px; }
+.eb-card.bad .eb-h { color: #B23B3B; } .eb-card.good .eb-h { color: var(--accent-deep); }
+.eb-ico { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 17px; }
+.eb-card.bad .eb-ico { background: var(--danger); } .eb-card.good .eb-ico { background: var(--accent); }
+.eb-txt { font-size: clamp(17px, 1.8vw, 23px); line-height: 1.55; }
+.eb-card.bad .eb-txt { color: #7a3030; } .eb-card.good .eb-txt { color: #3B2E70; }
+@media(max-width:720px){ .eb { grid-template-columns: 1fr; } }
+
+/* ── MOCKUP: NOTEBOOK ── */
+.nb-window {
+  width: 100%; max-width: 1040px; margin-top: 8px;
+  background: var(--white); border: 1px solid var(--light); border-radius: 18px; overflow: hidden;
+  box-shadow: 0 18px 50px -24px rgba(108,92,231,.35);
+  text-align: left;
+}
+.nb-bar { display: flex; align-items: center; gap: 8px; background: var(--lighter); border-bottom: 1px solid var(--light); padding: 12px 16px; }
+.nb-dot { width: 11px; height: 11px; border-radius: 50%; background: #DED6F0; }
+.nb-url { flex: 1; margin-left: 10px; background: var(--white); border: 1px solid var(--light); border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--mid); padding: 6px 14px; }
+.nb-body { display: grid; grid-template-columns: 200px 1fr; min-height: 260px; }
+.nb-side { background: var(--dark); padding: 18px 14px; display: flex; flex-direction: column; gap: 8px; }
+.nb-side-lbl { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.4); margin-bottom: 4px; padding: 0 4px; }
+.nb-source { display: flex; align-items: center; gap: 9px; background: rgba(255,255,255,.06); border-radius: 9px; padding: 9px 11px; }
+.nb-ico { width: 22px; height: 22px; border-radius: 6px; background: var(--accent); color: var(--white); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; flex-shrink: 0; }
+.nb-src-name { font-size: 12.5px; font-weight: 600; color: rgba(255,255,255,.85); line-height: 1.25; }
+.nb-main { padding: 22px 26px; display: flex; flex-direction: column; gap: 16px; }
+.nb-q { align-self: flex-end; background: var(--fg); color: var(--white); font-size: clamp(14px,1.4vw,17px); font-weight: 600; padding: 11px 18px; border-radius: 14px 14px 3px 14px; max-width: 82%; }
+.nb-a { background: var(--lighter); border: 1px solid var(--light); border-radius: 3px 14px 14px 14px; padding: 14px 20px; font-size: clamp(14px,1.4vw,17px); color: var(--fg); line-height: 1.5; max-width: 92%; }
+.nb-cite { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); color: var(--white); font-size: 10.5px; font-weight: 800; margin: 0 2px; transform: translateY(-4px); }
+@media(max-width:760px){ .nb-body { grid-template-columns: 1fr; } .nb-side { flex-direction: row; flex-wrap: wrap; } }
+
+/* ── CIERRE ── */
+.check { display: flex; flex-direction: column; gap: 12px; max-width: 920px; margin-bottom: 26px; }
+.check-item { display: flex; align-items: center; gap: 16px; font-size: clamp(18px, 1.8vw, 26px); font-weight: 600; text-align: left; }
+.check-ico { width: 42px; height: 42px; background: var(--accent); color: var(--white); border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 800; flex-shrink: 0; }
+.check-ico.alt { background: var(--fg); }
+.final-quote { font-size: clamp(18px, 1.85vw, 26px); color: var(--mid); max-width: 860px; line-height: 1.65; text-align: center; padding-top: 22px; border-top: 3px solid var(--accent); }
+.final-quote b { color: var(--fg); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress"></div>
+<div class="slide-counter" id="counter"></div>
+<div class="deck" id="deck">
+
+  <!-- S1: COVER -->
+  <div class="slide active" id="s1">
+    <div class="cover-rule"></div>
+    <div class="cover-kicker">Sinergéticos · Clase</div>
+    <div class="cover-title">Investigación de mercado con <em>IA</em></div>
+    <div class="cover-sub">Lee lo que ya dijeron tus clientes — y saca de ahí las palabras que sí venden.</div>
+    <div class="cover-tag">David Iriza</div>
+  </div>
+
+  <!-- S2: MANTRA -->
+  <div class="slide" id="s2">
+    <div class="mantra-kicker">El mantra</div>
+    <div class="mantra">Tu mercado ya <em>habló</em>. Nadie ha leído todo lo que dijo.</div>
+    <div class="mantra-sub">Reseñas, comentarios, chats de venta, quejas en foros: la respuesta que buscas ya está escrita en alguna parte, repartida en 20 pestañas que nadie termina de leer. <b>Esta clase es sobre juntarlas en un solo lugar y preguntarles directo.</b></div>
+  </div>
+
+  <!-- S3: QUÉ ES NOTEBOOKLM -->
+  <div class="slide" id="s3">
+    <div class="tag acc">La herramienta</div>
+    <div class="headline">¿Qué es <em>NotebookLM</em>?</div>
+    <div class="map">
+      <div class="map-row"><div class="map-name">De Google</div><div class="map-fn">Una IA gratuita a la que le subes tus propios documentos, y <b>solo responde con base en ellos</b>.</div></div>
+      <div class="map-row"><div class="map-name">No rellena huecos</div><div class="map-fn">Si la respuesta no está en lo que subiste, te lo dice — no completa con su propio conocimiento general.</div></div>
+      <div class="map-row"><div class="map-name">Cita la fuente</div><div class="map-fn">Cada frase que te da trae un número que <b>te lleva al párrafo exacto</b> de donde salió.</div></div>
+    </div>
+    <div class="caption">Entras con tu cuenta de Google en <b>notebooklm.google.com</b>. No hay que instalar nada.</div>
+  </div>
+
+  <!-- S4: POR QUÉ NO BASTA CON PREGUNTARLE A CUALQUIER IA -->
+  <div class="slide" id="s4">
+    <div class="tag">La diferencia</div>
+    <div class="headline">Preguntarle a una IA cualquiera <em>no es investigar</em>.</div>
+    <div class="vs">
+      <div class="vs-card dim">
+        <div class="vs-k">Una IA de propósito general</div>
+        <div class="vs-h">Contesta con el promedio de internet.</div>
+        <div class="vs-p">Le preguntas qué le duele a tu cliente y responde con lo que aprendió de miles de negocios distintos: genérico, correcto a medias, <b>lo mismo que le diría a tu competencia</b>.</div>
+      </div>
+      <div class="vs-card acc">
+        <div class="vs-k">NotebookLM con tus fuentes</div>
+        <div class="vs-h">Contesta con TU mercado.</div>
+        <div class="vs-p">Le preguntas lo mismo, pero solo puede usar las reseñas, chats y comentarios reales que tú subiste. <b>No es el promedio: es tu cliente, hablando.</b></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S5: DIVIDER EL MÉTODO -->
+  <div class="slide divider" id="s5">
+    <div class="div-ghost">1234</div>
+    <div class="div-inner">
+      <div class="div-kicker">Cómo se hace</div>
+      <div class="div-name">El método</div>
+      <div class="div-fn"><span class="d"></span> 4 pasos, un solo notebook</div>
+    </div>
+  </div>
+
+  <!-- S6: PASO 1 -->
+  <div class="slide" id="s6">
+    <div class="pts-tag">Paso 1</div>
+    <div class="pts-title">Reúne <em>lo que ya existe</em></div>
+    <div class="pts-grid">
+      <div class="point"><div class="pn">★</div><div><h4>Reseñas de tu competencia</h4><p>Google, Amazon, apps: ahí está la queja exacta que tu producto ya resuelve.</p></div></div>
+      <div class="point"><div class="pn">★</div><div><h4>Grupos y foros</h4><p>Facebook, Reddit, comunidades de tu tema: el lenguaje real, sin filtro, que usa tu cliente para describir el problema.</p></div></div>
+      <div class="point"><div class="pn">★</div><div><h4>Tus propias conversaciones</h4><p>Chats de venta, encuestas, transcripciones de llamadas: la fuente más valiosa, porque ya es tu mercado exacto.</p></div></div>
+      <div class="point"><div class="pn">★</div><div><h4>Comentarios de YouTube</h4><p>Debajo de cualquier video de tu tema hay quejas y deseos que nadie más está leyendo.</p></div></div>
+    </div>
+  </div>
+
+  <!-- S7: PASO 2 -->
+  <div class="slide" id="s7">
+    <div class="tag acc">Paso 2</div>
+    <div class="headline">Un <em>notebook</em>, todas las fuentes.</div>
+    <div class="nb-window">
+      <div class="nb-bar"><div class="nb-dot"></div><div class="nb-dot"></div><div class="nb-dot"></div><div class="nb-url">notebooklm.google.com</div></div>
+      <div class="nb-body">
+        <div class="nb-side">
+          <div class="nb-side-lbl">Fuentes</div>
+          <div class="nb-source"><div class="nb-ico">PDF</div><div class="nb-src-name">50 reseñas competencia</div></div>
+          <div class="nb-source"><div class="nb-ico">▶</div><div class="nb-src-name">3 videos de YouTube</div></div>
+          <div class="nb-source"><div class="nb-ico">🌐</div><div class="nb-src-name">Foro del gremio</div></div>
+          <div class="nb-source"><div class="nb-ico">💬</div><div class="nb-src-name">Chats de venta (WA)</div></div>
+        </div>
+        <div class="nb-main">
+          <div class="nb-q">¿Qué queja se repite más en estas reseñas?</div>
+          <div class="nb-a">La demora en la respuesta<span class="nb-cite">1</span> y el precio frente a la competencia directa<span class="nb-cite">2</span> son las dos más citadas.</div>
+        </div>
+      </div>
+    </div>
+    <div class="caption">Acepta PDF, Google Docs, páginas web (pegas el link), video de YouTube, audio y texto pegado — todo en el mismo notebook. El límite de fuentes cambia con cada actualización de Google: <b>revisa el número vigente dentro de la app</b>.</div>
+  </div>
+
+  <!-- S8: PASO 3A — LA PREGUNTA -->
+  <div class="slide centered" id="s8">
+    <div class="pts-tag">Paso 3</div>
+    <div class="pts-title" style="margin-bottom:10px">La pregunta decide la <em>respuesta</em></div>
+    <div class="eb">
+      <div class="eb-card bad">
+        <div class="eb-h"><span class="eb-ico">✕</span> Pregunta genérica</div>
+        <div class="eb-txt">"¿Qué opinan de este tema?" — te devuelve un resumen amable de todo un poco. Nada que puedas usar mañana en un anuncio.</div>
+      </div>
+      <div class="eb-card good">
+        <div class="eb-h"><span class="eb-ico">✓</span> Pregunta específica</div>
+        <div class="eb-txt">"Enlista, con cita, las 5 quejas que más se repiten en estas reseñas." — una respuesta puntual, verificable, lista para usarse.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S9: PASO 3B — PREGUNTAS QUE FUNCIONAN -->
+  <div class="slide" id="s9">
+    <div class="pts-tag">Cuatro preguntas para empezar</div>
+    <div class="pts-title">Preguntas que <em>sí funcionan</em></div>
+    <div class="pts-grid">
+      <div class="point"><div class="pn">1</div><div><h4>Las quejas repetidas</h4><p>"Enlista, con cita, las 5 quejas que más se repiten en estas fuentes."</p></div></div>
+      <div class="point"><div class="pn">2</div><div><h4>Las palabras del dolor</h4><p>"¿Con qué palabras exactas describen el problema, no la solución?"</p></div></div>
+      <div class="point"><div class="pn">3</div><div><h4>La objeción antes de comprar</h4><p>"¿Qué duda aparece justo antes de que alguien decida no comprar?"</p></div></div>
+      <div class="point"><div class="pn">4</div><div><h4>El precio entre fuentes</h4><p>"Compara cómo hablan del precio la fuente A y la fuente B."</p></div></div>
+    </div>
+  </div>
+
+  <!-- S10: PASO 4 — VERIFICA -->
+  <div class="slide" id="s10">
+    <div class="tag">Paso 4 · el candado</div>
+    <div class="headline">Si vas a <em>publicarlo</em>, abre la cita primero.</div>
+    <div class="caption" style="margin-top:0">Que NotebookLM cite su fuente no significa que ya esté verificado. Antes de meter un dato a un anuncio, a tu web o a un WhatsApp masivo: <b>haz clic en el número, lee el párrafo completo y confirma que dice lo que crees que dice.</b> La cita te ahorra la búsqueda, no el criterio.</div>
+  </div>
+
+  <!-- S11: EL ATAJO — AUDIO OVERVIEW -->
+  <div class="slide" id="s11">
+    <div class="tag acc">El atajo</div>
+    <div class="headline">Deja que te lo <em>cuenten</em>.</div>
+    <div class="caption" style="margin-top:0">La función <b>Audio Overview</b> convierte tu notebook en un episodio tipo podcast: dos voces discutiendo lo que encontraron en tus fuentes, en español aunque tus documentos no lo estén. Sirve para la primera pasada — para digerir 200 reseñas en el trayecto al trabajo. Lo que vayas a publicar, <b>lo verificas después en el texto, con su cita.</b></div>
+  </div>
+
+  <!-- S12: NO LA RESUMAS, CÓPIALA -->
+  <div class="slide" id="s12">
+    <div class="tag">El error más común</div>
+    <div class="headline">No la resumas. <em>Cópiala.</em></div>
+    <div class="vs">
+      <div class="vs-card dim">
+        <div class="vs-k">Lo que la IA resume</div>
+        <div class="vs-h">"Buscan mayor comodidad al organizar sus espacios."</div>
+        <div class="vs-p">Cierto, pero es un resumen. Suena a informe, no a persona — nadie escribe así cuando le urge algo.</div>
+      </div>
+      <div class="vs-card acc">
+        <div class="vs-k">Lo que la persona escribió</div>
+        <div class="vs-h">"Ya no encuentro nada en las mañanas."</div>
+        <div class="vs-p">La frase exacta, sacada de una reseña real. <b>Esa es la que va en tu anuncio</b>, tal cual, sin pulir.</div>
+      </div>
+    </div>
+    <div class="caption">El resumen es para que tú entiendas el patrón. La frase textual de la fuente es la que vende.</div>
+  </div>
+
+  <!-- S13: AUTODIAGNÓSTICO -->
+  <div class="slide" id="s13">
+    <div class="tag">Antes de tu próxima campaña</div>
+    <div class="headline" style="margin-bottom:28px">Revisa <em>esto</em> primero.</div>
+    <div class="check">
+      <div class="check-item"><div class="check-ico">1</div>¿Ya junté reseñas y chats reales de mi mercado, o solo tengo mi opinión?</div>
+      <div class="check-item"><div class="check-ico alt">2</div>¿La pregunta que le hice es específica, o genérica tipo "qué opinan"?</div>
+      <div class="check-item"><div class="check-ico">3</div>¿Abrí la cita antes de usar el dato en algo público?</div>
+      <div class="check-item"><div class="check-ico alt">4</div>¿Escuché el Audio Overview para la primera pasada?</div>
+      <div class="check-item"><div class="check-ico">5</div>¿El copy que voy a usar tiene una palabra real de un cliente, o es la misma frase de siempre?</div>
+    </div>
+  </div>
+
+  <!-- S14: CIERRE -->
+  <div class="slide" id="s14">
+    <div class="tag">En una línea</div>
+    <div class="headline" style="margin-bottom:28px">No inventes lo que tu cliente ya <em>te dijo</em>.</div>
+    <div class="final-quote">Abre un notebook hoy con lo que ya tienes — 10 reseñas bastan para empezar. Pregúntale algo específico, verifica la cita, y cambia una frase de tu página por la palabra real que encontraste. <b>Esa frase vende más que la que llevas meses repitiendo.</b></div>
+  </div>
+
+</div>
+
+<div class="dots" id="dots"></div>
+<button class="nav-btn left" id="prevBtn" aria-label="Anterior">‹</button>
+<button class="nav-btn right" id="nextBtn" aria-label="Siguiente">›</button>
+
+<script>
+const slides  = Array.from(document.querySelectorAll('.slide'));
+const dotsEl  = document.getElementById('dots');
+const progress= document.getElementById('progress');
+const counter = document.getElementById('counter');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const total   = slides.length;
+let current = 0, animating = false;
+
+slides.forEach((s, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '') + (s.classList.contains('divider') ? ' div' : '');
+  d.addEventListener('click', () => goTo(i));
+  dotsEl.appendChild(d);
+});
+
+function goTo(idx) {
+  if (animating || idx === current || idx < 0 || idx >= total) return;
+  animating = true;
+  const prev = slides[current];
+  prev.classList.remove('active'); prev.classList.add('exit');
+  current = idx;
+  slides[current].classList.add('active');
+  setTimeout(() => { prev.classList.remove('exit'); animating = false; }, 420);
+  updateUI();
+}
+function navigate(dir) { goTo(current + dir); }
+
+function updateUI() {
+  document.querySelectorAll('.dot').forEach((d, i) => {
+    d.classList.toggle('active', i === current);
+  });
+  progress.style.width = ((current + 1) / total * 100) + '%';
+  counter.textContent  = (current + 1) + ' / ' + total;
+  prevBtn.disabled = current === 0;
+  nextBtn.disabled = current === total - 1;
+}
+
+prevBtn.addEventListener('click', () => navigate(-1));
+nextBtn.addEventListener('click', () => navigate(1));
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); navigate(1); }
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')  { e.preventDefault(); navigate(-1); }
+});
+
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 56) navigate(dx < 0 ? 1 : -1);
+});
+
+updateUI();
+
+/* ── PANTALLA COMPLETA (botón arriba-izquierda + tecla F) ── */
+(function () {
+  const EXPAND   = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m13-5v3a2 2 0 0 1-2 2h-3"/></svg>';
+  const COMPRESS = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3m13-5h-3a2 2 0 0 0-2 2v3"/></svg>';
+  const btn = document.createElement('button');
+  btn.setAttribute('aria-label', 'Pantalla completa');
+  btn.title = 'Pantalla completa (F)';
+  btn.innerHTML = EXPAND;
+  Object.assign(btn.style, {
+    position:'fixed', top:'20px', left:'22px', zIndex:'150',
+    width:'46px', height:'46px', padding:'0', borderRadius:'50%',
+    border:'1px solid #DED0F5', background:'#FFFFFF',
+    color:'#4B3FC0', cursor:'pointer',
+    display:'flex', alignItems:'center', justifyContent:'center',
+    boxShadow:'0 6px 18px -6px rgba(108,92,231,.45)',
+    transition:'transform .18s, box-shadow .18s, background .18s, color .18s'
+  });
+  const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
+  function refresh() {
+    const on = !!fsEl();
+    btn.innerHTML = on ? COMPRESS : EXPAND;
+    btn.style.background = on ? '#4B3FC0' : '#FFFFFF';
+    btn.style.color = on ? '#FFFFFF' : '#4B3FC0';
+  }
+  function toggle() {
+    try {
+      if (fsEl()) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); }
+      else { const el = document.documentElement; (el.requestFullscreen || el.webkitRequestFullscreen).call(el); }
+    } catch (err) { console.warn('Fullscreen no disponible:', err); }
+  }
+  btn.addEventListener('mouseenter', () => { btn.style.transform = 'scale(1.06)'; btn.style.boxShadow = '0 10px 26px -8px rgba(108,92,231,.6)'; });
+  btn.addEventListener('mouseleave', () => { btn.style.transform = 'scale(1)'; btn.style.boxShadow = '0 6px 18px -6px rgba(108,92,231,.45)'; });
+  btn.addEventListener('click', toggle);
+  document.addEventListener('fullscreenchange', refresh);
+  document.addEventListener('webkitfullscreenchange', refresh);
+  document.addEventListener('keydown', e => {
+    if (e.key && e.key.toLowerCase() === 'f' && !e.metaKey && !e.ctrlKey && !e.altKey) { e.preventDefault(); toggle(); }
+  });
+  document.body.appendChild(btn);
+})();
+</script>
+</body>
+</html>
